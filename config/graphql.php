@@ -3,8 +3,8 @@
 
 use example\Mutation\ExampleMutation;
 use example\Query\ExampleQuery;
-use example\Type\ExampleRelationType;
-use example\Type\ExampleType;
+
+use App\GraphQL\Type\LocationType;
 
 return [
 
@@ -102,8 +102,7 @@ return [
     // ]
     //
     'types' => [
-        'example'           => ExampleType::class,
-        'relation_example'  => ExampleRelationType::class,
+        'location' => LocationType::class
     ],
     
     // This callable will be passed the Error object for each errors GraphQL catch.
