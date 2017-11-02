@@ -29,6 +29,6 @@ class CreateAddressTypesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('addressTypes');
+        Schema::dropIfExists('address_types');
     }
 }
