@@ -11,11 +11,11 @@ class AddressTypesTableSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('addressTypes')->insert([
+        DB::table('address_types')->insert([
             'name' => 'Main Location'
         ]);
 
-        DB::table('addressTypes')->insert([
+        DB::table('address_types')->insert([
             'name' => 'Shipping'
         ]);
     }

@@ -11,25 +11,25 @@ class LocationsAddressesTableSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('locationsAddresses')->insert([
+        DB::table('locations_addresses')->insert([
             'location_id' => 1,
             'address_id' => 1,
             'address_type_id' => 1
         ]);
 
-        DB::table('locationsAddresses')->insert([
+        DB::table('locations_addresses')->insert([
             'location_id' => 2,
             'address_id' => 2,
             'address_type_id' => 1
         ]);
 
-        DB::table('locationsAddresses')->insert([
+        DB::table('locations_addresses')->insert([
             'location_id' => 3,
             'address_id' => 3,
             'address_type_id' => 1
         ]);
 
-        DB::table('locationsAddresses')->insert([
+        DB::table('locations_addresses')->insert([
             'location_id' => 4,
             'address_id' => 4,
             'address_type_id' => 1
