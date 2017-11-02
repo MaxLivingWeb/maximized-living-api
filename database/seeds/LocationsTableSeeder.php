@@ -12,6 +12,7 @@ class LocationsTableSeeder extends Seeder
     public function run()
     {
         DB::table('locations')->insert([
+            'affiliate_id' => '12',
             'name' => 'Castlefield Chiropractic',
             'zip_postal_code' => 'M4P2E5',
             'latitude' => '43.7087621',
@@ -31,6 +32,7 @@ class LocationsTableSeeder extends Seeder
         ]);
 
         DB::table('locations')->insert([
+            'affiliate_id' => '24',
             'name' => 'Elevation Chiropractic',
             'zip_postal_code' => 'T2J0P6',
             'latitude' => '50.966858',
@@ -50,6 +52,7 @@ class LocationsTableSeeder extends Seeder
         ]);
 
         DB::table('locations')->insert([
+            'affiliate_id' => '35',
             'name' => 'Ferguson Life Chiropractic Centers',
             'zip_postal_code' => '07981',
             'latitude' => '40.8260888',
@@ -69,6 +72,7 @@ class LocationsTableSeeder extends Seeder
         ]);
 
         DB::table('locations')->insert([
+            'affiliate_id' => '49',
             'name' => 'Lake Nona Family Chiropractic',
             'zip_postal_code' => '32832',
             'latitude' => '28.4111915',
