@@ -13,7 +13,7 @@ class CreateLocationsAddressesTable extends Migration
      */
     public function up()
     {
-        Schema::create('locationsAddresses', function (Blueprint $table) {
+        Schema::create('locations_addresses', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('location_id')->unsigned();
             $table->integer('address_id')->unsigned();
@@ -35,6 +35,6 @@ class CreateLocationsAddressesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('locationsAddresses');
+        Schema::dropIfExists('locations_addresses');
     }
 }
