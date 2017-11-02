@@ -89,8 +89,8 @@ return [
                 'locations' => 'App\GraphQL\Query\LocationQuery',
             ],
             'mutation' => [
-//                'addLocationMutation' => 'App\GraphQL\Mutation\AddLocationMutation',
-//                'updateLocationMutation' => 'App\GraphQL\Mutation\UpdateLocationMutation'
+                'addLocation' => 'App\GraphQL\Mutation\AddLocationMutation',
+                'updateLocation' => 'App\GraphQL\Mutation\UpdateLocationMutation'
             ]
         ],
     ],
