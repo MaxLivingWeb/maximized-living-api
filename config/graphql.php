@@ -84,7 +84,7 @@ return [
         'default' => [
             'query' => [
                 'countries' => 'App\GraphQL\Query\CountryQuery',
-//                'regions' => 'App\GraphQL\Query\RegionQuery',
+                'regions' => 'App\GraphQL\Query\RegionQuery',
 //                'cities' => 'App\GraphQL\Query\CityQuery',
 //                'locations' => 'App\GraphQL\Query\LocationQuery',
             ],
@@ -106,7 +106,7 @@ return [
     //
     'types' => [
         'Country' => 'App\GraphQL\Type\CountryType',
-        //'Region' => 'App\GraphQL\Type\RegionType',
+        'Region' => 'App\GraphQL\Type\RegionType',
 //        'City' => 'App\GraphQL\Type\CityType',
 //        'Location' => 'App\GraphQL\Type\LocationType',
 //        'Timezone' => 'App\GraphQL\Type\TimezoneType',
