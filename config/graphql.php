@@ -85,7 +85,7 @@ return [
             'query' => [
                 'countries' => 'App\GraphQL\Query\CountryQuery',
                 'regions' => 'App\GraphQL\Query\RegionQuery',
-//                'cities' => 'App\GraphQL\Query\CityQuery',
+                'cities' => 'App\GraphQL\Query\CityQuery',
 //                'locations' => 'App\GraphQL\Query\LocationQuery',
             ],
             'mutation' => [
@@ -107,7 +107,7 @@ return [
     'types' => [
         'Country' => 'App\GraphQL\Type\CountryType',
         'Region' => 'App\GraphQL\Type\RegionType',
-//        'City' => 'App\GraphQL\Type\CityType',
+        'City' => 'App\GraphQL\Type\CityType',
 //        'Location' => 'App\GraphQL\Type\LocationType',
 //        'Timezone' => 'App\GraphQL\Type\TimezoneType',
 //        'Address' => 'App\GraphQL\Type\AddressType',
