@@ -6,6 +6,8 @@ use GraphQL;
 use GraphQL\Type\Definition\Type;
 use Folklore\GraphQL\Support\Mutation;
 use App\Location;
+use App\Address;
+use App\City;
 
 class AddLocationMutation extends Mutation
 {
@@ -34,13 +36,61 @@ class AddLocationMutation extends Mutation
             'opening_date' => ['name' => 'opening_date', 'type' => Type::string()],
             'closing_date' => ['name' => 'closing_date', 'type' => Type::string()],
             'daylight_savings_applies' => ['name' => 'daylight_savings_applies', 'type' => Type::boolean()],
+
             'timezone_id' => ['name' => 'timezone_id', 'type' => Type::nonNull(Type::int())],
+
+            'city' => ['name' => 'city', 'type' => Type::nonNull(Type::string())],
+
+            'region_id' => ['name' => 'region_id', 'type' => Type::nonNull(Type::int())],
+            //setting as a string type and will send address info as json string
+            'addresses' => ['name' => 'addresses', 'type' => Type::nonNull(Type::string())],
         ];
     }
 
     public function resolve($root, $args)
     {
+
         $location_slug = str_replace(' ', '-', strtolower($args['name']) );
+
+        //check if city exists based on the string based through
+        $city = City::where([
+            ["name", $args['city'] ],
+            ["region_id", $args['region_id'] ]
+        ]);
+
+        if($city->exists() ) {
+            //get the city_id if it exists
+            $city_id = $city->first()->id;
+        } else {
+            //end point for adding a new location and returning it's id
+            $new_city = new City();
+
+            $new_city->name = $args['city'];
+            $new_city->region_id = $args['region_id'];
+
+            $new_city->save();
+
+            $city_id =  $new_city->id;
+        }
+
+
+
+        //now add the address and associate it with the city
+
+        //decode the address and iterate through them and add them
+        $addresses = json_decode($args['addresses']);
+
+        foreach($addresses as $address) {
+            $new_address = new Address();
+
+            $new_address->address_1 = $address->address_1;
+            $new_address->address_2 = $address->address_2;
+            $new_address->city_id = $city_id;
+
+            $new_address->save();
+        }
+
+        die();
 
         if(Location::where("slug", $location_slug)->exists() ) {
             return;
