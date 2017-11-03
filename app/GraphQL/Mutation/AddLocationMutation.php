@@ -73,29 +73,7 @@ class AddLocationMutation extends Mutation
             $city_id =  $new_city->id;
         }
 
-
-
-        //now add the address and associate it with the city
-
-        //decode the address and iterate through them and add them
-        $addresses = json_decode($args['addresses']);
-
-        foreach($addresses as $address) {
-            $new_address = new Address();
-
-            $new_address->address_1 = $address->address_1;
-            $new_address->address_2 = $address->address_2;
-            $new_address->city_id = $city_id;
-
-            $new_address->save();
-        }
-
-        die();
-
-        if(Location::where("slug", $location_slug)->exists() ) {
-            return;
-        }
-
+        //add the location
         $location = new Location();
 
         $location->affiliate_id = "123";
@@ -156,6 +134,25 @@ class AddLocationMutation extends Mutation
         $location->timezone_id = $args['timezone_id'];
 
         $location->save();
+
+        //now add the address and associate it with the city
+
+        //decode the address and iterate through them and add them
+        $addresses = json_decode($args['addresses']);
+
+        foreach($addresses as $address) {
+            $new_address = new Address();
+
+            $new_address->address_1 = $address->address_1;
+            $new_address->address_2 = $address->address_2;
+            $new_address->city_id = $city_id;
+
+            $new_address->save();
+
+            $new_address->locations()->attach($location->id, ['address_type_id' => $address->type_id]);
+        }
+
+        dd("hi");
     }
 
 }
