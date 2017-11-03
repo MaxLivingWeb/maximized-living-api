@@ -24,7 +24,7 @@ class CreateLocationsAddressesTable extends Migration
 
             $table->foreign('location_id')->references('id')->on('locations');
             $table->foreign('address_id')->references('id')->on('addresses');
-            $table->foreign('address_type_id')->references('id')->on('addressTypes');
+            $table->foreign('address_type_id')->references('id')->on('address_types');
         });
     }
 
