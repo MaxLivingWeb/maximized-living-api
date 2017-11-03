@@ -17,6 +17,7 @@ class CreateCitiesTable extends Migration
             $table->increments('id');
             $table->string('name');
             $table->integer('region_id')->unsigned();
+            $table->softDeletes();
             $table->timestamps();
 
             $table->foreign('region_id')->references('id')->on('regions');
