@@ -29,4 +29,21 @@ class Address extends Model
     {
         return $this->types->first()->name;
     }
+
+    //takes the location id of the associated location and an array of addresses
+    //the address_array is 2-d and each element has an address_1, address_2 and an address type id
+    public static function attachAddress($location_id, $city_id, $addresses_array = array() )
+    {
+        foreach($addresses_array as $address) {
+            $new_address = new Address();
+
+            $new_address->address_1 = $address->address_1;
+            $new_address->address_2 = $address->address_2;
+            $new_address->city_id = $city_id;
+
+            $new_address->save();
+
+            $new_address->locations()->attach($location_id, ['address_type_id' => $address->type_id]);
+        }
+    }
 }
