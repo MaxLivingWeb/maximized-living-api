@@ -26,20 +26,7 @@ class CountryType extends GraphQLType
             'abbreviation' => [
                 'type' => Type::string(),
                 'description' => 'Abbreviation of the country'
-            ],
-//            'regions' => [
-//                'args' => [
-//                    'id' => [
-//                        'type' => Type::int(),
-//                        'name' => 'id'
-//                    ]
-//                ],
-//                'type' => Type::listOf(GraphQL::type('Region')),
-//                'description' => 'regions',
-//                'resolve' => function ($root, $args) {
-//                    return  $root->regions ;
-//                }
-//            ]
+            ]
         ];
     }
 }
