@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Database\Seeder;
+use App\AddressType;
 
 class AddressTypesTableSeeder extends Seeder
 {
@@ -11,12 +12,21 @@ class AddressTypesTableSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('addressTypes')->insert([
-            'name' => 'Main Location'
-        ]);
+        $address_types_array = [
+            [
+                'name' => 'Main Location'
+            ],
+            [
+                'name' => 'Shipping'
+            ]
+        ];
 
-        DB::table('addressTypes')->insert([
-            'name' => 'Shipping'
-        ]);
+        foreach($address_types_array as $address_type) {
+            $new_address_type = new AddressType();
+
+            $new_address_type->name = $address_type['name'];
+
+            $new_address_type->save();
+        }
     }
 }

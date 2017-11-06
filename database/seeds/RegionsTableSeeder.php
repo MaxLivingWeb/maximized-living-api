@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Database\Seeder;
+use App\Region;
 
 class RegionsTableSeeder extends Seeder
 {
@@ -11,28 +12,37 @@ class RegionsTableSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('regions')->insert([
-            'name' => 'Ontario',
-            'abbreviation' => 'ON',
-            'country_id' => 1
-        ]);
+        $regions_array = [
+            [
+                'name' => 'Ontario',
+                'abbreviation' => 'ON',
+                'country_id' => 1
+            ],
+            [
+                'name' => 'Alberta',
+                'abbreviation' => 'AB',
+                'country_id' => 1
+            ],
+            [
+                'name' => 'New Jersey',
+                'abbreviation' => 'NJ',
+                'country_id' => 2
+            ],
+            [
+                'name' => 'Florida',
+                'abbreviation' => 'FL',
+                'country_id' => 2
+            ]
+        ];
 
-        DB::table('regions')->insert([
-            'name' => 'Alberta',
-            'abbreviation' => 'AB',
-            'country_id' => 1
-        ]);
+        foreach($regions_array as $region) {
+            $new_region = new Region();
 
-        DB::table('regions')->insert([
-            'name' => 'New Jersey',
-            'abbreviation' => 'NJ',
-            'country_id' => 2
-        ]);
+            $new_region->name = $region['name'];
+            $new_region->abbreviation = $region['abbreviation'];
+            $new_region->country_id = $region['country_id'];
 
-        DB::table('regions')->insert([
-            'name' => 'Florida',
-            'abbreviation' => 'FL',
-            'country_id' => 2
-        ]);
+            $new_region->save();
+        }
     }
 }

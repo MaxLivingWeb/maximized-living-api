@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Database\Seeder;
+use App\Timezone;
 
 class TimezonesTableSeeder extends Seeder
 {
@@ -11,12 +12,21 @@ class TimezonesTableSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('timezones')->insert([
-            'name' => 'EST',
-        ]);
+        $timezones_array = [
+            [
+                'name' => 'EST',
+            ],
+            [
+                'name' => 'MTC',
+            ]
+        ];
 
-        DB::table('timezones')->insert([
-            'name' => 'MTC',
-        ]);
+        foreach($timezones_array as $timezone) {
+            $new_timezone = new Timezone();
+
+            $new_timezone->name = $timezone['name'];
+
+            $new_timezone->save();
+        }
     }
 }
