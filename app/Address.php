@@ -35,6 +35,21 @@ class Address extends Model
     public static function attachAddress($location_id, $city_id, $addresses_array = array() )
     {
         foreach($addresses_array as $address) {
+
+            $exists = Address::where([
+                ["address_1", $address->address_1 ],
+                ["address_2", $address->address_2 ],
+                ["city_id", $city_id ],
+            ]);
+
+            if($exists->exists() ) {
+
+                $existing_address = Address::find( $exists->first()->id );
+
+                $existing_address->locations()->attach($location_id, ['address_type_id' => $address->type_id]);
+                continue;
+            }
+
             $new_address = new Address();
 
             $new_address->address_1 = $address->address_1;
