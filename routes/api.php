@@ -14,35 +14,11 @@ use Illuminate\Http\Request;
 */
 
 Route::group(['prefix' => 'group'], function() {
-    Route::get('/all', function (Request $request) {
-        return App\UserGroup::all();
-    });
-
-    Route::get('/{id}', function ($id) {
-        return App\UserGroup::findOrFail($id);
-    });
-
-    Route::get('/', function (Request $request) {
-        return App\UserGroup::where('group_name', $request->input('name'))->firstOrFail();
-    });
-
-    Route::post('/', function (Request $request) {
-        App\UserGroup::create(['group_name' => $request->input('group_name'), 'discount_id' => intval($request->input('discount_id'))]);
-    });
-
-    Route::put('/{id}', function ($id, Request $request) {
-        $group = App\UserGroup::findOrFail($id);
-
-        $group->discount_id = intval($request->input('discount_id'));
-
-        $group->save();
-    });
-
-    Route::delete('/{id}', function ($id, Request $request) {
-        $group = App\UserGroup::findOrFail($id);
-
-        $group->delete();
-    });
+    Route::get('/all', 'GroupController@all');
+    Route::get('/{id}', 'GroupController@getById');
+    Route::get('/', 'GroupController@getByName');
+    Route::post('/', 'GroupController@add');
+    Route::put('/{id}', 'GroupController@update');
+    Route::delete('/{id}', 'GroupController@delete');
 });
-
 
