@@ -24,12 +24,10 @@ class CountriesTableSeeder extends Seeder
         ];
 
         foreach($countries_array as $country) {
-            $new_country = new Country();
-
-            $new_country->name = $country['name'];
-            $new_country->abbreviation = $country['abbreviation'];
-
-            $new_country->save();
+            Country::create([
+                'name' => $country['name'],
+                'abbreviation' => $country['abbreviation']
+            ]);
         }
     }
 }

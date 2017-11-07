@@ -27,12 +27,10 @@ class CitiesTableSeeder extends Seeder
         ];
 
         foreach($cities_array as $city) {
-            $new_city = new City();
-
-            $new_city->name = $city['name'];
-            $new_city->region_id = $city['region_id'];
-
-            $new_city->save();
+            City::create([
+                'name' => $city['name'],
+                'region_id' => $city['region_id']
+            ]);
         }
     }
 }

@@ -21,7 +21,8 @@ class AddressesTableSeeder extends Seeder
             [
                 'address_1' => '9737 Macleod Trail SW',
                 'address_2' => 'Suite 370',
-                'city_id' => 2],
+                'city_id' => 2
+            ],
             [
                 'address_1' => '760 State Rt 10',
                 'address_2' => 'Suite 205',
@@ -34,13 +35,11 @@ class AddressesTableSeeder extends Seeder
         ];
 
         foreach($addresses_array as $address) {
-            $new_address = new Address();
-
-            $new_address->address_1 = $address['address_1'];
-            $new_address->address_2 = $address['address_2'];
-            $new_address->city_id = $address['city_id'];
-
-            $new_address->save();
+            Address::create([
+                'address_1' =>  $address['address_1'],
+                'address_2' => $address['address_2'],
+                'city_id' => $address['city_id']
+            ]);
         }
     }
 }

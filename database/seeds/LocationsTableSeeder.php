@@ -88,26 +88,24 @@ class LocationsTableSeeder extends Seeder
         ];
 
         foreach ($locations_array as $location) {
-            $new_location = new Location();
-
-            $new_location->name = $location['name'];
-            $new_location->zip_postal_code = $location['zip_postal_code'];
-            $new_location->latitude = $location['latitude'];
-            $new_location->longitude = $location['longitude'];
-            $new_location->telephone = $location['telephone'];
-            $new_location->telephone_ext = $location['telephone_ext'];
-            $new_location->fax = $location['fax'];
-            $new_location->email = $location['email'];
-            $new_location->vanity_website_url = $location['vanity_website_url'];
-            $new_location->slug = $location['slug'];
-            $new_location->pre_open_display_date = $location['pre_open_display_date'];
-            $new_location->opening_date = $location['opening_date'];
-            $new_location->closing_date = $location['closing_date'];
-            $new_location->daylight_savings_applies = $location['daylight_savings_applies'];
-            $new_location->operating_hours = $location['operating_hours'];
-            $new_location->timezone_id = $location['timezone_id'];
-
-            $new_location->save();
+            Location::create([
+                'name' =>  $location['name'],
+                'zip_postal_code' => $location['zip_postal_code'],
+                'latitude' => $location['latitude'],
+                'longitude' => $location['longitude'],
+                'telephone' => $location['telephone'],
+                'telephone_ext' => $location['telephone_ext'],
+                'fax' => $location['fax'],
+                'email' => $location['email'],
+                'vanity_website_url' => $location['vanity_website_url'],
+                'slug' => $location['slug'],
+                'pre_open_display_date' => $location['pre_open_display_date'],
+                'opening_date' => $location['opening_date'],
+                'closing_date' => $location['closing_date'],
+                'daylight_savings_applies' => $location['daylight_savings_applies'],
+                'operating_hours' => $location['operating_hours'],
+                'timezone_id' => $location['timezone_id']
+            ]);
         }
     }
 }

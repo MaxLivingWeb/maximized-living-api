@@ -22,11 +22,9 @@ class TimezonesTableSeeder extends Seeder
         ];
 
         foreach($timezones_array as $timezone) {
-            $new_timezone = new Timezone();
-
-            $new_timezone->name = $timezone['name'];
-
-            $new_timezone->save();
+            Timezone::create([
+                'name' => $timezone['name']
+            ]);
         }
     }
 }

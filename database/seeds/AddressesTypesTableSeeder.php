@@ -22,11 +22,9 @@ class AddressTypesTableSeeder extends Seeder
         ];
 
         foreach($address_types_array as $address_type) {
-            $new_address_type = new AddressType();
-
-            $new_address_type->name = $address_type['name'];
-
-            $new_address_type->save();
+            AddressType::create([
+                'name' => $address_type['name']
+            ]);
         }
     }
 }

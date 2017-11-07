@@ -36,13 +36,11 @@ class RegionsTableSeeder extends Seeder
         ];
 
         foreach($regions_array as $region) {
-            $new_region = new Region();
-
-            $new_region->name = $region['name'];
-            $new_region->abbreviation = $region['abbreviation'];
-            $new_region->country_id = $region['country_id'];
-
-            $new_region->save();
+            Region::create([
+                'name' => $region['name'],
+                'abbreviation' => $region['abbreviation'],
+                'country_id' => $region['country_id']
+            ]);
         }
     }
 }
