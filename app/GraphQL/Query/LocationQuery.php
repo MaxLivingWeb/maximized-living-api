@@ -31,6 +31,10 @@ class LocationQuery extends Query
             'slug' => [
                 'name' => 'slug',
                 'type' => Type::string()
+            ],
+            'country' => [
+                'name' => 'country',
+                'type' => Type::string()
             ]
         ];
     }
@@ -43,6 +47,11 @@ class LocationQuery extends Query
 
         if (isset($args['slug'])) {
             return Location::where('slug', $args['slug'])->get();
+        }
+
+        //query in browser: base_url.com/graphql?query=query+query{locations(country:"Canada"){name}}
+        if (isset($args['country'])) {
+            return Location::filterByCountry($args['country']);
         }
 
         return Location::all();

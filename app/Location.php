@@ -35,4 +35,11 @@ class Location extends Model
     public function getFirstAddress() {
         return $this->addresses->first();
     }
+
+    public static function filterByCountry($name) {
+        //I wanted to try something like this, just hardcode the country id for now and just go through the chain down to the locations
+        //dd(Country::find(1)->regions()->cities() );
+
+        //dd(Country::where('name', $name)->get()->regions() );
+    }
 }
