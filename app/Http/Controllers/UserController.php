@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\ShopifyHelper;
+use App\UserGroup;
 use Illuminate\Http\Request;
 use App\Helpers\CognitoHelper;
 use Aws\Exception\AwsException;
@@ -18,7 +19,8 @@ class UserController extends Controller
                 'password'  => 'required|size:8',
                 'firstName' => 'required',
                 'lastName'  => 'required',
-                'phone'     => 'required'
+                'phone'     => 'required',
+                'legacyId'  => 'nullable|integer'
             ]);
 
             //Add user to Cognito
@@ -34,6 +36,16 @@ class UserController extends Controller
             else {
                 //no group selected. Create and add to a temporary group
                 $tempGroup = $cognito->createGroup('user.' . $validatedData['email'], 'group for ' . $validatedData['email']);
+
+                $params = [
+                    'group_name'    => $tempGroup['GroupName']
+                ];
+
+                if(isset($validatedData['legacyId'])) {
+                    $params['legacy_affiliate_id'] = $validatedData['legacyId'];
+                }
+
+                UserGroup::create($params);
 
                 $cognito->addUserToGroup($cognitoUser->get('User')['Username'], $tempGroup['GroupName']);
             }
