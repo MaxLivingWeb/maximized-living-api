@@ -35,4 +35,22 @@ class Location extends Model
     public function getFirstAddress() {
         return $this->addresses->first();
     }
+
+    public static function filterByRadius($lat, $long, $distance) {
+
+        //TODO: figure out which fields need to be returned in this query
+        $filtered_locations = \DB::select("SELECT * FROM 
+                                (SELECT ROUND( ( 6371 * acos(
+                                cos( radians( $lat ) ) *
+                                cos( radians( latitude ) ) *
+                                cos( radians( longitude ) -
+                                radians( $long ) ) +
+                                sin( radians($lat ) ) *
+                                sin( radians( latitude ) )
+                                ) ), 2) as distance, name, latitude, longitude
+                                FROM Locations) AS query 
+                                WHERE distance < $distance");
+
+        return $filtered_locations;
+    }
 }

@@ -39,11 +39,11 @@ class LocationQuery extends Query
             ],
             'latitude' => [
                 'type' => Type::float(),
-                'description' => 'latitude'
+                'description' => 'latitude of the search point'
             ],
             'longitude' => [
                 'type' => Type::float(),
-                'description' => 'longitude'
+                'description' => 'longitude of the search point'
             ],
             'distance' => [
                 'type' => Type::int(),
@@ -56,13 +56,7 @@ class LocationQuery extends Query
     {
         //we have the parameters need for a filter by radius
         if($args['filter_by_radius'] === TRUE && isset($args['latitude']) && isset($args['longitude']) && isset($args['distance'])) {
-
-            $lat = $args['latitude'];
-            $long = $args['longitude'];
-            $distance = $args['distance'];
-            $filtered_locations = DB::select("SELECT * FROM Locations WHERE acos(sin(1.3963) * sin($lat) + cos(1.3963) * cos($lat) * cos($long - (-0.6981))) * 6371 <= $distance");
-
-            return $filtered_locations;
+            return Location::filterByRadius($args['latitude'], $args['longitude'], $args['distance']);
         }
 
         if (isset($args['id'])) {
