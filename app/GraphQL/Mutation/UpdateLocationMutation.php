@@ -20,6 +20,7 @@ class UpdateLocationMutation extends Mutation
 
     public function args()
     {
+        //these are the parameters that are need - some can be null - but the parameter itself needs to be in the mutation
         return [
             'id' => ['name' => 'id', 'type' => Type::nonNull(Type::int())],
             'name' => ['name' => 'name', 'type' => Type::nonNull(Type::string())],
@@ -49,6 +50,7 @@ class UpdateLocationMutation extends Mutation
 
         $location_slug = str_replace(' ', '-', strtolower($args['name']) );
 
+        //TODO figure out what is needed of an affiliate id and operating hours (hardcoded a JSON string for now)
         $location->affiliate_id = "456";
         $location->name = $args['name'];
         $location->zip_postal_code = $args['zip_postal_code'];

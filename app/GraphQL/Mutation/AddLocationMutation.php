@@ -20,6 +20,7 @@ class AddLocationMutation extends Mutation
 
     public function args()
     {
+        //these are the parameters that are need - some can be null - but the parameter itself needs to be in the mutation
         return [
             'name' => ['name' => 'name', 'type' => Type::nonNull(Type::string())],
             'zip_postal_code' => ['name' => 'zip_postal_code', 'type' => Type::nonNull(Type::string())],
@@ -48,6 +49,7 @@ class AddLocationMutation extends Mutation
 
         $location = new Location();
 
+        //TODO figure out what is needed of an affiliate id and operating hours (hardcoded a JSON string for now)
         $location->affiliate_id = "123";
         $location->name = $args['name'];
         $location->zip_postal_code = $args['zip_postal_code'];
