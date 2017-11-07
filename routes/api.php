@@ -22,3 +22,7 @@ Route::group(['prefix' => 'group'], function() {
     Route::delete('/{id}', 'GroupController@delete');
 });
 
+Route::group(['prefix' => 'user'], function() {
+    Route::post('/', 'UserController@addUser');
+});
+
