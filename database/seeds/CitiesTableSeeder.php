@@ -1,34 +1,36 @@
 <?php
 
 use Illuminate\Database\Seeder;
+use App\City;
 
 class CitiesTableSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
+
     public function run()
     {
-        DB::table('cities')->insert([
-            'name' => 'Toronto',
-            'region_id' => 1
-        ]);
+        $cities_array = [
+            [
+                'name' => 'Toronto',
+                'region_id' => 1],
+            [
+                'name' => 'Calgary',
+                'region_id' => 2
+            ],
+            [
+                'name' => 'Whippany',
+                'region_id' => 3
+            ],
+            [
+                'name' => 'Orlando',
+                'region_id' => 4
+            ]
+        ];
 
-        DB::table('cities')->insert([
-            'name' => 'Calgary',
-            'region_id' => 2
-        ]);
-
-        DB::table('cities')->insert([
-            'name' => 'Whippany',
-            'region_id' => 3
-        ]);
-
-        DB::table('cities')->insert([
-            'name' => 'Orlando',
-            'region_id' => 4
-        ]);
+        foreach($cities_array as $city) {
+            City::create([
+                'name' => $city['name'],
+                'region_id' => $city['region_id']
+            ]);
+        }
     }
 }
