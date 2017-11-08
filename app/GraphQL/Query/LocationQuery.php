@@ -73,7 +73,7 @@ class LocationQuery extends Query
                 })->get();
         }
 
-        //query in browser: base_url.com/graphql?query=query+query{locations(countryCode:"CA"){name}}
+        //query in browser: base_url.com/graphql?query=query+query{locations(countryID:1){name}}
         if (isset($args['countryID'])) {
             return Location::with('addresses.city.region.country')
                 ->whereHas('addresses.city.region.country', function ($q) use ($args) {
