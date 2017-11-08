@@ -86,15 +86,13 @@ return [
                 'countries' => 'App\GraphQL\Query\CountryQuery',
                 'regions' => 'App\GraphQL\Query\RegionQuery',
                 'cities' => 'App\GraphQL\Query\CityQuery',
-//                'locations' => 'App\GraphQL\Query\LocationQuery',
+                'locations' => 'App\GraphQL\Query\LocationQuery',
             ],
             'mutation' => [
-//                'addLocationMutation' => 'App\GraphQL\Mutation\AddLocationMutation',
-//                'updateLocationMutation' => 'App\GraphQL\Mutation\UpdateLocationMutation'
             ]
         ],
     ],
-    
+
     // The types available in the application. You can then access it from the
     // facade like this: GraphQL::type('user')
     //
@@ -108,12 +106,11 @@ return [
         'Country' => 'App\GraphQL\Type\CountryType',
         'Region' => 'App\GraphQL\Type\RegionType',
         'City' => 'App\GraphQL\Type\CityType',
-//        'Location' => 'App\GraphQL\Type\LocationType',
-//        'Timezone' => 'App\GraphQL\Type\TimezoneType',
         'Address' => 'App\GraphQL\Type\AddressType',
         'AddressType' => 'App\GraphQL\Type\AddressTypeType'
+        'Location' => 'App\GraphQL\Type\LocationType'
     ],
-    
+
     // This callable will be passed the Error object for each errors GraphQL catch.
     // The method should return an array representing the error.
     // Typically:
@@ -125,5 +122,5 @@ return [
 
     // You can set the key, which will be used to retrieve the dynamic variables
     'params_key'    => 'params',
-    
+
 ];
