@@ -22,6 +22,7 @@ class AddLocationMutation extends Mutation
 
     public function args()
     {
+        //these are the parameters that are need - some can be null - but the parameter itself needs to be in the mutation
         return [
             'name' => ['name' => 'name', 'type' => Type::nonNull(Type::string())],
             'zip_postal_code' => ['name' => 'zip_postal_code', 'type' => Type::nonNull(Type::string())],
@@ -54,11 +55,11 @@ class AddLocationMutation extends Mutation
         //create the city if it's not in the system and return id, or get the id of the existing city
         $city_id  = City::checkCity($args['city'], $args['region_id'] );
 
-        //add the location
-        $location = new Location();
-
         $location_slug = str_replace(' ', '-', strtolower($args['name']) );
 
+        $location = new Location();
+
+        //TODO figure out what is needed of an affiliate id and operating hours (hardcoded a JSON string for now)
         $location->affiliate_id = "123";
         $location->name = $args['name'];
         $location->zip_postal_code = $args['zip_postal_code'];
@@ -125,7 +126,6 @@ class AddLocationMutation extends Mutation
 
         //takes all the addresses snd creates/updates as needed and attaches them to the location
         Address::attachAddress($location->id, $city_id, $addresses);
-
     }
 
 }

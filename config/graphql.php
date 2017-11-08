@@ -95,7 +95,7 @@ return [
             ]
         ],
     ],
-    
+
     // The types available in the application. You can then access it from the
     // facade like this: GraphQL::type('user')
     //
@@ -114,7 +114,7 @@ return [
         'Address' => 'App\GraphQL\Type\AddressType',
         'AddressType' => 'App\GraphQL\Type\AddressTypeType'
     ],
-    
+
     // This callable will be passed the Error object for each errors GraphQL catch.
     // The method should return an array representing the error.
     // Typically:
@@ -126,5 +126,5 @@ return [
 
     // You can set the key, which will be used to retrieve the dynamic variables
     'params_key'    => 'params',
-    
+
 ];
