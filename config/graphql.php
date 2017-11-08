@@ -86,7 +86,7 @@ return [
                 'countries' => 'App\GraphQL\Query\CountryQuery',
                 'regions' => 'App\GraphQL\Query\RegionQuery',
                 'cities' => 'App\GraphQL\Query\CityQuery',
-                'locations' => 'App\GraphQL\Query\LocationQuery',
+                'locations' => 'App\GraphQL\Query\LocationQuery'
             ],
             'mutation' => [
 //                'addLocationMutation' => 'App\GraphQL\Mutation\AddLocationMutation',
