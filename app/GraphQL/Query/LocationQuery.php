@@ -39,7 +39,11 @@ class LocationQuery extends Query
             'countryCode' => [ //two digit country abbreviation
                 'name' => 'countryCode',
                 'type' => Type::string()
-            ]
+            ],
+            'countryID' => [ //country ID
+                'name' => 'countryID',
+                'type' => Type::int()
+            ],
         ];
     }
 
@@ -66,6 +70,14 @@ class LocationQuery extends Query
             return Location::with('addresses.city.region.country')
                 ->whereHas('addresses.city.region.country', function ($q) use ($args) {
                     $q->where('abbreviation', $args['countryCode']);
+                })->get();
+        }
+
+        //query in browser: base_url.com/graphql?query=query+query{locations(countryCode:"CA"){name}}
+        if (isset($args['countryID'])) {
+            return Location::with('addresses.city.region.country')
+                ->whereHas('addresses.city.region.country', function ($q) use ($args) {
+                    $q->where('id', $args['countryID']);
                 })->get();
         }
 
