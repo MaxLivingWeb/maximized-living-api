@@ -41,7 +41,7 @@ return [
     //     'mutation' => '\Rebing\GraphQL\GraphQLController@mutation'
     // ]
     //
-    'controllers' => \Rebing\GraphQL\GraphQLController::class . '@query',
+    'controllers' => \Folklore\GraphQL\GraphQLController::class . '@query',
 
     // Any middleware for the graphql route group
     'middleware' => [],
@@ -83,12 +83,11 @@ return [
     'schemas' => [
         'default' => [
             'query' => [
-                'example_query' => ExampleQuery::class,
+                'countries' => 'App\GraphQL\Query\CountryQuery',
+                'locations' => 'App\GraphQL\Query\LocationQuery',
             ],
             'mutation' => [
-                'example_mutation'  => ExampleMutation::class,
-            ],
-            'middleware' => []
+            ]
         ],
     ],
     
@@ -102,7 +101,8 @@ return [
     // ]
     //
     'types' => [
-        'location' => LocationType::class
+        'Country' => 'App\GraphQL\Type\CountryType',
+        'Location' => 'App\GraphQL\Type\LocationType',
     ],
     
     // This callable will be passed the Error object for each errors GraphQL catch.
@@ -112,7 +112,7 @@ return [
     //     'message' => '',
     //     'locations' => []
     // ]
-    'error_formatter' => ['\Rebing\GraphQL\GraphQL', 'formatError'],
+    'error_formatter' => ['\Folklore\GraphQL\GraphQL', 'formatError'],
 
     // You can set the key, which will be used to retrieve the dynamic variables
     'params_key'    => 'params',
