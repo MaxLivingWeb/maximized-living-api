@@ -85,6 +85,7 @@ return [
             'query' => [
                 'countries' => 'App\GraphQL\Query\CountryQuery',
                 'regions' => 'App\GraphQL\Query\RegionQuery',
+                'locations' => 'App\GraphQL\Query\LocationQuery',
             ],
             'mutation' => [
             ]
@@ -102,7 +103,8 @@ return [
     //
     'types' => [
         'Country' => 'App\GraphQL\Type\CountryType',
-        'Region' => 'App\GraphQL\Type\RegionType'
+        'Region' => 'App\GraphQL\Type\RegionType',
+        'Location' => 'App\GraphQL\Type\LocationType'
     ],
     
     // This callable will be passed the Error object for each errors GraphQL catch.
