@@ -116,7 +116,7 @@ class LocationQuery extends Query
                     $q->where('id', $args['regionID']);
                 })->get();
         }
-
+      
         return Location::all();
     }
 }
