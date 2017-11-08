@@ -40,6 +40,10 @@ class LocationQuery extends Query
                 'name' => 'countryCode',
                 'type' => Type::string()
             ],
+            'countryID' => [ //country ID
+                'name' => 'countryID',
+                'type' => Type::int()
+            ],
             'region' => [ //region name
                 'name' => 'region',
                 'type' => Type::string()
@@ -47,8 +51,11 @@ class LocationQuery extends Query
             'regionCode' => [ //two digit region abbreviation
                 'name' => 'regionCode',
                 'type' => Type::string()
-            ]
-
+            ],
+            'regionID' => [ //region ID
+                'name' => 'regionID',
+                'type' => Type::int()
+            ],
         ];
     }
 
@@ -78,6 +85,14 @@ class LocationQuery extends Query
                 })->get();
         }
 
+        //query in browser: base_url.com/graphql?query=query+query{locations(countryID:1){name}}
+        if (isset($args['countryID'])) {
+            return Location::with('addresses.city.region.country')
+                ->whereHas('addresses.city.region.country', function ($q) use ($args) {
+                    $q->where('id', $args['countryID']);
+                })->get();
+        }
+
         //query in browser: base_url.com/graphql?query=query+query{locations(region:"Ontario"){name}}
         if (isset($args['region'])) {
             return Location::with('addresses.city.region')
@@ -91,6 +106,14 @@ class LocationQuery extends Query
             return Location::with('addresses.city.region')
                 ->whereHas('addresses.city.region', function ($q) use ($args) {
                     $q->where('abbreviation', $args['regionCode']);
+                })->get();
+        }
+
+        //query in browser: base_url.com/graphql?query=query+query{locations(regionID:1){name}}
+        if (isset($args['regionID'])) {
+            return Location::with('addresses.city.region')
+                ->whereHas('addresses.city.region', function ($q) use ($args) {
+                    $q->where('id', $args['regionID']);
                 })->get();
         }
 
