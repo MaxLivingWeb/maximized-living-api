@@ -21,7 +21,6 @@ class CountryQuery extends Query
 
     public function args ()
     {
-        //query will accept the ID or abbreviation as parameters
         return [
             'id' => [
                 'name' => 'id',
@@ -36,12 +35,10 @@ class CountryQuery extends Query
 
     public function resolve ($root, $args)
     {
-        //if an id is passed as an argument, filter based on that
         if (isset($args['id'])) {
             return Country::where('id', filter_var($args['id'], FILTER_SANITIZE_STRING) )->get();
         }
 
-        //if the abbreviation is passed as an argument, filter based on that
         if (isset($args['abbreviation'])) {
             return Country::where('abbreviation', filter_var($args['abbreviation'], FILTER_SANITIZE_STRING))->get();
         }
