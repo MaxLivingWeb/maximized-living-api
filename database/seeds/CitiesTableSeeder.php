@@ -11,7 +11,8 @@ class CitiesTableSeeder extends Seeder
         $cities_array = [
             [
                 'name' => 'Toronto',
-                'region_id' => 1],
+                'region_id' => 1
+            ],
             [
                 'name' => 'Calgary',
                 'region_id' => 2
