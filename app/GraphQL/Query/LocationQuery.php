@@ -8,8 +8,6 @@ use Folklore\GraphQL\Support\Query;
 use App\Location;
 use DB;
 
-DB::enableQueryLog();
-
 class LocationQuery extends Query
 {
     protected $attributes = [
@@ -32,15 +30,15 @@ class LocationQuery extends Query
                 'name' => 'slug',
                 'type' => Type::string()
             ],
-            'country' => [ //country name
+            'country' => [
                 'name' => 'country',
                 'type' => Type::string()
             ],
-            'countryCode' => [ //two digit country abbreviation
+            'countryCode' => [
                 'name' => 'countryCode',
                 'type' => Type::string()
             ],
-            'countryID' => [ //country ID
+            'countryID' => [
                 'name' => 'countryID',
                 'type' => Type::int()
             ],
@@ -57,28 +55,22 @@ class LocationQuery extends Query
             return Location::where('slug', $args['slug'])->get();
         }
 
-        //query in browser: base_url.com/graphql?query=query+query{locations(country:"Canada"){name}}
-        if (isset($args['country'])) {
+        $countryFilters = [ 'country', 'countryCode', 'countryID' ];
+        $hasCountryFilter = !empty(array_intersect(array_keys($args), $countryFilters));
+        if ($hasCountryFilter) {
             return Location::with('addresses.city.region.country')
                 ->whereHas('addresses.city.region.country', function ($q) use ($args) {
-                    $q->where('name', $args['country']);
-                })->get();
-        }
+                    if (isset($args['countryID'])) {
+                        return $q->where('id', $args['countryID']);
+                    }
 
-        //query in browser: base_url.com/graphql?query=query+query{locations(countryCode:"CA"){name}}
-        if (isset($args['countryCode'])) {
-            return Location::with('addresses.city.region.country')
-                ->whereHas('addresses.city.region.country', function ($q) use ($args) {
-                    $q->where('abbreviation', $args['countryCode']);
-                })->get();
-        }
+                    if (isset($args['countryCode'])) {
+                        return $q->where('abbreviation', $args['countryCode']);
+                    }
 
-        //query in browser: base_url.com/graphql?query=query+query{locations(countryID:1){name}}
-        if (isset($args['countryID'])) {
-            return Location::with('addresses.city.region.country')
-                ->whereHas('addresses.city.region.country', function ($q) use ($args) {
-                    $q->where('id', $args['countryID']);
-                })->get();
+                    return $q->where('name', $args['country']);
+                })
+                ->get();
         }
 
         return Location::all();

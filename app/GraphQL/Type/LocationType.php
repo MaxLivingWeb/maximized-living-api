@@ -75,14 +75,7 @@ class LocationType extends GraphQLType
             'daylight_savings_applies' => [
                 'type' => Type::boolean(),
                 'description' => 'Whether or not daylight savings time applies'
-            ],
-            'country' => [
-                'type' => Type::listOf(GraphQL::type('Country')),
-                'description' => 'country of the location',
-                'resolve' => function ($root, $args) {
-                    return  [ $root->getCountry() ];
-                }
-            ],
+            ]
         ];
     }
 }
