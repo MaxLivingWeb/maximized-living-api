@@ -22,6 +22,7 @@ class UpdateLocationMutation extends Mutation
 
     public function args()
     {
+        //these are the parameters that are need - some can be null - but the parameter itself needs to be in the mutation
         return [
             'id' => ['name' => 'id', 'type' => Type::nonNull(Type::int())],
             'name' => ['name' => 'name', 'type' => Type::nonNull(Type::string())],
@@ -47,23 +48,18 @@ class UpdateLocationMutation extends Mutation
 
     public function resolve($root, $args)
     {
-        /*
-         * example query
-         *
-         *
-         */
         $location = Location::find($args['id']);
 
-        //if there is no location of that id don't do anything
         if($location === NULL) {
             return;
         }
 
         //create the city if it's not in the system and return id, or get the id of the existing city
         $city_id  = City::checkCity($args['city'], $args['region_id'] );
-
+      
         $location_slug = str_replace(' ', '-', strtolower($args['name']) );
 
+        //TODO figure out what is needed of an affiliate id and operating hours (hardcoded a JSON string for now)
         $location->affiliate_id = "456";
         $location->name = $args['name'];
         $location->zip_postal_code = $args['zip_postal_code'];
