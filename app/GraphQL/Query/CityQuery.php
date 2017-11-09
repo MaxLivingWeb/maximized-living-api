@@ -8,8 +8,6 @@ use Folklore\GraphQL\Support\Query;
 use App\City;
 use DB;
 
-DB::enableQueryLog();
-
 class CityQuery extends Query
 {
     protected $attributes = [
