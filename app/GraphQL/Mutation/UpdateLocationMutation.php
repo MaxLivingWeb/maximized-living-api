@@ -42,12 +42,6 @@ class UpdateLocationMutation extends Mutation
 
     public function resolve($root, $args)
     {
-//        $location = Location::find($args['id']);
-//
-//        if(is_null($location) ) {
-//            return;
-//        }
-
         $location = Location::findOrFail($args['id']);
 
         $location_slug = str_replace(' ', '-', strtolower($args['name']) );
