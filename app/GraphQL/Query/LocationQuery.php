@@ -61,7 +61,7 @@ class LocationQuery extends Query
             'cityID' => [
                 'name' => 'cityID',
                 'type' => Type::int()
-            ],
+            ]
         ];
     }
 
@@ -111,6 +111,7 @@ class LocationQuery extends Query
                 ->get();
         }
 
+
         $cityFilters = [ 'city', 'cityID' ];
         $hasCityFilter = !empty(array_intersect(array_keys($args), $cityFilters));
         if ($hasCityFilter) {
@@ -124,7 +125,6 @@ class LocationQuery extends Query
                 })
                 ->get();
         }
-
       
         return Location::all();
     }
