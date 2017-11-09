@@ -42,6 +42,18 @@ class LocationQuery extends Query
                 'name' => 'countryID',
                 'type' => Type::int()
             ],
+            'region' => [ //region name
+                'name' => 'region',
+                'type' => Type::string()
+            ],
+            'regionCode' => [ //two digit region abbreviation
+                'name' => 'regionCode',
+                'type' => Type::string()
+            ],
+            'regionID' => [ //region ID
+                'name' => 'regionID',
+                'type' => Type::int()
+            ],
         ];
     }
 
@@ -73,6 +85,30 @@ class LocationQuery extends Query
                 ->get();
         }
 
+        //query in browser: base_url.com/graphql?query=query+query{locations(region:"Ontario"){name}}
+        if (isset($args['region'])) {
+            return Location::with('addresses.city.region')
+                ->whereHas('addresses.city.region', function ($q) use ($args) {
+                    $q->where('name', $args['region']);
+                })->get();
+        }
+
+        //query in browser: base_url.com/graphql?query=query+query{locations(regionCode:"ON"){name}}
+        if (isset($args['regionCode'])) {
+            return Location::with('addresses.city.region')
+                ->whereHas('addresses.city.region', function ($q) use ($args) {
+                    $q->where('abbreviation', $args['regionCode']);
+                })->get();
+        }
+
+        //query in browser: base_url.com/graphql?query=query+query{locations(regionID:1){name}}
+        if (isset($args['regionID'])) {
+            return Location::with('addresses.city.region')
+                ->whereHas('addresses.city.region', function ($q) use ($args) {
+                    $q->where('id', $args['regionID']);
+                })->get();
+        }
+      
         return Location::all();
     }
 }
