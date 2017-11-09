@@ -8,8 +8,6 @@ use Folklore\GraphQL\Support\Query;
 use App\Region;
 use DB;
 
-DB::enableQueryLog();
-
 class RegionQuery extends Query
 {
     protected $attributes = [
@@ -23,7 +21,6 @@ class RegionQuery extends Query
 
     public function args ()
     {
-        //regions accept an id (ie 2), an abbreviation (ie "ON"), or name (ie "Ontario")
         return [
             'id' => [
                 'name' => 'id',
@@ -42,19 +39,16 @@ class RegionQuery extends Query
 
     public function resolve ($root, $args)
     {
-        //filter by ID if we have one
         if (isset($args['id'])) {
-            return Region::where('id', $args['id'])->get();
+            return Region::where('id', filter_var($args['id'], FILTER_SANITIZE_STRING) )->get();
         }
 
-        //filter by abbreviation if we have one
         if (isset($args['abbreviation'])) {
-            return Region::where('abbreviation', $args['abbreviation'])->get();
+            return Region::where('abbreviation', filter_var($args['abbreviation'], FILTER_SANITIZE_STRING))->get();
         }
 
-        //filter by name if we have one
         if (isset($args['name'])) {
-            return Region::where('name', $args['name'])->get();
+            return Region::where('name', filter_var($args['name'], FILTER_SANITIZE_STRING))->get();
         }
 
         return Region::all();
