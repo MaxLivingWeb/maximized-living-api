@@ -125,7 +125,7 @@ class LocationQuery extends Query
                 })
                 ->get();
         }
-      
+
         return Location::all();
     }
 }
