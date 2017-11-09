@@ -22,7 +22,7 @@ class CityType extends GraphQLType
             'name' => [
                 'type' => Type::string(),
                 'description' => 'Name of the city'
-            ],
+            ]
         ];
     }
 }
