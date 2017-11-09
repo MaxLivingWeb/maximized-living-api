@@ -26,6 +26,19 @@ class RegionType extends GraphQLType
             'abbreviation' => [
                 'type' => Type::string(),
                 'description' => 'Abbreviation of the region'
+            ],
+            'cities' => [
+                'args' => [
+                    'id' => [
+                        'type' => Type::int(),
+                        'name' => 'id'
+                    ]
+                ],
+                'type' => Type::listOf(GraphQL::type('City')),
+                'description' => 'cities',
+                'resolve' => function ($root, $args) {
+                    return  $root->cities ;
+                }
             ]
         ];
     }

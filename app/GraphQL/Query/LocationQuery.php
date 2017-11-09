@@ -54,6 +54,14 @@ class LocationQuery extends Query
                 'name' => 'regionID',
                 'type' => Type::int()
             ],
+            'city' => [
+                'name' => 'city',
+                'type' => Type::string()
+            ],
+            'cityID' => [
+                'name' => 'cityID',
+                'type' => Type::int()
+            ]
         ];
     }
 
@@ -99,6 +107,21 @@ class LocationQuery extends Query
                     }
 
                     return $q->where('name', filter_var($args['region'], FILTER_SANITIZE_STRING));
+                })
+                ->get();
+        }
+
+
+        $cityFilters = [ 'city', 'cityID' ];
+        $hasCityFilter = !empty(array_intersect(array_keys($args), $cityFilters));
+        if ($hasCityFilter) {
+            return Location::with('addresses.city')
+                ->whereHas('addresses.city', function ($q) use ($args) {
+                    if (isset($args['cityID'])) {
+                        return $q->where('id', filter_var($args['cityID'], FILTER_SANITIZE_STRING));
+                    }
+
+                    return $q->where('name', filter_var($args['city'], FILTER_SANITIZE_STRING));
                 })
                 ->get();
         }
