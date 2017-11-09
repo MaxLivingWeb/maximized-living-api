@@ -106,8 +106,7 @@ return [
         'Country' => 'App\GraphQL\Type\CountryType',
         'Region' => 'App\GraphQL\Type\RegionType',
         'City' => 'App\GraphQL\Type\CityType',
-        'Location' => 'App\GraphQL\Type\LocationType',
-        'Timezone' => 'App\GraphQL\Type\TimezoneType',
+        'Location' => 'App\GraphQL\Type\LocationType'
     ],
 
     // This callable will be passed the Error object for each errors GraphQL catch.
