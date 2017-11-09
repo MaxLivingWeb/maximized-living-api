@@ -33,20 +33,7 @@ class AddressType extends GraphQLType
                 'resolve' => function ($root, $args) {
                     return $root->types;
                 }
-            ],
-//            'locations' => [
-//                'args' => [
-//                    'id' => [
-//                        'type' => Type::int(),
-//                        'name' => 'id'
-//                    ]
-//                ],
-//                'type' => Type::listOf(GraphQL::type('City')),
-//                'description' => 'locations associated with an address',
-//                'resolve' => function ($root, $args) {
-//                    return  $root->locations;
-//                }
-//            ]
+            ]
         ];
     }
 }
