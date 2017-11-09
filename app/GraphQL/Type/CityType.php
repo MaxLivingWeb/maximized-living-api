@@ -22,6 +22,19 @@ class CityType extends GraphQLType
             'name' => [
                 'type' => Type::string(),
                 'description' => 'Name of the city'
+            ],
+            'addresses' => [
+                'args' => [
+                    'id' => [
+                        'type' => Type::int(),
+                        'name' => 'id'
+                    ]
+                ],
+                'type' => Type::listOf(GraphQL::type('Address')),
+                'description' => 'addresses',
+                'resolve' => function ($root, $args) {
+                    return  $root->addresses ;
+                }
             ]
         ];
     }
