@@ -8,8 +8,6 @@ use Folklore\GraphQL\Support\Query;
 use App\Region;
 use DB;
 
-DB::enableQueryLog();
-
 class RegionQuery extends Query
 {
     protected $attributes = [
@@ -42,15 +40,15 @@ class RegionQuery extends Query
     public function resolve ($root, $args)
     {
         if (isset($args['id'])) {
-            return Region::where('id', $args['id'])->get();
+            return Region::where('id', filter_var($args['id'], FILTER_SANITIZE_STRING) )->get();
         }
 
         if (isset($args['abbreviation'])) {
-            return Region::where('abbreviation', $args['abbreviation'])->get();
+            return Region::where('abbreviation', filter_var($args['abbreviation'], FILTER_SANITIZE_STRING))->get();
         }
 
         if (isset($args['name'])) {
-            return Region::where('name', $args['name'])->get();
+            return Region::where('name', filter_var($args['name'], FILTER_SANITIZE_STRING))->get();
         }
 
         return Region::all();

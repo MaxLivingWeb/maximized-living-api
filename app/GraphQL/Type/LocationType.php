@@ -79,54 +79,7 @@ class LocationType extends GraphQLType
             'daylight_savings_applies' => [
                 'type' => Type::boolean(),
                 'description' => 'Whether or not daylight savings time applies'
-            ],
-            'timezone' => [
-                'args' => [
-                    'id' => [
-                        'type' => Type::int(),
-                        'name' => 'id'
-                    ]
-                ],
-                'type' => Type::listOf(GraphQL::type('Timezone')),
-                'description' => 'timezone of a location',
-                'resolve' => function ($root, $args) {
-                    return  [ $root->timezone ] ;
-                }
-            ],
-            'addresses' => [
-                'args' => [
-                    'id' => [
-                        'type' => Type::int(),
-                        'name' => 'id'
-                    ]
-                ],
-                'type' => Type::listOf(GraphQL::type('Address')),
-                'description' => 'addresses associated with a location',
-                'resolve' => function ($root, $args) {
-                    return  $root->addresses;
-                }
-            ],
-            'city' => [
-                'type' => Type::listOf(GraphQL::type('City')),
-                'description' => 'city of the location',
-                'resolve' => function ($root, $args) {
-                    return  [ $root->getCity() ];
-                }
-            ],
-            'region' => [
-                'type' => Type::listOf(GraphQL::type('Region')),
-                'description' => 'region of the location',
-                'resolve' => function ($root, $args) {
-                    return  [ $root->getRegion() ];
-                }
-            ],
-            'country' => [
-                'type' => Type::listOf(GraphQL::type('Country')),
-                'description' => 'country of the location',
-                'resolve' => function ($root, $args) {
-                    return  [ $root->getCountry() ];
-                }
-            ],
+            ]
         ];
     }
 }
