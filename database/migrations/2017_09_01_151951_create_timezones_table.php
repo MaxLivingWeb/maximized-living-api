@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateRegionsTable extends Migration
+class CreateTimezonesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,15 +13,11 @@ class CreateRegionsTable extends Migration
      */
     public function up()
     {
-        Schema::create('regions', function (Blueprint $table) {
+        Schema::create('timezones', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name');
-            $table->string('abbreviation')->unique();
-            $table->integer('country_id')->unsigned();
             $table->softDeletes();
             $table->timestamps();
-
-            $table->foreign('country_id')->references('id')->on('countries');
         });
     }
 
@@ -32,6 +28,6 @@ class CreateRegionsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('regions');
+        Schema::dropIfExists('timezones');
     }
 }
