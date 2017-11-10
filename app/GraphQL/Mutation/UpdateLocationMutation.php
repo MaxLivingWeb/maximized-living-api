@@ -130,7 +130,8 @@ class UpdateLocationMutation extends Mutation
         ];
 
         //TODO figure out what is needed of an affiliate id and operating hours (hardcoded a JSON string for now)
-        $location = Location::create([
+        $location = Location::where('id', $args['id'])
+                            ->update([
              'affiliate_id'              => "123",
              'name'                      => $args['name'],
              'zip_postal_code'           => $args['zip_postal_code'],
@@ -150,6 +151,9 @@ class UpdateLocationMutation extends Mutation
              'timezone_id'               => $args['timezone_id']
          ]);
         
+        if ($location == 1) {
+            return $args;
+        }
         return $location;
     }
 
