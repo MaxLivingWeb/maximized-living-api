@@ -16,9 +16,12 @@ class CreateUserGroupsTable extends Migration
         Schema::create('user_groups', function (Blueprint $table) {
             $table->increments('id');
             $table->string('group_name');
-            $table->bigInteger('discount_id')->nullable();
-            $table->integer('legacy_affiliate_id')->nullable();
+            $table->bigInteger('discount_id')->nullable()->unsigned();
+            $table->integer('legacy_affiliate_id')->nullable()->unsigned();
+            $table->integer('commission_id')->nullable()->unsigned()->index();
             $table->timestamps();
+
+            $table->foreign('commission_id')->references('id')->on('commissions_group');
         });
     }
 
