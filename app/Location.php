@@ -9,6 +9,26 @@ class Location extends Model
 {
     use SoftDeletes;
 
+    protected $fillable = [
+        'affiliate_id',
+        'name',
+        'zip_postal_code',
+        'latitude',
+        'longitude',
+        'telephone',
+        'telephone_ext',
+        'fax',
+        'email',
+        'vanity_website_url',
+        'slug',
+        'pre_open_display_date',
+        'opening_date',
+        'closing_date',
+        'daylight_savings_applies',
+        'operating_hours',
+        'timezone_id',
+        'deleted_at'
+    ];
     protected $dates = ['deleted_at'];
 
     public function addresses()
