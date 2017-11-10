@@ -21,7 +21,8 @@ class CommissionController extends Controller
     {
         return CommissionGroup::create([
             'percentage'    => floatval($request->input('percentage')),
-            'description'   => $request->input('description')
+            'description'   => $request->input('description'),
+            'store_tax_number' => $request->input('store_tax_number'),
         ]);
     }
 
@@ -31,6 +32,7 @@ class CommissionController extends Controller
 
         $group->percentage = floatval($request->input('percentage'));
         $group->description = $request->input('description');
+        $group->store_tax_number = $request->input('store_tax_number');
 
         $group->save();
     }

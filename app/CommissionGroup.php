@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class CommissionGroup extends Model
 {
-    protected $fillable = ['percentage', 'description'];
+    protected $fillable = ['percentage', 'description', 'store_tax_number'];
 }

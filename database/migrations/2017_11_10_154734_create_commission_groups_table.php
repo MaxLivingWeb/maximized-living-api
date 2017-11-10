@@ -17,6 +17,7 @@ class CreateCommissionGroupsTable extends Migration
             $table->increments('id');
             $table->float('percentage');
             $table->longText('description');
+            $table->string('store_tax_number')->nullable();
             $table->timestamps();
         });
     }
