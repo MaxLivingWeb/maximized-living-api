@@ -22,10 +22,6 @@ class AddLocationMutation extends Mutation
     {
         //these are the parameters that are need - some can be null - but the parameter itself needs to be in the mutation
         return [
-            'id' => [
-                'name' => 'id',
-                'type' => Type::nonNull(Type::int())
-            ],
             'name' => [
                 'name' => 'name',
                 'type' => Type::nonNull(Type::string())
