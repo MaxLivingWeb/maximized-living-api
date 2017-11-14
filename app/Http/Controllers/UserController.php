@@ -21,7 +21,16 @@ class UserController extends Controller
                 'lastName'  => 'required',
                 'phone'     => 'required',
                 'legacyId'  => 'nullable|integer',
-                'commission_id'  => 'nullable|integer'
+                'commission_id'         => 'nullable|integer',
+                'wholesale'             => 'nullable',
+                'wholesale.address1'    => 'nullable',
+                'wholesale.address2'    => 'nullable',
+                'wholesale.city'        => 'nullable',
+                'wholesale.province'    => 'nullable',
+                'wholesale.phone'       => 'nullable',
+                'wholesale.zip'         => 'nullable',
+                'wholesale.country'     => 'nullable',
+                'discountCode'          => 'nullable|integer'
             ]);
 
             //Add user to Cognito
@@ -50,6 +59,10 @@ class UserController extends Controller
                     $params['commission_id'] = $validatedData['commission_id'];
                 }
 
+                if(isset($validatedData['discountCode'])) {
+                    $params['discount_id'] = $validatedData['discountCode'];
+                }
+
                 UserGroup::create($params);
 
                 $cognito->addUserToGroup($cognitoUser->get('User')['Username'], $tempGroup['GroupName']);
@@ -57,9 +70,20 @@ class UserController extends Controller
 
             $customer = [
                 'email'     => $validatedData['email'],
-                'firstName' => $validatedData['firstName'],
-                'lastName'  => $validatedData['lastName'],
-                'phone'     => $validatedData['phone']
+                'first_name' => $validatedData['firstName'],
+                'last_name'  => $validatedData['lastName'],
+                'phone'     => $validatedData['phone'],
+                'addresses' => [
+                    [
+                        'address1'  => $validatedData['wholesale']['address1'],
+                        'address2'  => $validatedData['wholesale']['address2'],
+                        'city'      => $validatedData['wholesale']['city'],
+                        'province'  => $validatedData['wholesale']['province'],
+                        'phone'     => $validatedData['wholesale']['phone'],
+                        'zip'       => $validatedData['wholesale']['zip'],
+                        'country'   => $validatedData['wholesale']['country'],
+                    ]
+                ]
             ];
 
             //Add user to Shopify

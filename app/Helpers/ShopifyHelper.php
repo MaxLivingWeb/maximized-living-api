@@ -36,12 +36,7 @@ class ShopifyHelper
         {
             $result = $this->client->post('customers.json', [
                 'json' => [
-                    'customer' => [
-                        'email'         => $customer['email'],
-                        'first_name'    => $customer['firstName'],
-                        'last_name'     => $customer['lastName'],
-                        'phone'         => $customer['phone']
-                    ]
+                    'customer' => $customer
                 ]
             ]);
 
