@@ -30,7 +30,8 @@ class UserController extends Controller
                 'wholesale.phone'       => 'nullable',
                 'wholesale.zip'         => 'nullable',
                 'wholesale.country'     => 'nullable',
-                'discountCode'          => 'nullable|integer'
+                'discountCode'          => 'nullable|integer',
+                'groupName'             => 'nullable'
             ]);
 
             //Add user to Cognito
@@ -39,9 +40,8 @@ class UserController extends Controller
 
             $cognitoUser = $cognito->createUser($validatedData['email'], $validatedData['password']);
 
-            $selectedGroup = request()->input('group');
-            if(!is_null($selectedGroup)) {
-                $cognito->addUserToGroup($cognitoUser->get('User')['Username'], $selectedGroup);
+            if(isset($validatedData['groupName'])) {
+                $cognito->addUserToGroup($cognitoUser->get('User')['Username'], $validatedData['groupName']);
             }
             else {
                 //no group selected. Create and add to a temporary group
