@@ -16,6 +16,13 @@ class ShopifyHelper
         $this->client = new GuzzleHttp\Client(['base_uri' => 'https://' . env('SHOPIFY_API_KEY') . ':' . env('SHOPIFY_API_PASSWORD') . '@' . env('SHOPIFY_API_STORE') . '.myshopify.com/admin/']);
     }
 
+    public function getCustomer($id)
+    {
+        $result = $this->client->get('customers/' . $id . '.json');
+
+        return json_decode($result->getBody()->getContents())->customer;
+    }
+
     public function getOrCreateCustomer($customer)
     {
         try
@@ -46,6 +53,17 @@ class ShopifyHelper
         {
             return null;
         }
+    }
+
+    public function updateCustomer($customer)
+    {
+        $result = $this->client->put('customers/' . $customer['id'] . '.json', [
+            'json' => [
+                'customer' => $customer
+            ]
+        ]);
+
+        return json_decode($result->getBody()->getContents())->customer;
     }
 
     public function getPriceRules()

@@ -23,7 +23,9 @@ Route::group(['prefix' => 'group'], function() {
 });
 
 Route::group(['prefix' => 'user'], function() {
+    Route::get('/{id}', 'UserController@getUser');
     Route::post('/', 'UserController@addUser');
+    Route::put('/{id}', 'UserController@updateUser');
 });
 
 Route::group(['prefix' => 'commission'], function() {

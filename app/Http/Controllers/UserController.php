@@ -95,13 +95,102 @@ class UserController extends Controller
             return response()->json();
         }
         catch(AwsException $e) {
-            return response()->json([$e->getAwsErrorMessage()]);
+            return response()->json([$e->getAwsErrorMessage()], 500);
         }
         catch (ValidationException $e) {
-            return response()->json($e->errors());
+            return response()->json($e->errors(), 400);
         }
         catch (\Exception $e) {
-            return response()->json($e->getMessage());
+            return response()->json($e->getMessage(), 500);
+        }
+    }
+
+    public function getUser($id)
+    {
+        $cognito = new CognitoHelper();
+        $shopify = new ShopifyHelper();
+
+        try {
+            $cognitoUser = $cognito->getUser($id);
+
+            $res = (object) [
+                'id'    => $cognitoUser->get('Username'),
+                'email' => collect($cognitoUser['UserAttributes'])->where('Name', 'email')->first()['Value'],
+                'user_status' => $cognitoUser->get('UserStatus')
+            ];
+
+            $shopifyId = collect($cognitoUser['UserAttributes'])->where('Name', env('COGNITO_SHOPIFY_CUSTOM_ATTRIBUTE'))->first()['Value'];
+
+            $shopifyCustomer = $shopify->getCustomer($shopifyId);
+
+            $res->shopify_id = $shopifyCustomer->id;
+            $res->first_name = $shopifyCustomer->first_name;
+            $res->last_name = $shopifyCustomer->last_name;
+            $res->phone = $shopifyCustomer->phone;
+            $res->addresses = $shopifyCustomer->addresses;
+
+            $userGroups = $cognito->getGroupsForUser($id);
+
+            if($userGroups->isNotEmpty()) {
+                $res->affiliate = UserGroup::with('commission')->where('group_name', $userGroups->first()['GroupName'])->first();
+            }
+
+            return response()->json($res);
+        }
+        catch(AwsException $e) {
+            return response()->json([$e->getAwsErrorMessage()], 500);
+        }
+        catch (\Exception $e) {
+            return response()->json($e->getMessage(), 500);
+        }
+    }
+
+    public function updateUser(Request $request)
+    {
+        try {
+            $validatedData = $request->validate([
+                'shopify_id' => 'required',
+                'first_name' => 'required',
+                'last_name'  => 'required',
+                'phone'      => 'required',
+                'group'      => 'nullable'
+            ]);
+
+            //update user in Shopify
+            $shopify = new ShopifyHelper();
+
+            $customer = [
+                'id'         => $validatedData['shopify_id'],
+                'first_name' => $validatedData['first_name'],
+                'last_name'  => $validatedData['last_name'],
+                'phone'      => $validatedData['phone']
+            ];
+
+            $shopify->updateCustomer($customer);
+
+            $cognito = new CognitoHelper();
+
+            if(isset($validatedData['group'])) {
+                //Remove user from existing groups
+                $userGroups = $cognito->getGroupsForUser($request->id);
+                foreach ($userGroups as $group) {
+                    $cognito->removeUserFromGroup($request->id, $group['GroupName']);
+                }
+
+                //add user to new group
+                $cognito->addUserToGroup($request->id, $validatedData['group']);
+            }
+
+            return response()->json();
+        }
+        catch(AwsException $e) {
+            return response()->json([$e->getAwsErrorMessage()], 500);
+        }
+        catch (ValidationException $e) {
+            return response()->json($e->errors(), 400);
+        }
+        catch (\Exception $e) {
+            return response()->json($e->getMessage(), 500);
         }
     }
 }
