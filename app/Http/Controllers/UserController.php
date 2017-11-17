@@ -16,7 +16,7 @@ class UserController extends Controller
         try {
             $validatedData = $request->validate([
                 'email'     => 'required|email',
-                'password'  => 'required|size:8',
+                'password'  => 'required|min:8',
                 'firstName' => 'required',
                 'lastName'  => 'required',
                 'phone'     => 'required',
@@ -38,7 +38,7 @@ class UserController extends Controller
                 $tempGroup = $cognito->createGroup('user.' . $validatedData['email'], 'group for ' . $validatedData['email']);
 
                 $params = [
-                    'group_name'    => $tempGroup['GroupName']
+                    'group_name' => $tempGroup['GroupName']
                 ];
 
                 if(isset($validatedData['legacyId'])) {
@@ -52,8 +52,8 @@ class UserController extends Controller
 
             $customer = [
                 'email'     => $validatedData['email'],
-                'firstName' => $validatedData['firstName'],
-                'lastName'  => $validatedData['lastName'],
+                'first_name' => $validatedData['firstName'],
+                'last_name'  => $validatedData['lastName'],
                 'phone'     => $validatedData['phone']
             ];
 
@@ -61,7 +61,11 @@ class UserController extends Controller
             $shopifyCustomer = $shopify->getOrCreateCustomer($customer);
 
             //Save Shopify ID to Cognito user attribute
-            $cognito->updateUserAttribute(env('COGNITO_SHOPIFY_CUSTOM_ATTRIBUTE'), strval($shopifyCustomer->id), $validatedData['email']);
+            $cognito->updateUserAttribute(
+                env('COGNITO_SHOPIFY_CUSTOM_ATTRIBUTE'),
+                strval($shopifyCustomer->id),
+                $validatedData['email']
+            );
 
             return response()->json();
         }
