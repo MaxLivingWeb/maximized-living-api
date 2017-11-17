@@ -35,7 +35,10 @@ class UserController extends Controller
             }
             else {
                 //no group selected. Create and add to a temporary group
-                $tempGroup = $cognito->createGroup('user.' . $validatedData['email'], 'group for ' . $validatedData['email']);
+                $tempGroup = $cognito->createGroup(
+                    'user.' . $validatedData['email'],
+                    'group for ' . $validatedData['email']
+                );
 
                 $params = [
                     'group_name' => $tempGroup['GroupName']
