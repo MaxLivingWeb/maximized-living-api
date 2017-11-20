@@ -36,3 +36,7 @@ Route::group(['prefix' => 'commission'], function() {
     Route::delete('/{id}', 'CommissionController@delete');
 });
 
+Route::group(['prefix' => 'permissions'], function() {
+    Route::get('/', 'PermissionsController@all');
+});
+

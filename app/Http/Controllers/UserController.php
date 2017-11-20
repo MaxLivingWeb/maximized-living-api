@@ -31,7 +31,9 @@ class UserController extends Controller
                 'wholesale.zip'         => 'nullable',
                 'wholesale.country'     => 'nullable',
                 'discountCode'          => 'nullable|integer',
-                'groupName'             => 'nullable'
+                'groupName'             => 'nullable',
+                'permissions'           => 'nullable|array|min:1',
+                'permissions.*'         => 'nullable|string|distinct|exists:user_permissions,key'
             ]);
 
             //Add user to Cognito
@@ -91,6 +93,9 @@ class UserController extends Controller
 
             //Save Shopify ID to Cognito user attribute
             $cognito->updateUserAttribute(env('COGNITO_SHOPIFY_CUSTOM_ATTRIBUTE'), strval($shopifyCustomer->id), $validatedData['email']);
+
+            //attach permissions to user
+            $cognito->updateUserAttribute('custom:permissions', implode(',', $validatedData['permissions']), $validatedData['email']);
 
             return response()->json();
         }
