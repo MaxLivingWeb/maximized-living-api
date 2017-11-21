@@ -3,9 +3,9 @@
 namespace App\GraphQL\Mutation;
 
 use GraphQL;
-use GraphQL\Type\Definition\Type;
 use Folklore\GraphQL\Support\Mutation;
 use App\Location;
+use App\GraphQL\Type\LocationType;
 
 class UpdateLocationMutation extends Mutation
 {
@@ -20,68 +20,8 @@ class UpdateLocationMutation extends Mutation
 
     public function args()
     {
-        //these are the parameters that are need - some can be null - but the parameter itself needs to be in the mutation
-        return [
-            'id' => [
-                'name' => 'id',
-                'type' => Type::nonNull(Type::int())
-            ],
-            'name' => [
-                'name' => 'name',
-                'type' => Type::nonNull(Type::string())
-            ],
-            'zip_postal_code' => [
-                'name' => 'zip_postal_code',
-                'type' => Type::nonNull(Type::string())
-            ],
-            'latitude' => [
-                'name' => 'latitude',
-                'type' => Type::nonNull(Type::float())
-            ],
-            'longitude' => [
-                'name' => 'longitude',
-                'type' => Type::nonNull(Type::float())
-            ],
-            'telephone' => [
-                'name' => 'telephone',
-                'type' => Type::nonNull(Type::string())
-            ],
-            'telephone_ext' => [
-                'name' => 'telephone_ext',
-                'type' => Type::string()],
-            'fax' => [
-                'name' => 'fax',
-                'type' => Type::string()
-            ],
-            'email' => [
-                'name' => 'email',
-                'type' => Type::nonNull(Type::string())
-            ],
-            'vanity_website_url' => [
-                'name' => 'vanity_website_url',
-                'type' => Type::string()
-            ],
-            'pre_open_display_date' => [
-                'name' => 'pre_open_display_date',
-                'type' => Type::string()
-            ],
-            'opening_date' => [
-                'name' => 'opening_date',
-                'type' => Type::string()
-            ],
-            'closing_date' => [
-                'name' => 'closing_date',
-                'type' => Type::string()
-            ],
-            'daylight_savings_applies' => [
-                'name' => 'daylight_savings_applies',
-                'type' => Type::int()
-            ],
-            'timezone_id' => [
-                'name' => 'timezone_id',
-                'type' => Type::nonNull(Type::int())
-            ]
-        ];
+        $locationType = new LocationType();
+        return $locationType->fields();
     }
 
     public function resolve($root, $args)
@@ -130,8 +70,8 @@ class UpdateLocationMutation extends Mutation
         ];
 
         //TODO figure out what is needed of an affiliate id and operating hours (hardcoded a JSON string for now)
-        $location = Location::where('id', $args['id'])
-                            ->update([
+        $location = Location::updateOrCreate([
+                                'id'     => $args['id'],
              'affiliate_id'              => "123",
              'name'                      => $args['name'],
              'zip_postal_code'           => $args['zip_postal_code'],
@@ -150,7 +90,7 @@ class UpdateLocationMutation extends Mutation
              'operating_hours'           => json_encode($business_hours),
              'timezone_id'               => $args['timezone_id']
          ]);
-        
+        dd($location);
         if ($location == 1) {
             return $args;
         }
