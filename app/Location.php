@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Events\AddLocation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -30,6 +31,11 @@ class Location extends Model
         'deleted_at'
     ];
     protected $dates = ['deleted_at'];
+    
+    protected $dispatchesEvents = [
+        //'saving' => AddLocation::class,
+        'updated' => AddLocation::class
+    ];
 
     public function addresses()
     {

@@ -26,10 +26,6 @@ class UpdateLocationMutation extends Mutation
 
     public function resolve($root, $args)
     {
-        $location = Location::findOrFail($args['id']);
-    
-        $location_slug = str_slug($args['name']);
-    
         foreach ($args as $key => $var) {
             $args[$key] = filter_var($var, FILTER_SANITIZE_STRING);
         }
@@ -69,29 +65,31 @@ class UpdateLocationMutation extends Mutation
             ]
         ];
 
-        //TODO figure out what is needed of an affiliate id and operating hours (hardcoded a JSON string for now)
-        $location = Location::updateOrCreate([
-                                'id'     => $args['id'],
-             'affiliate_id'              => "123",
-             'name'                      => $args['name'],
-             'zip_postal_code'           => $args['zip_postal_code'],
-             'latitude'                  => $args['latitude'],
-             'longitude'                 => $args['longitude'],
-             'telephone'                 => $args['telephone'],
-             'telephone_ext'             => $args['telephone_ext'],
-             'fax'                       => $args['fax'],
-             'email'                     => $args['email'],
-             'vanity_website_url'        => $args['vanity_website_url'],
-             'slug'                      => $location_slug,
-             'pre_open_display_date'     => $args['pre_open_display_date'],
-             'opening_date'              => $args['opening_date'],
-             'closing_date'              => $args['closing_date'],
-             'daylight_savings_applies'  => $args['daylight_savings_applies'],
-             'operating_hours'           => json_encode($business_hours),
-             'timezone_id'               => $args['timezone_id']
-         ]);
-        dd($location);
-        if ($location == 1) {
+        //TODO Need to get slug updating working
+        $location = Location
+            ::where(
+                'id', $args['id']
+            )
+            ->update([
+                'affiliate_id'              => "123",
+                'name'                      => $args['name'],
+                'zip_postal_code'           => $args['zip_postal_code'],
+                'latitude'                  => $args['latitude'],
+                'longitude'                 => $args['longitude'],
+                'telephone'                 => $args['telephone'],
+                'telephone_ext'             => $args['telephone_ext'],
+                'fax'                       => $args['fax'],
+                'email'                     => $args['email'],
+                'vanity_website_url'        => $args['vanity_website_url'],
+                'pre_open_display_date'     => $args['pre_open_display_date'],
+                'opening_date'              => $args['opening_date'],
+                'closing_date'              => $args['closing_date'],
+                'daylight_savings_applies'  => $args['daylight_savings_applies'],
+                'operating_hours'           => json_encode($business_hours),
+                'timezone_id'               => $args['timezone_id']
+            ]);
+        
+        if ($location === 1) {
             return $args;
         }
         return $location;

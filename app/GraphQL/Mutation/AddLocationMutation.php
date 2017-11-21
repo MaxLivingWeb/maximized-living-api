@@ -26,8 +26,6 @@ class AddLocationMutation extends Mutation
     
     public function resolve($root, $args)
     {
-        $location_slug = str_slug($args['name']);
-        
         foreach ($args as $key => $var) {
             $args[$key] = filter_var($var, FILTER_SANITIZE_STRING);
         }
@@ -78,7 +76,6 @@ class AddLocationMutation extends Mutation
             'fax'                       => $args['fax'],
             'email'                     => $args['email'],
             'vanity_website_url'        => $args['vanity_website_url'],
-            'slug'                      => $location_slug,
             'pre_open_display_date'     => $args['pre_open_display_date'],
             'opening_date'              => $args['opening_date'],
             'closing_date'              => $args['closing_date'],
