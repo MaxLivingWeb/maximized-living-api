@@ -8,8 +8,6 @@ use Folklore\GraphQL\Support\Query;
 use App\City;
 use DB;
 
-DB::enableQueryLog();
-
 class CityQuery extends Query
 {
     protected $attributes = [
@@ -23,7 +21,6 @@ class CityQuery extends Query
 
     public function args ()
     {
-        //accepts an id (ie 2) or a name (ie "Toronto")
         return [
             'id' => [
                 'name' => 'id',
@@ -38,12 +35,10 @@ class CityQuery extends Query
 
     public function resolve ($root, $args)
     {
-        //filter by ID if we have one
         if (isset($args['id'])) {
             return City::where('id', $args['id'])->get();
         }
 
-        //filter by name if we have one
         if (isset($args['name'])) {
             return City::where('name', $args['name'])->get();
         }
