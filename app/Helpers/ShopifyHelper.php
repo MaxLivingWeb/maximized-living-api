@@ -2,8 +2,6 @@
 
 namespace App\Helpers;
 
-use Aws\Sdk;
-use Illuminate\Routing\Redirector;
 use GuzzleHttp;
 use GuzzleHttp\Exception\ClientException;
 
@@ -13,7 +11,11 @@ class ShopifyHelper
 
     function __construct()
     {
-        $this->client = new GuzzleHttp\Client(['base_uri' => 'https://' . env('SHOPIFY_API_KEY') . ':' . env('SHOPIFY_API_PASSWORD') . '@' . env('SHOPIFY_API_STORE') . '.myshopify.com/admin/']);
+        $this->client = new GuzzleHttp\Client(
+            [
+                'base_uri' => 'https://' . env('SHOPIFY_API_KEY') . ':' . env('SHOPIFY_API_PASSWORD') . '@' . env('SHOPIFY_API_STORE') . '.myshopify.com/admin/'
+            ]
+        );
     }
 
     public function getOrCreateCustomer($customer)
@@ -36,12 +38,7 @@ class ShopifyHelper
         {
             $result = $this->client->post('customers.json', [
                 'json' => [
-                    'customer' => [
-                        'email'         => $customer['email'],
-                        'first_name'    => $customer['firstName'],
-                        'last_name'     => $customer['lastName'],
-                        'phone'         => $customer['phone']
-                    ]
+                    'customer' => $customer
                 ]
             ]);
 
