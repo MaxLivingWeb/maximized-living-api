@@ -159,4 +159,15 @@ class CognitoHelper
 
         return $result->get('Users');
     }
+
+    public function removeUserAttribute($attributes, $username)
+    {
+        $result = $this->client->adminDeleteUserAttributes([
+            'UserAttributeNames' => $attributes,
+            'UserPoolId' => env('AWS_COGNITO_USER_POOL_ID'),
+            'Username' => $username
+        ]);
+
+        return $result->get('Users');
+    }
 }
