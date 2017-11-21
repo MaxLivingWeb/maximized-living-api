@@ -35,6 +35,6 @@ class AddLocation
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('channel-name');
+        return new PrivateChannel('slug-channel');
     }
 }

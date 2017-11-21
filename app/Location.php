@@ -33,7 +33,7 @@ class Location extends Model
     protected $dates = ['deleted_at'];
     
     protected $dispatchesEvents = [
-        //'saving' => AddLocation::class,
+        'saving' => AddLocation::class,
         'updated' => AddLocation::class
     ];
 
