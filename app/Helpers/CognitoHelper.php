@@ -3,7 +3,6 @@
 namespace App\Helpers;
 
 use Aws\Sdk;
-use Illuminate\Routing\Redirector;
 
 class CognitoHelper
 {
@@ -23,17 +22,12 @@ class CognitoHelper
 
     public function getUser($id)
     {
-        try {
-            $result = $this->client->adminGetUser([
-                'UserPoolId' => env('AWS_COGNITO_USER_POOL_ID'),
-                'Username' => $id
-            ]);
+        $result = $this->client->adminGetUser([
+            'UserPoolId' => env('AWS_COGNITO_USER_POOL_ID'),
+            'Username' => $id
+        ]);
 
-            return $result;
-        }
-        catch (\Exception $e) {
-            return null;
-        }
+        return $result;
     }
 
     public function listUsers()
@@ -82,7 +76,7 @@ class CognitoHelper
         return $result;
     }
 
-    public function getUserGroups()
+    public function getGroups()
     {
         $result = $this->client->listGroups([
             'UserPoolId' => env('AWS_COGNITO_USER_POOL_ID')
