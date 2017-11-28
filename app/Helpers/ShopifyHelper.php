@@ -2,7 +2,7 @@
 
 namespace App\Helpers;
 
-use GuzzleHttp;
+use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\ClientException;
 
 class ShopifyHelper
@@ -11,11 +11,9 @@ class ShopifyHelper
 
     function __construct()
     {
-        $this->client = new GuzzleHttp\Client(
-            [
-                'base_uri' => 'https://' . env('SHOPIFY_API_KEY') . ':' . env('SHOPIFY_API_PASSWORD') . '@' . env('SHOPIFY_API_STORE') . '.myshopify.com/admin/'
-            ]
-        );
+        $this->client = new GuzzleClient([
+            'base_uri' => 'https://' . env('SHOPIFY_API_KEY') . ':' . env('SHOPIFY_API_PASSWORD') . '@' . env('SHOPIFY_API_STORE') . '.myshopify.com/admin/'
+        ]);
     }
 
     public function getOrCreateCustomer($customer)
