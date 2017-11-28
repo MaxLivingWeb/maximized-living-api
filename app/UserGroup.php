@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class UserGroup extends Model
 {
@@ -12,6 +13,15 @@ class UserGroup extends Model
         'legacy_affiliate_id',
         'commission_id'
     ];
+
+    protected $appends = [
+        'collections'
+    ];
+
+    public function getCollectionsAttribute()
+    {
+        return DB::table('usergroup_collections')->where('usergroup_id', $this->id)->pluck('collection_id');
+    }
 
     public function commission() {
         return $this->hasOne('App\CommissionGroup', 'id', 'commission_id');
