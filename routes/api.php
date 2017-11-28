@@ -26,3 +26,11 @@ Route::group(['prefix' => 'user'], function() {
     Route::post('/', 'UserController@addUser');
 });
 
+Route::group(['prefix' => 'commission'], function() {
+    Route::get('/', 'CommissionController@all');
+    Route::get('/{id}', 'CommissionController@getById');
+    Route::post('/', 'CommissionController@add');
+    Route::put('/{id}', 'CommissionController@update');
+    Route::delete('/{id}', 'CommissionController@delete');
+});
+

@@ -20,7 +20,8 @@ class UserController extends Controller
                 'firstName' => 'required',
                 'lastName'  => 'required',
                 'phone'     => 'required',
-                'legacyId'  => 'nullable|integer'
+                'legacyId'  => 'nullable|integer',
+                'commissionId'  => 'nullable|integer'
             ]);
 
             //Add user to Cognito
@@ -46,6 +47,10 @@ class UserController extends Controller
 
                 if(isset($validatedData['legacyId'])) {
                     $params['legacy_affiliate_id'] = $validatedData['legacyId'];
+                }
+
+                if(isset($validatedData['commissionId'])) {
+                    $params['commission_id'] = $validatedData['commissionId'];
                 }
 
                 UserGroup::create($params);

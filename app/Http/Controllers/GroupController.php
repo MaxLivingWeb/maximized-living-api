@@ -14,17 +14,27 @@ class GroupController extends Controller
 
     public function getById($id)
     {
-        return UserGroup::findOrFail($id);
+        return UserGroup::with('commission')->findOrFail($id);
     }
 
     public function getByName(Request $request)
     {
-        return UserGroup::where('group_name', $request->input('name'))->firstOrFail();
+        return UserGroup::with('commission')->where('group_name', $request->input('name'))->firstOrFail();
     }
 
     public function add(Request $request)
     {
-        UserGroup::create(['group_name' => $request->input('group_name'), 'discount_id' => intval($request->input('discount_id'))]);
+        $commission_id = null;
+
+        if (!is_null($request->input('commission_id'))) {
+            $commission_id = intval($request->input('commission_id'));
+        }
+
+        return UserGroup::create([
+            'group_name' => $request->input('group_name'),
+            'discount_id' => intval($request->input('discount_id')),
+            'commission_id' => $commission_id
+        ]);
     }
 
     public function update($id, Request $request)
