@@ -61,8 +61,8 @@ class UserController extends Controller
                     $params['legacy_affiliate_id'] = $validatedData['legacyId'];
                 }
 
-                if(isset($validatedData['commission_id'])) {
-                    $params['commission_id'] = $validatedData['commission_id'];
+                if(isset($validatedData['commissionId'])) {
+                    $params['commission_id'] = $validatedData['commissionId'];
                 }
 
                 if(isset($validatedData['discountCode'])) {
