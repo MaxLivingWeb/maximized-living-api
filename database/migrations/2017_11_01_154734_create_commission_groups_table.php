@@ -14,7 +14,7 @@ class CreateCommissionGroupsTable extends Migration
     public function up()
     {
         Schema::create('commission_groups', function (Blueprint $table) {
-            $table->increments('id');
+            $table->increments('id')->unsigned();
             $table->float('percentage');
             $table->longText('description');
             $table->string('store_tax_number')->nullable();

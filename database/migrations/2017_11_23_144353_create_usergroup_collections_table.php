@@ -15,7 +15,7 @@ class CreateUsergroupCollectionsTable extends Migration
     {
         Schema::create('usergroup_collections', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('usergroup_id');
+            $table->integer('usergroup_id')->unsigned();
             $table->integer('collection_id');
 
             $table->foreign('usergroup_id')->references('id')->on('user_groups');
