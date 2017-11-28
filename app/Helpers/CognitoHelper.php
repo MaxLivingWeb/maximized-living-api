@@ -67,7 +67,7 @@ class CognitoHelper
         ]);
     }
 
-    public function getUserGroups()
+    public function getGroups()
     {
         return $this->client->listGroups([
             'UserPoolId' => env('AWS_COGNITO_USER_POOL_ID')

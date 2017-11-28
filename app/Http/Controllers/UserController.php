@@ -21,7 +21,7 @@ class UserController extends Controller
                 'lastName'  => 'required',
                 'phone'     => 'required',
                 'legacyId'  => 'nullable|integer',
-                'commissionId'         => 'nullable|integer',
+                'commissionId'          => 'nullable|integer',
                 'wholesale'             => 'nullable',
                 'wholesale.address1'    => 'nullable',
                 'wholesale.address2'    => 'nullable',
@@ -38,7 +38,10 @@ class UserController extends Controller
             $cognito = new CognitoHelper();
             $shopify = new ShopifyHelper();
 
-            $cognitoUser = $cognito->createUser($validatedData['email'], $validatedData['password']);
+            $cognitoUser = $cognito->createUser(
+                $validatedData['email'],
+                $validatedData['password']
+            );
 
             if(isset($validatedData['groupName'])) {
                 $cognito->addUserToGroup($cognitoUser->get('User')['Username'], $validatedData['groupName']);
