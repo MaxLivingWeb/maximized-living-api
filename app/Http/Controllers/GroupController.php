@@ -19,7 +19,7 @@ class GroupController extends Controller
 
     public function getByName(Request $request)
     {
-        return UserGroup::with('commission')->where('group_name', $request->input('name'))->firstOrFail();
+        return UserGroup::with(['commission', 'location'])->where('group_name', $request->input('name'))->firstOrFail();
     }
 
     public function add(Request $request)

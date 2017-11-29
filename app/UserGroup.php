@@ -18,6 +18,11 @@ class UserGroup extends Model
         'collections'
     ];
 
+    protected $hidden = [
+        'commission_id',
+        'location_id'
+    ];
+
     public function getCollectionsAttribute()
     {
         return DB::table('usergroup_collections')->where('usergroup_id', $this->id)->pluck('collection_id');
