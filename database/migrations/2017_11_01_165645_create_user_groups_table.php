@@ -15,7 +15,7 @@ class CreateUserGroupsTable extends Migration
     {
         Schema::create('user_groups', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('group_name');
+            $table->string('group_name')->unique();
             $table->bigInteger('discount_id')->nullable()->unsigned();
             $table->integer('legacy_affiliate_id')->nullable()->unsigned();
             $table->integer('commission_id')->nullable()->unsigned()->index();

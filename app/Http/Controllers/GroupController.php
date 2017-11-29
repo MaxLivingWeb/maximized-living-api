@@ -30,10 +30,17 @@ class GroupController extends Controller
             $commission_id = intval($request->input('commission_id'));
         }
 
+        $location_id = null;
+
+        if (!is_null($request->input('location_id'))) {
+            $location_id = intval($request->input('location_id'));
+        }
+
         return UserGroup::create([
             'group_name' => $request->input('group_name'),
             'discount_id' => intval($request->input('discount_id')),
-            'commission_id' => $commission_id
+            'commission_id' => $commission_id,
+            'location_id' => $location_id
         ]);
     }
 
