@@ -67,7 +67,6 @@ class GroupController extends Controller
             return response()->json($e->errors(), 400);
         }
         catch (AwsException $e) {
-            dd($e);
             return response()->json($e->getAwsErrorMessage(), 400);
         }
     }
