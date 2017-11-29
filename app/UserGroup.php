@@ -26,8 +26,4 @@ class UserGroup extends Model
     public function commission() {
         return $this->hasOne('App\CommissionGroup', 'id', 'commission_id');
     }
-
-    public function location() {
-        return $this->hasOne('App\Location', 'id', 'location_id');
-    }
 }
