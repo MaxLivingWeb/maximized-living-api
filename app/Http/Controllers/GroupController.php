@@ -9,12 +9,12 @@ class GroupController extends Controller
 {
     public function all()
     {
-        return UserGroup::all();
+        return UserGroup::with(['commission', 'location'])->get();
     }
 
     public function getById($id)
     {
-        return UserGroup::with('commission')->findOrFail($id);
+        return UserGroup::with(['commission', 'location'])->findOrFail($id);
     }
 
     public function getByName(Request $request)
