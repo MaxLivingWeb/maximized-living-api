@@ -44,7 +44,10 @@ class UserController extends Controller
             );
 
             if(isset($validatedData['groupName'])) {
-                $cognito->addUserToGroup($cognitoUser->get('User')['Username'], $validatedData['groupName']);
+                $cognito->addUserToGroup(
+                    $cognitoUser->get('User')['Username'],
+                    $validatedData['groupName']
+                );
             }
             else {
                 //no group selected. Create and add to a temporary group
