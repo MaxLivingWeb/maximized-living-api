@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\CognitoHelper;
 use App\UserGroup;
+use Aws\Exception\AwsException;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class GroupController extends Controller
 {
@@ -24,24 +27,49 @@ class GroupController extends Controller
 
     public function add(Request $request)
     {
-        $commission_id = null;
+        try {
+            $fields = [
+                'group_name' => 'required'
+            ];
+            if($request->has('commission')) {
+                $fields = array_merge($fields, [
+                    'commission.id'                     => 'required',
+                    'commission.account_number'         => 'required',
+                    'commission.branch_number'          => 'required',
+                    'commission.institution_number'     => 'required'
+                ]);
+            }
+            $request->validate($fields);
 
-        if (!is_null($request->input('commission_id'))) {
-            $commission_id = intval($request->input('commission_id'));
+            //TODO: What do we do with banking info?
+
+            $commission_id = null;
+            if (!is_null($request->input('commission.id'))) {
+                $commission_id = intval($request->input('commission.id'));
+            }
+
+            $location_id = null;
+            if (!is_null($request->input('location_id'))) {
+                $location_id = intval($request->input('location_id'));
+            }
+
+            $cognito = new CognitoHelper();
+            $cognito->createGroup($request->input('group_name'), '');
+
+            return UserGroup::create([
+                'group_name'    => $request->input('group_name'),
+                'discount_id'   => intval($request->input('discount_id')),
+                'commission_id' => $commission_id,
+                'location_id'   => $location_id
+            ]);
         }
-
-        $location_id = null;
-
-        if (!is_null($request->input('location_id'))) {
-            $location_id = intval($request->input('location_id'));
+        catch (ValidationException $e) {
+            return response()->json($e->errors(), 400);
         }
-
-        return UserGroup::create([
-            'group_name' => $request->input('group_name'),
-            'discount_id' => intval($request->input('discount_id')),
-            'commission_id' => $commission_id,
-            'location_id' => $location_id
-        ]);
+        catch (AwsException $e) {
+            dd($e);
+            return response()->json($e->getAwsErrorMessage(), 400);
+        }
     }
 
     public function update($id, Request $request)
