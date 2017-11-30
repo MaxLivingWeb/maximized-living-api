@@ -128,11 +128,15 @@ class UserController extends Controller
 
             $res = (object) [
                 'id'    => $cognitoUser->get('Username'),
-                'email' => collect($cognitoUser['UserAttributes'])->where('Name', 'email')->first()['Value'],
+                'email' => collect($cognitoUser['UserAttributes'])
+                    ->where('Name', 'email')
+                    ->first()['Value'],
                 'user_status' => $cognitoUser->get('UserStatus')
             ];
 
-            $shopifyId = collect($cognitoUser['UserAttributes'])->where('Name', env('COGNITO_SHOPIFY_CUSTOM_ATTRIBUTE'))->first()['Value'];
+            $shopifyId = collect($cognitoUser['UserAttributes'])
+                ->where('Name', env('COGNITO_SHOPIFY_CUSTOM_ATTRIBUTE'))
+                ->first()['Value'];
 
             $shopifyCustomer = $shopify->getCustomer($shopifyId);
 
@@ -145,7 +149,9 @@ class UserController extends Controller
             $userGroups = $cognito->getGroupsForUser($id);
 
             if($userGroups->isNotEmpty()) {
-                $res->affiliate = UserGroup::with('commission')->where('group_name', $userGroups->first()['GroupName'])->first();
+                $res->affiliate = UserGroup::with('commission')
+                    ->where('group_name', $userGroups->first()['GroupName'])
+                    ->first();
             }
 
             return response()->json($res);
