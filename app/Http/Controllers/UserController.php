@@ -51,12 +51,12 @@ class UserController extends Controller
         try {
             $validatedData = $request->validate([
                 'email'     => 'required|email',
-                'password'  => 'required|size:8',
+                'password'  => 'required|min:8',
                 'firstName' => 'required',
                 'lastName'  => 'required',
                 'phone'     => 'required',
                 'legacyId'  => 'nullable|integer',
-                'commission_id'         => 'nullable|integer',
+                'commissionId'          => 'nullable|integer',
                 'wholesale'             => 'nullable',
                 'wholesale.address1'    => 'nullable',
                 'wholesale.address2'    => 'nullable',
@@ -75,14 +75,23 @@ class UserController extends Controller
             $cognito = new CognitoHelper();
             $shopify = new ShopifyHelper();
 
-            $cognitoUser = $cognito->createUser($validatedData['email'], $validatedData['password']);
+            $cognitoUser = $cognito->createUser(
+                $validatedData['email'],
+                $validatedData['password']
+            );
 
             if(isset($validatedData['groupName'])) {
-                $cognito->addUserToGroup($cognitoUser->get('User')['Username'], $validatedData['groupName']);
+                $cognito->addUserToGroup(
+                    $cognitoUser->get('User')['Username'],
+                    $validatedData['groupName']
+                );
             }
             else {
                 //no group selected. Create and add to a temporary group
-                $tempGroup = $cognito->createGroup('user.' . $validatedData['email'], 'group for ' . $validatedData['email']);
+                $tempGroup = $cognito->createGroup(
+                    'user.' . $validatedData['email'],
+                    'group for ' . $validatedData['email']
+                );
 
                 $params = [
                     'group_name' => $tempGroup['GroupName']
@@ -92,8 +101,8 @@ class UserController extends Controller
                     $params['legacy_affiliate_id'] = $validatedData['legacyId'];
                 }
 
-                if(isset($validatedData['commission_id'])) {
-                    $params['commission_id'] = $validatedData['commission_id'];
+                if(isset($validatedData['commissionId'])) {
+                    $params['commission_id'] = $validatedData['commissionId'];
                 }
 
                 if(isset($validatedData['discountCode'])) {
@@ -127,7 +136,11 @@ class UserController extends Controller
             $shopifyCustomer = $shopify->getOrCreateCustomer($customer);
 
             //Save Shopify ID to Cognito user attribute
-            $cognito->updateUserAttribute(env('COGNITO_SHOPIFY_CUSTOM_ATTRIBUTE'), strval($shopifyCustomer->id), $validatedData['email']);
+            $cognito->updateUserAttribute(
+                env('COGNITO_SHOPIFY_CUSTOM_ATTRIBUTE'),
+                strval($shopifyCustomer->id),
+                $validatedData['email']
+            );
 
             //attach permissions to user
             $cognito->updateUserAttribute('custom:permissions', implode(',', $validatedData['permissions']), $validatedData['email']);

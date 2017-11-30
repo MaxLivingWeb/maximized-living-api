@@ -12,7 +12,7 @@ class CommissionGroupsSeeder extends Seeder
      */
     public function run()
     {
-        $commissions_array = [
+        $commissions_groups = [
             [
                 'percentage' => 5.0,
                 'description' => 'this is a description of a 5% commission'
@@ -35,7 +35,7 @@ class CommissionGroupsSeeder extends Seeder
             ],
         ];
 
-        foreach($commissions_array as $commission) {
+        foreach($commissions_groups as $commission) {
             CommissionGroup::create([
                 'percentage' =>  $commission['percentage'],
                 'description' => $commission['description']
