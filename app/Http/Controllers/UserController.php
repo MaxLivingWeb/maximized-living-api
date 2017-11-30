@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Helpers\ShopifyHelper;
 use App\UserGroup;
+use GuzzleHttp\Exception\ClientException;
 use Illuminate\Http\Request;
 use App\Helpers\CognitoHelper;
 use Aws\Exception\AwsException;
@@ -78,11 +79,14 @@ class UserController extends Controller
             }
 
             $customer = [
-                'email'     => $validatedData['email'],
-                'first_name' => $validatedData['firstName'],
-                'last_name'  => $validatedData['lastName'],
-                'phone'     => $validatedData['phone'],
-                'addresses' => [
+                'email'         => $validatedData['email'],
+                'first_name'    => $validatedData['firstName'],
+                'last_name'     => $validatedData['lastName'],
+                'phone'         => $validatedData['phone']
+            ];
+
+            if(isset($validatedData['wholesale'])) {
+                $customer['addresses'] = [
                     [
                         'address1'  => $validatedData['wholesale']['address1'],
                         'address2'  => $validatedData['wholesale']['address2'],
@@ -92,8 +96,8 @@ class UserController extends Controller
                         'zip'       => $validatedData['wholesale']['zip'],
                         'country'   => $validatedData['wholesale']['country'],
                     ]
-                ]
-            ];
+                ];
+            }
 
             //Add user to Shopify
             $shopifyCustomer = $shopify->getOrCreateCustomer($customer);
@@ -109,6 +113,13 @@ class UserController extends Controller
         }
         catch(AwsException $e) {
             return response()->json([$e->getAwsErrorMessage()], 500);
+        }
+        catch(ClientException $e) {
+            $msg = $e->getMessage();
+            if($e->hasResponse()) {
+                $msg = $e->getResponse()->getBody()->getContents();
+            }
+            return response()->json([$msg], 500);
         }
         catch (ValidationException $e) {
             return response()->json($e->errors(), 400);
