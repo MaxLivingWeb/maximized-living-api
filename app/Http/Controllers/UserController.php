@@ -20,7 +20,7 @@ class UserController extends Controller
                 'password'  => 'required|min:8',
                 'firstName' => 'required',
                 'lastName'  => 'required',
-                'phone'     => 'required',
+                'phone'     => 'nullable',
                 'legacyId'  => 'nullable|integer',
                 'commissionId'          => 'nullable|integer',
                 'wholesale'             => 'nullable',
@@ -81,9 +81,12 @@ class UserController extends Controller
             $customer = [
                 'email'         => $validatedData['email'],
                 'first_name'    => $validatedData['firstName'],
-                'last_name'     => $validatedData['lastName'],
-                'phone'         => $validatedData['phone']
+                'last_name'     => $validatedData['lastName']
             ];
+
+            if(!is_null($validatedData['phone'])) {
+                $customer['phone'] = $validatedData['phone'];
+            }
 
             if(isset($validatedData['wholesale'])) {
                 $customer['addresses'] = [
