@@ -185,7 +185,7 @@ class UserController extends Controller
                 'shopify_id' => 'required',
                 'first_name' => 'required',
                 'last_name'  => 'required',
-                'phone'      => 'required',
+                'phone'      => 'nullable',
                 'group'      => 'nullable'
             ]);
 
@@ -195,9 +195,11 @@ class UserController extends Controller
             $customer = [
                 'id'         => $validatedData['shopify_id'],
                 'first_name' => $validatedData['first_name'],
-                'last_name'  => $validatedData['last_name'],
-                'phone'      => $validatedData['phone']
+                'last_name'  => $validatedData['last_name']
             ];
+            if(!is_null($validatedData['phone'])) {
+                $customer['phone'] = $validatedData['phone'];
+            }
 
             $shopify->updateCustomer($customer);
 
