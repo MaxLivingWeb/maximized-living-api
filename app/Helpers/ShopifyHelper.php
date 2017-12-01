@@ -2,9 +2,7 @@
 
 namespace App\Helpers;
 
-use Aws\Sdk;
-use Illuminate\Routing\Redirector;
-use GuzzleHttp;
+use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\ClientException;
 
 class ShopifyHelper
@@ -13,7 +11,9 @@ class ShopifyHelper
 
     function __construct()
     {
-        $this->client = new GuzzleHttp\Client(['base_uri' => 'https://' . env('SHOPIFY_API_KEY') . ':' . env('SHOPIFY_API_PASSWORD') . '@' . env('SHOPIFY_API_STORE') . '.myshopify.com/admin/']);
+        $this->client = new GuzzleClient([
+            'base_uri' => 'https://' . env('SHOPIFY_API_KEY') . ':' . env('SHOPIFY_API_PASSWORD') . '@' . env('SHOPIFY_API_STORE') . '.myshopify.com/admin/'
+        ]);
     }
 
     public function getCustomer($id)
@@ -25,34 +25,22 @@ class ShopifyHelper
 
     public function getOrCreateCustomer($customer)
     {
-        try
-        {
-            $result = $this->client->get('customers/search.json?query=email:' . $customer['email']);
+        //search for existing customer
+        $result = $this->client->get('customers/search.json?query=email:' . $customer['email']);
 
-            $customers = json_decode($result->getBody()->getContents())->customers;
-            if(count($customers) > 0) {
-                return $customers[0];
-            }
-        }
-        catch (ClientException $e)
-        {
-            return null;
+        $customers = json_decode($result->getBody()->getContents())->customers;
+        if(count($customers) > 0) {
+            return $customers[0];
         }
 
-        try
-        {
-            $result = $this->client->post('customers.json', [
-                'json' => [
-                    'customer' => $customer
-                ]
-            ]);
+        //no matching customer found, create new customer
+        $result = $this->client->post('customers.json', [
+            'json' => [
+                'customer' => $customer
+            ]
+        ]);
 
-            return json_decode($result->getBody()->getContents())->customer;
-        }
-        catch (ClientException $e)
-        {
-            return null;
-        }
+        return json_decode($result->getBody()->getContents())->customer;
     }
 
     public function updateCustomer($customer)
