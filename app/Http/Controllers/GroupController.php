@@ -17,6 +17,15 @@ class GroupController extends Controller
         return UserGroup::with(['commission', 'location'])->get();
     }
 
+    public function allWithLocation()
+    {
+        return UserGroup::with(['location'])
+            ->get()
+            ->where('location', '!==', null)
+            ->values()
+            ->all();
+    }
+
     public function getById($id)
     {
         return UserGroup::with(['commission', 'location'])->findOrFail($id);
