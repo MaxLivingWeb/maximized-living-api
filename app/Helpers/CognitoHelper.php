@@ -67,7 +67,7 @@ class CognitoHelper
         ]);
     }
 
-    public function getUserGroups()
+    public function getGroups()
     {
         return $this->client->listGroups([
             'UserPoolId' => env('AWS_COGNITO_USER_POOL_ID')
@@ -138,6 +138,17 @@ class CognitoHelper
         $result = $this->client->listUsersInGroup([
             'GroupName' => $name,
             'UserPoolId' => env('AWS_COGNITO_USER_POOL_ID'),
+        ]);
+
+        return $result->get('Users');
+    }
+
+    public function removeUserAttribute($attributes, $username)
+    {
+        $result = $this->client->adminDeleteUserAttributes([
+            'UserAttributeNames' => $attributes,
+            'UserPoolId' => env('AWS_COGNITO_USER_POOL_ID'),
+            'Username' => $username
         ]);
 
         return $result->get('Users');

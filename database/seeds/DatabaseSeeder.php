@@ -19,7 +19,9 @@ class DatabaseSeeder extends Seeder
             TimezonesTableSeeder::class,
             LocationsTableSeeder::class,
             AddressTypesTableSeeder::class,
-            LocationsAddressesTableSeeder::class
+            LocationsAddressesTableSeeder::class,
+            CommissionGroupsSeeder::class,
+            UserPermissionsSeeder::class
         ]);
     }
 }
