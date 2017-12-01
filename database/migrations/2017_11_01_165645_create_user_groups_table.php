@@ -21,7 +21,7 @@ class CreateUserGroupsTable extends Migration
             $table->integer('commission_id')->nullable()->unsigned()->index();
             $table->timestamps();
 
-            $table->foreign('commission_id')->references('id')->on('commissions_group');
+            $table->foreign('commission_id')->references('id')->on('commission_groups');
         });
     }
 
