@@ -11,6 +11,12 @@ class Address extends Model
 
     protected $dates = ['deleted_at'];
 
+    protected $fillable = [
+        'address_1',
+        'address_2',
+        'city_id'
+    ];
+
     public function city() {
         return $this->belongsTo('App\City');
     }

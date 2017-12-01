@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Address;
+use App\AddressType;
 use App\Helpers\CognitoHelper;
 use App\UserGroup;
 use Aws\Exception\AwsException;
@@ -41,8 +43,6 @@ class GroupController extends Controller
             }
             $request->validate($fields);
 
-            //TODO: What do we do with banking info?
-
             $commission_id = null;
             if (!is_null($request->input('commission.id'))) {
                 $commission_id = intval($request->input('commission.id'));
@@ -53,12 +53,37 @@ class GroupController extends Controller
                 $location_id = intval($request->input('location_id'));
             }
 
+            $discount_id = null;
+            if (!is_null($request->input('discount_id'))) {
+                $discount_id = intval($request->input('discount_id'));
+            }
+
+            if($request->has('wholesale.shipping') && !is_null($location_id)) {
+                $shippingAddress = Address::create([
+                    'address_1' => $request->input('wholesale.shipping.address_1'),
+                    'address_2' => $request->input('wholesale.shipping.address_2'),
+                    'city_id'   => intval($request->input('wholesale.shipping.city_id'))
+                ]);
+
+                $shippingAddress->locations()->attach($location_id, ['address_type_id' => AddressType::firstOrCreate(['name' => 'Shipping'])->id]);
+            }
+
+            if($request->has('wholesale.billing') && !is_null($location_id)) {
+                $billingAddress = Address::create([
+                    'address_1' => $request->input('wholesale.billing.address_1'),
+                    'address_2' => $request->input('wholesale.billing.address_2'),
+                    'city_id'   => intval($request->input('wholesale.billing.city_id'))
+                ]);
+
+                $billingAddress->locations()->attach($location_id, ['address_type_id' => AddressType::firstOrCreate(['name' => 'Billing'])->id]);
+            }
+
             $cognito = new CognitoHelper();
             $cognito->createGroup($request->input('group_name'), '');
 
             return UserGroup::create([
                 'group_name'    => $request->input('group_name'),
-                'discount_id'   => intval($request->input('discount_id')),
+                'discount_id'   => $discount_id,
                 'commission_id' => $commission_id,
                 'location_id'   => $location_id
             ]);
