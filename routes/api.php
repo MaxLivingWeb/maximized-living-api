@@ -28,6 +28,8 @@ Route::group(['prefix' => 'user'], function() {
     Route::put('/{id}', 'UserController@updateUser');
 });
 
+Route::get('/users', 'UserController@listUsers');
+
 Route::group(['prefix' => 'commission'], function() {
     Route::get('/', 'CommissionController@all');
     Route::get('/{id}', 'CommissionController@getById');

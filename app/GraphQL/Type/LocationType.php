@@ -17,7 +17,7 @@ class LocationType extends GraphQLType
     {
         return [
             'id' => [
-                'type' => Type::nonNull(Type::int()),
+                'type' => Type::int(),
                 'description' => 'ID of the region'
             ],
             'affiliate_id' => [
@@ -77,8 +77,12 @@ class LocationType extends GraphQLType
                 'description' => 'Closing date of location'
             ],
             'daylight_savings_applies' => [
-                'type' => Type::boolean(),
+                'type' => Type::int(),
                 'description' => 'Whether or not daylight savings time applies'
+            ],
+            'timezone_id' => [
+                'type' => Type::int(),
+                'description' => 'Id of the timezone'
             ]
         ];
     }
