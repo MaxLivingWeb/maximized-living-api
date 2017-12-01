@@ -232,7 +232,7 @@ class UserController extends Controller
                 'last_name'  => 'required',
                 'phone'      => 'nullable',
                 'group'      => 'nullable',
-                'permissions' => 'nullable|array|min:1',
+                'permissions'   => 'nullable|array|min:1',
                 'permissions.*' => 'nullable|string|distinct|exists:user_permissions,key'
             ]);
 

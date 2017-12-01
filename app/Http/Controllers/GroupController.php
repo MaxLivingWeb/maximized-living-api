@@ -14,7 +14,7 @@ class GroupController extends Controller
 {
     public function all()
     {
-        return UserGroup::with(['commission', 'location'])->get();
+        return UserGroup::all();
     }
 
     public function allWithLocation()
@@ -28,7 +28,7 @@ class GroupController extends Controller
 
     public function getById($id)
     {
-        return UserGroup::with(['commission', 'location'])->findOrFail($id);
+        return UserGroup::with('commission')->findOrFail($id);
     }
 
     public function getByName(Request $request)
