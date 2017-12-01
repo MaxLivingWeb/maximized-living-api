@@ -44,12 +44,17 @@ class GroupController extends Controller
                 $location_id = intval($request->input('location_id'));
             }
 
+            $discount_id = null;
+            if (!is_null($request->input('discount_id'))) {
+                $discount_id = intval($request->input('discount_id'));
+            }
+
             $cognito = new CognitoHelper();
             $cognito->createGroup($request->input('group_name'), '');
 
             return UserGroup::create([
                 'group_name'    => $request->input('group_name'),
-                'discount_id'   => intval($request->input('discount_id')),
+                'discount_id'   => $discount_id,
                 'commission_id' => $commission_id,
                 'location_id'   => $location_id
             ]);
