@@ -18,6 +18,9 @@ class AddressTypesTableSeeder extends Seeder
             ],
             [
                 'name' => 'Shipping'
+            ],
+            [
+                'name' => 'Billing'
             ]
         ];
 

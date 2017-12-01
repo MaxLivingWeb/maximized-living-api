@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Address;
+use App\AddressType;
 use App\Helpers\CognitoHelper;
 use App\UserGroup;
 use Aws\Exception\AwsException;
@@ -13,6 +15,15 @@ class GroupController extends Controller
     public function all()
     {
         return UserGroup::all();
+    }
+
+    public function allWithLocation()
+    {
+        return UserGroup::with(['location'])
+            ->get()
+            ->where('location', '!==', null)
+            ->values()
+            ->all();
     }
 
     public function getById($id)
@@ -47,6 +58,26 @@ class GroupController extends Controller
             $discount_id = null;
             if (!is_null($request->input('discount_id'))) {
                 $discount_id = intval($request->input('discount_id'));
+            }
+
+            if($request->has('wholesale.shipping') && !is_null($location_id)) {
+                $shippingAddress = Address::create([
+                    'address_1' => $request->input('wholesale.shipping.address_1'),
+                    'address_2' => $request->input('wholesale.shipping.address_2'),
+                    'city_id'   => intval($request->input('wholesale.shipping.city_id'))
+                ]);
+
+                $shippingAddress->locations()->attach($location_id, ['address_type_id' => AddressType::firstOrCreate(['name' => 'Shipping'])->id]);
+            }
+
+            if($request->has('wholesale.billing') && !is_null($location_id)) {
+                $billingAddress = Address::create([
+                    'address_1' => $request->input('wholesale.billing.address_1'),
+                    'address_2' => $request->input('wholesale.billing.address_2'),
+                    'city_id'   => intval($request->input('wholesale.billing.city_id'))
+                ]);
+
+                $billingAddress->locations()->attach($location_id, ['address_type_id' => AddressType::firstOrCreate(['name' => 'Billing'])->id]);
             }
 
             $cognito = new CognitoHelper();
