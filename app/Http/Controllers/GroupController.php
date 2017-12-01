@@ -31,21 +31,12 @@ class GroupController extends Controller
             $fields = [
                 'group_name' => 'required'
             ];
-            if($request->has('commission')) {
-                $fields = array_merge($fields, [
-                    'commission.id'                     => 'required',
-                    'commission.account_number'         => 'required',
-                    'commission.branch_number'          => 'required',
-                    'commission.institution_number'     => 'required'
-                ]);
-            }
+
             $request->validate($fields);
 
-            //TODO: What do we do with banking info?
-
             $commission_id = null;
-            if (!is_null($request->input('commission.id'))) {
-                $commission_id = intval($request->input('commission.id'));
+            if (!is_null($request->input('commission_id'))) {
+                $commission_id = intval($request->input('commission_id'));
             }
 
             $location_id = null;
