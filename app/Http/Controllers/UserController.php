@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Helpers\ShopifyHelper;
 use App\UserGroup;
+use GuzzleHttp\Exception\ClientException;
 use Illuminate\Http\Request;
 use App\Helpers\CognitoHelper;
 use Aws\Exception\AwsException;
@@ -54,7 +55,7 @@ class UserController extends Controller
                 'password'  => 'required|min:8',
                 'firstName' => 'required',
                 'lastName'  => 'required',
-                'phone'     => 'required',
+                'phone'     => 'nullable',
                 'legacyId'  => 'nullable|integer',
                 'commissionId'          => 'nullable|integer',
                 'wholesale'             => 'nullable',
@@ -115,11 +116,17 @@ class UserController extends Controller
             }
 
             $customer = [
-                'email'     => $validatedData['email'],
-                'first_name' => $validatedData['firstName'],
-                'last_name'  => $validatedData['lastName'],
-                'phone'     => $validatedData['phone'],
-                'addresses' => [
+                'email'         => $validatedData['email'],
+                'first_name'    => $validatedData['firstName'],
+                'last_name'     => $validatedData['lastName']
+            ];
+
+            if(!is_null($validatedData['phone'])) {
+                $customer['phone'] = $validatedData['phone'];
+            }
+
+            if(isset($validatedData['wholesale'])) {
+                $customer['addresses'] = [
                     [
                         'address1'  => $validatedData['wholesale']['address1'],
                         'address2'  => $validatedData['wholesale']['address2'],
@@ -129,8 +136,8 @@ class UserController extends Controller
                         'zip'       => $validatedData['wholesale']['zip'],
                         'country'   => $validatedData['wholesale']['country'],
                     ]
-                ]
-            ];
+                ];
+            }
 
             //Add user to Shopify
             $shopifyCustomer = $shopify->getOrCreateCustomer($customer);
@@ -150,6 +157,13 @@ class UserController extends Controller
         catch(AwsException $e) {
             return response()->json([$e->getAwsErrorMessage()], 500);
         }
+        catch(ClientException $e) {
+            $msg = $e->getMessage();
+            if($e->hasResponse()) {
+                $msg = $e->getResponse()->getBody()->getContents();
+            }
+            return response()->json([$msg], 500);
+        }
         catch (ValidationException $e) {
             return response()->json($e->errors(), 400);
         }
@@ -168,11 +182,15 @@ class UserController extends Controller
 
             $res = (object) [
                 'id'    => $cognitoUser->get('Username'),
-                'email' => collect($cognitoUser['UserAttributes'])->where('Name', 'email')->first()['Value'],
+                'email' => collect($cognitoUser['UserAttributes'])
+                    ->where('Name', 'email')
+                    ->first()['Value'],
                 'user_status' => $cognitoUser->get('UserStatus')
             ];
 
-            $shopifyId = collect($cognitoUser['UserAttributes'])->where('Name', env('COGNITO_SHOPIFY_CUSTOM_ATTRIBUTE'))->first()['Value'];
+            $shopifyId = collect($cognitoUser['UserAttributes'])
+                ->where('Name', env('COGNITO_SHOPIFY_CUSTOM_ATTRIBUTE'))
+                ->first()['Value'];
 
             $shopifyCustomer = $shopify->getCustomer($shopifyId);
 
@@ -185,7 +203,9 @@ class UserController extends Controller
             $userGroups = $cognito->getGroupsForUser($id);
 
             if($userGroups->isNotEmpty()) {
-                $res->affiliate = UserGroup::with('commission')->where('group_name', $userGroups->first()['GroupName'])->first();
+                $res->affiliate = UserGroup::with('commission')
+                    ->where('group_name', $userGroups->first()['GroupName'])
+                    ->first();
             }
 
             $permissions = collect($cognitoUser['UserAttributes'])->where('Name', 'custom:permissions')->first();
@@ -210,7 +230,7 @@ class UserController extends Controller
                 'shopify_id' => 'required',
                 'first_name' => 'required',
                 'last_name'  => 'required',
-                'phone'      => 'required',
+                'phone'      => 'nullable',
                 'group'      => 'nullable',
                 'permissions' => 'nullable|array|min:1',
                 'permissions.*' => 'nullable|string|distinct|exists:user_permissions,key'
@@ -222,9 +242,11 @@ class UserController extends Controller
             $customer = [
                 'id'         => $validatedData['shopify_id'],
                 'first_name' => $validatedData['first_name'],
-                'last_name'  => $validatedData['last_name'],
-                'phone'      => $validatedData['phone']
+                'last_name'  => $validatedData['last_name']
             ];
+            if(!is_null($validatedData['phone'])) {
+                $customer['phone'] = $validatedData['phone'];
+            }
 
             $shopify->updateCustomer($customer);
 
