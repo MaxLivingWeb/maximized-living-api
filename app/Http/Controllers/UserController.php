@@ -32,7 +32,9 @@ class UserController extends Controller
                 'wholesale.zip'         => 'nullable',
                 'wholesale.country'     => 'nullable',
                 'discountCode'          => 'nullable|integer',
-                'groupName'             => 'nullable'
+                'groupName'             => 'nullable',
+                'permissions'           => 'nullable|array|min:1',
+                'permissions.*'         => 'nullable|string|distinct|exists:user_permissions,key'
             ]);
 
             //Add user to Cognito
@@ -112,6 +114,9 @@ class UserController extends Controller
                 $validatedData['email']
             );
 
+            //attach permissions to user
+            $cognito->updateUserAttribute('custom:permissions', implode(',', $validatedData['permissions']), $validatedData['email']);
+
             return response()->json();
         }
         catch(AwsException $e) {
@@ -168,6 +173,11 @@ class UserController extends Controller
                     ->first();
             }
 
+            $permissions = collect($cognitoUser['UserAttributes'])->where('Name', 'custom:permissions')->first();
+            if(!is_null($permissions)) {
+                $res->permissions = explode(',', $permissions['Value']);
+            }
+
             return response()->json($res);
         }
         catch(AwsException $e) {
@@ -186,7 +196,9 @@ class UserController extends Controller
                 'first_name' => 'required',
                 'last_name'  => 'required',
                 'phone'      => 'nullable',
-                'group'      => 'nullable'
+                'group'      => 'nullable',
+                'permissions'   => 'nullable|array|min:1',
+                'permissions.*' => 'nullable|string|distinct|exists:user_permissions,key'
             ]);
 
             //update user in Shopify
@@ -214,6 +226,15 @@ class UserController extends Controller
 
                 //add user to new group
                 $cognito->addUserToGroup($request->id, $validatedData['group']);
+            }
+
+            //update permissions
+            if(isset($validatedData['permissions'])) {
+                $cognito->updateUserAttribute('custom:permissions', implode(',', $validatedData['permissions']), $request->id);
+            }
+            else {
+                //no permissions, remove them from user
+                $cognito->removeUserAttribute(['custom:permissions'], $request->id);
             }
 
             return response()->json();

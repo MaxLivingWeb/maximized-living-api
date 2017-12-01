@@ -20,7 +20,8 @@ class DatabaseSeeder extends Seeder
             LocationsTableSeeder::class,
             AddressTypesTableSeeder::class,
             LocationsAddressesTableSeeder::class,
-            CommissionGroupsSeeder::class
+            CommissionGroupsSeeder::class,
+            UserPermissionsSeeder::class
         ]);
     }
 }
