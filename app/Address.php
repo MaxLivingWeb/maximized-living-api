@@ -26,6 +26,11 @@ class Address extends Model
         return $this->belongsToMany('App\Location', 'locations_addresses');
     }
 
+    public function groups()
+    {
+        return $this->belongsToMany('App\UserGroup', 'usergroup_addresses');
+    }
+
     public function types()
     {
         return $this->belongsToMany('App\AddressType', 'locations_addresses');
