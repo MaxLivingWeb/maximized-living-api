@@ -21,7 +21,10 @@ class UserGroup extends Model
 
     protected $hidden = [
         'commission_id',
-        'location_id'
+        'location_id',
+        'created_at',
+        'updated_id',
+        'deleted_at'
     ];
 
     public function getCollectionsAttribute()

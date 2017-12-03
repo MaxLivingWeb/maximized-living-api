@@ -17,6 +17,13 @@ class Address extends Model
         'city_id'
     ];
 
+    protected $hidden = [
+        'updated_at',
+        'deleted_at',
+        'city_id',
+        'pivot'
+    ];
+
     public function city() {
         return $this->belongsTo('App\City');
     }
