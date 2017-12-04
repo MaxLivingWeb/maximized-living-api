@@ -34,12 +34,9 @@ class CognitoHelper
             'UserPoolId' => env('AWS_COGNITO_USER_POOL_ID'),
         ]);
 
-        $users = [];
-        foreach ($result->get('Users') as $user) {
-            $users[] = self::formatUserData($user);
-        }
-
-        return $users;
+        return collect($result->get('Users'))->transform(function($user) {
+            return self::formatUserData($user);
+        });
     }
 
     public function createUser($username, $password)
@@ -147,12 +144,9 @@ class CognitoHelper
             'UserPoolId' => env('AWS_COGNITO_USER_POOL_ID'),
         ]);
 
-        $users = [];
-        foreach ($result->get('Users') as $user) {
-            $users[] = self::formatUserData($user);
-        }
-
-        return $users;
+        return collect($result->get('Users'))->transform(function($user) {
+            return self::formatUserData($user);
+        });
     }
 
     public function removeUserAttribute($attributes, $username)
@@ -170,7 +164,7 @@ class CognitoHelper
     {
         $attributes = collect($user['Attributes']);
         return [
-            'id'      => $user['Username'],
+            'id'            => $user['Username'],
             'userStatus'    => $user['UserStatus'],
             'email'         => $attributes->where('Name', 'email')->first()['Value'],
             'created'       => $user['UserCreateDate'],
