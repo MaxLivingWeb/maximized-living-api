@@ -31,6 +31,16 @@ class GroupController extends Controller
         return UserGroup::with('commission')->findOrFail($id);
     }
 
+    public function getUsersById($id)
+    {
+        $userGroup = UserGroup::with('commission')->findOrFail($id);
+
+        $cognito = new CognitoHelper();
+        $users = $cognito->listUsersForGroup($userGroup->group_name);
+
+        return $users;
+    }
+
     public function getByName(Request $request)
     {
         return UserGroup::with(['commission', 'location'])->where('group_name', $request->input('name'))->firstOrFail();

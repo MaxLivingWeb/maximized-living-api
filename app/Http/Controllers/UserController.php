@@ -22,21 +22,7 @@ class UserController extends Controller
                 return response()->json('no users', 404);
             }
 
-            $users = $result->get('Users');
-
-            $res = [];
-            foreach ($users as $user) {
-                $attributes = collect($user['Attributes']);
-                $res[] = [
-                    'id'      => $user['Username'],
-                    'userStatus'    => $user['UserStatus'],
-                    'email'         => $attributes->where('Name', 'email')->first()['Value'],
-                    'created'       => $user['UserCreateDate'],
-                    'shopifyId'     => intval($attributes->where('Name', env('COGNITO_SHOPIFY_CUSTOM_ATTRIBUTE'))->first()['Value'])
-                ];
-            }
-
-            return response()->json($res);
+            return response()->json($result);
         }
         catch(AwsException $e) {
             return response()->json([$e->getAwsErrorMessage()], 500);
