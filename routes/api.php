@@ -17,6 +17,7 @@ Route::group(['prefix' => 'group'], function() {
     Route::get('/all', 'GroupController@all');
     Route::get('/locations', 'GroupController@allWithLocation');
     Route::get('/{id}', 'GroupController@getById');
+    Route::get('/{id}/users', 'GroupController@getUsersById');
     Route::get('/', 'GroupController@getByName');
     Route::post('/', 'GroupController@add');
     Route::put('/{id}', 'GroupController@update');
