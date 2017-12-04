@@ -17,6 +17,13 @@ class Address extends Model
         'city_id'
     ];
 
+    protected $hidden = [
+        'updated_at',
+        'deleted_at',
+        'city_id',
+        'pivot'
+    ];
+
     public function city() {
         return $this->belongsTo('App\City');
     }
@@ -24,6 +31,11 @@ class Address extends Model
     public function locations()
     {
         return $this->belongsToMany('App\Location', 'locations_addresses');
+    }
+
+    public function groups()
+    {
+        return $this->belongsToMany('App\UserGroup', 'usergroup_addresses');
     }
 
     public function types()

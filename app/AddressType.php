@@ -11,6 +11,8 @@ class AddressType extends Model
 
     protected $dates = ['deleted_at'];
 
+    protected $fillable = ['name'];
+
     public function locations()
     {
         return $this->belongsToMany('App\Location');
