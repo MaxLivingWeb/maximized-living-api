@@ -85,7 +85,7 @@ class UserController extends Controller
             }
 
             //body includes a commission billing address, validate it
-            if($request->has('commission.shipping')) {
+            if($request->has('commission.billing')) {
                 $fields = array_merge($fields, [
                     'commission.billing.address_1' => 'required',
                     'commission.billing.address_2' => 'required',
@@ -147,7 +147,10 @@ class UserController extends Controller
                         'city_id'   => intval($request->input('wholesale.shipping.city_id'))
                     ]);
 
-                    $shippingAddress->groups()->attach($userGroup->id, ['address_type_id' => AddressType::firstOrCreate(['name' => 'Wholesale Shipping'])->id]);
+                    $shippingAddress->groups()->attach(
+                        $userGroup->id,
+                        ['address_type_id' => AddressType::firstOrCreate(['name' => 'Wholesale Shipping'])->id]
+                    );
                 }
 
                 //request includes a wholesale billing address, attach the address to the associate group
@@ -158,7 +161,10 @@ class UserController extends Controller
                         'city_id'   => intval($request->input('wholesale.billing.city_id'))
                     ]);
 
-                    $billingAddress->groups()->attach($userGroup->id, ['address_type_id' => AddressType::firstOrCreate(['name' => 'Wholesale Billing'])->id]);
+                    $billingAddress->groups()->attach(
+                        $userGroup->id,
+                        ['address_type_id' => AddressType::firstOrCreate(['name' => 'Wholesale Billing'])->id]
+                    );
                 }
 
                 //request includes a commission billing address, attach the address to the associate group
@@ -169,7 +175,10 @@ class UserController extends Controller
                         'city_id'   => intval($request->input('commission.billing.city_id'))
                     ]);
 
-                    $commissionBillingAddress->groups()->attach($userGroup->id, ['address_type_id' => AddressType::firstOrCreate(['name' => 'Commission Billing'])->id]);
+                    $commissionBillingAddress->groups()->attach(
+                        $userGroup->id,
+                        ['address_type_id' => AddressType::firstOrCreate(['name' => 'Commission Billing'])->id]
+                    );
                 }
             }
 
@@ -193,9 +202,13 @@ class UserController extends Controller
                 $validatedData['email']
             );
 
-            if(isset($validatedData['phone'])) {
+            if(isset($validatedData['permissions'])) {
                 //attach permissions to user
-                $cognito->updateUserAttribute('custom:permissions', implode(',', $validatedData['permissions']), $validatedData['email']);
+                $cognito->updateUserAttribute(
+                    'custom:permissions',
+                    implode(',', $validatedData['permissions']),
+                    $validatedData['email']
+                );
             }
 
             return response()->json();
