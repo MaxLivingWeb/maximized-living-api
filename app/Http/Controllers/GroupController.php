@@ -40,7 +40,8 @@ class GroupController extends Controller
     {
         try {
             $fields = [
-                'group_name' => 'required'
+                'group_name' => 'required',
+                'premium'    => 'nullable|boolean'
             ];
 
             $request->validate($fields);
@@ -58,6 +59,11 @@ class GroupController extends Controller
             $discount_id = null;
             if (!is_null($request->input('discount_id'))) {
                 $discount_id = intval($request->input('discount_id'));
+            }
+
+            $premium = false;
+            if (!is_null($request->input('premium'))) {
+                $premium = boolval($request->input('premium'));
             }
 
             if($request->has('wholesale.shipping') && !is_null($location_id)) {
@@ -87,7 +93,8 @@ class GroupController extends Controller
                 'group_name'    => $request->input('group_name'),
                 'discount_id'   => $discount_id,
                 'commission_id' => $commission_id,
-                'location_id'   => $location_id
+                'location_id'   => $location_id,
+                'premium'       => $premium
             ]);
         }
         catch (ValidationException $e) {
