@@ -19,7 +19,7 @@ class GroupController extends Controller
 
     public function allWithLocation()
     {
-        return UserGroup::with(['location'])
+        return UserGroup::with(['location.addresses.city.region.country'])
             ->get()
             ->where('location', '!==', null)
             ->values()

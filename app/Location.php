@@ -37,6 +37,11 @@ class Location extends Model
         'updated' => AddLocation::class
     ];
 
+    protected $hidden = [
+        'updated_id',
+        'deleted_at'
+    ];
+
     public function addresses()
     {
         return $this->belongsToMany('App\Address', 'locations_addresses');
