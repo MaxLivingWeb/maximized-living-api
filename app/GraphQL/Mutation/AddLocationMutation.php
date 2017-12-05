@@ -104,6 +104,8 @@ class AddLocationMutation extends Mutation
         $addresses = json_decode($args['addresses']);
 
         //takes all the addresses snd creates/updates as needed and attaches them to the location
-        Address::attachAddress($location->id, $city_id, $addresses);
+        foreach($addresses as $address) {
+            Address::attachAddress($location->id, $city_id, $address);
+        }
     }
 }
