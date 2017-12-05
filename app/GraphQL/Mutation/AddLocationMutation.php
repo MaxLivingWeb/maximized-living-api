@@ -3,11 +3,9 @@
 namespace App\GraphQL\Mutation;
 
 use GraphQL;
-use GraphQL\Type\Definition\Type;
 use Folklore\GraphQL\Support\Mutation;
 use App\Location;
-use App\Address;
-use App\City;
+use App\GraphQL\Type\LocationType;
 
 class AddLocationMutation extends Mutation
 {
@@ -22,29 +20,10 @@ class AddLocationMutation extends Mutation
 
     public function args()
     {
-        //these are the parameters that are need - some can be null - but the parameter itself needs to be in the mutation
-        return [
-            'name' => ['name' => 'name', 'type' => Type::nonNull(Type::string())],
-            'zip_postal_code' => ['name' => 'zip_postal_code', 'type' => Type::nonNull(Type::string())],
-            'latitude' => ['name' => 'latitude', 'type' => Type::nonNull(Type::float())],
-            'longitude' => ['name' => 'longitude', 'type' => Type::nonNull(Type::float())],
-            'telephone' => ['name' => 'telephone', 'type' => Type::nonNull(Type::string())],
-            'telephone_ext' => ['name' => 'telephone_ext', 'type' => Type::string()],
-            'fax' => ['name' => 'fax', 'type' => Type::string()],
-            'email' => ['name' => 'email', 'type' => Type::nonNull(Type::string())],
-            'vanity_website_url' => ['name' => 'vanity_website_url', 'type' => Type::string()],
-            'pre_open_display_date' => ['name' => 'pre_open_display_date', 'type' => Type::string()],
-            'opening_date' => ['name' => 'opening_date', 'type' => Type::string()],
-            'closing_date' => ['name' => 'closing_date', 'type' => Type::string()],
-            'daylight_savings_applies' => ['name' => 'daylight_savings_applies', 'type' => Type::boolean()],
-            'timezone_id' => ['name' => 'timezone_id', 'type' => Type::nonNull(Type::int())],
-            'city' => ['name' => 'city', 'type' => Type::nonNull(Type::string())],
-            'region_id' => ['name' => 'region_id', 'type' => Type::nonNull(Type::int())],
-            //setting as a string type and will send address info as json string
-            'addresses' => ['name' => 'addresses', 'type' => Type::nonNull(Type::string())],
-        ];
+        $locationType = new LocationType();
+        return $locationType->fields();
     }
-
+    
     public function resolve($root, $args)
     {
         /*
@@ -127,5 +106,4 @@ class AddLocationMutation extends Mutation
         //takes all the addresses snd creates/updates as needed and attaches them to the location
         Address::attachAddress($location->id, $city_id, $addresses);
     }
-
 }

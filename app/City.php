@@ -11,6 +11,12 @@ class City extends Model
 
     protected $dates = ['deleted_at'];
 
+    protected $hidden = [
+        'updated_at',
+        'deleted_at',
+        'region_id'
+    ];
+
     public function region() {
         return $this->belongsTo('App\Region');
     }
