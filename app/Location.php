@@ -78,7 +78,9 @@ class Location extends Model
                                 radians( $long ) ) +
                                 sin( radians($lat ) ) *
                                 sin( radians( latitude ) )
-                                ) ), 2) as distance, name, latitude, longitude
+                                ) ), 2) as distance, affiliate_id, name, zip_postal_code, latitude, longitude,
+                                telephone, telephone_ext, fax, email, vanity_website_url, slug, pre_open_display_date,
+                                opening_date, closing_date, daylight_savings_applies
                                 FROM Locations) AS query 
                                 WHERE distance < $distance");
 
