@@ -20,7 +20,6 @@ class DeleteLocationMutation extends Mutation
 
     public function args()
     {
-        //accepts an id as an argument
         return [
             'id' => ['name' => 'id', 'type' => Type::nonNull(Type::int())],
         ];
@@ -28,8 +27,7 @@ class DeleteLocationMutation extends Mutation
 
     public function resolve($root, $args)
     {
-        //delete the location passed in as an argument
-        $location = Location::find($args['id']);
+        $location = Location::findOrFail($args['id']);
 
         $location->delete();
     }
