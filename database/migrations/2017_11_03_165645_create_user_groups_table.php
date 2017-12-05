@@ -20,6 +20,7 @@ class CreateUserGroupsTable extends Migration
             $table->integer('legacy_affiliate_id')->nullable()->unsigned();
             $table->integer('commission_id')->nullable()->unsigned()->index();
             $table->integer('location_id')->nullable()->unsigned();
+            $table->boolean('premium')->default(false);
             $table->timestamps();
 
             $table->foreign('commission_id')->references('id')->on('commission_groups');

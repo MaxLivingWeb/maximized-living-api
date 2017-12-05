@@ -12,7 +12,8 @@ class UserGroup extends Model
         'discount_id',
         'legacy_affiliate_id',
         'commission_id',
-        'location_id'
+        'location_id',
+        'premium'
     ];
 
     protected $appends = [
