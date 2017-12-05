@@ -50,8 +50,9 @@ class GroupController extends Controller
     {
         try {
             $fields = [
-                'group_name' => 'required',
-                'premium'    => 'nullable|boolean'
+                'group_name'    => 'required',
+                'premium'       => 'nullable|boolean',
+                'commission.id' => 'nullable|integer',
             ];
 
             //body includes a wholesale billing address, validate it
@@ -84,8 +85,8 @@ class GroupController extends Controller
             $request->validate($fields);
 
             $commission_id = null;
-            if (!is_null($request->input('commission_id'))) {
-                $commission_id = intval($request->input('commission_id'));
+            if (isset($validatedData['commission']['id'])) {
+                $commission_id = intval($request->input('commission.id'));
             }
 
             $location_id = null;
