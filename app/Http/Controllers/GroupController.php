@@ -85,7 +85,7 @@ class GroupController extends Controller
             $request->validate($fields);
 
             $commission_id = null;
-            if (isset($validatedData['commission']['id'])) {
+            if (!is_null($request->input('commission.id'))) {
                 $commission_id = intval($request->input('commission.id'));
             }
 
