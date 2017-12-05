@@ -68,7 +68,7 @@ class Address extends Model
             $existing_address = Address::find( $exists->first()->id );
 
             $existing_address->locations()->attach($location_id, ['address_type_id' => $address->type_id]);
-            continue;
+            return;
         }
 
         //if the address does not exist - create it and attach it to the location
