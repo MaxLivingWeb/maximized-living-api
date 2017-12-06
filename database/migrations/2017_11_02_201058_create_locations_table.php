@@ -17,9 +17,6 @@ class CreateLocationsTable extends Migration
             $table->increments('id');
             $table->integer('affiliate_id')->unsigned();
             $table->string('name');
-            $table->string('zip_postal_code');
-            $table->double('latitude', 13, 10);
-            $table->double('longitude', 13, 10);
             $table->string('telephone');
             $table->string('telephone_ext');
             $table->string('fax');
@@ -29,14 +26,14 @@ class CreateLocationsTable extends Migration
             $table->string('pre_open_display_date');
             $table->string('opening_date');
             $table->string('closing_date');
-            $table->boolean('daylight_savings_applies');
+            $table->boolean('daylight_savings_applies')->default(1);
             $table->mediumText('operating_hours');
-            $table->integer('timezone_id')->unsigned();
+            //$table->integer('timezone_id')->unsigned();
 
             $table->softDeletes();
             $table->timestamps();
 
-            $table->foreign('timezone_id')->references('id')->on('timezones');
+            //$table->foreign('timezone_id')->references('id')->on('timezones');
         });
     }
 

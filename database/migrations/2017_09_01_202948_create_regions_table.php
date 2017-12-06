@@ -16,7 +16,7 @@ class CreateRegionsTable extends Migration
         Schema::create('regions', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name');
-            $table->string('abbreviation')->unique();
+//            $table->string('abbreviation')->unique();
             $table->integer('country_id')->unsigned();
             $table->softDeletes();
             $table->timestamps();

@@ -83,6 +83,22 @@ class LocationType extends GraphQLType
             'timezone_id' => [
                 'type' => Type::int(),
                 'description' => 'Id of the timezone'
+            ],
+            'addresses' => [
+                'name' => 'addresses',
+                'type' => Type::nonNull(Type::string())
+            ],
+            'city' => [
+                'name' => 'city',
+                'type' => Type::nonNull(Type::string())
+            ],
+            'region' => [
+                'name' => 'region',
+                'type' => Type::nonNull(Type::string())
+            ],
+            'country' => [
+                'name' => 'country',
+                'type' => Type::string()
             ]
         ];
     }
