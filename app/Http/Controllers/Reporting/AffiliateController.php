@@ -36,7 +36,7 @@ class AffiliateController extends Controller
                     return false;
                 }
 
-
+                //TODO: swap legacy_affiliate_id for affiliate_id
                 return intval($affiliateId->value) === $userGroup->legacy_affiliate_id;
             })->values();
 
