@@ -8,11 +8,9 @@ use Illuminate\Http\Request;
 
 class AffiliateController extends Controller
 {
-    public function salesById(Request $request)
+    public function sales(Request $request)
     {
         try {
-            $userGroup = UserGroup::findOrFail($request->id);
-
             $shopify = new ShopifyHelper();
 
             $startDate = null;
@@ -29,18 +27,27 @@ class AffiliateController extends Controller
 
             $orders = $shopify->getAllOrders($startDate, $endDate);
 
-            $orders = $orders->filter(function ($value) use ($userGroup) {
-                $affiliateId = collect($value->note_attributes)->where('name', 'affiliateId')->first();
+            $affiliates = UserGroup::with(['commission', 'location'])->get()->where('commission', '!==', null);
 
-                if(is_null($affiliateId)) {
+            foreach ($affiliates as $affiliate) {
+                $affiliate->sales = $orders->filter(function ($value) use ($affiliate) {
+                    $affiliateId = collect($value->note_attributes)->where('name', 'affiliateId')->first();
+
+                    if(is_null($affiliateId)) {
+                        return false;
+                    }
+
+                    return intval($affiliateId->value) === $affiliate->id;
+                })->values();
+            }
+
+            return $affiliates->filter(function($affiliate) {
+                if($affiliate->sales->isEmpty()) {
                     return false;
                 }
 
-                //TODO: swap legacy_affiliate_id for affiliate_id
-                return intval($affiliateId->value) === $userGroup->legacy_affiliate_id;
-            })->values();
-
-            return $orders;
+                return true;
+            });
         }
         catch (\Exception $e) {
             return response()->json($e->getMessage(), 500);
