@@ -50,7 +50,7 @@ class Address extends Model
 
     //takes the location id of the associated location and an array of addresses
     //the address_array is 2-d and each element has an address_1, address_2 and an address type id
-    public static function attachAddress($location_id, $city_id, $address) )
+    public static function attachAddress($location_id, $city_id, $address)
     {
         //detach the location from all previous addresses
         $location = Location::find($location_id);
