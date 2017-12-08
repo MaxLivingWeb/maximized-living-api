@@ -29,12 +29,11 @@ class UpdateLocationMutation extends Mutation
     {
         foreach ($args as $key => $var) {
             if (is_array($var)) {
-                $var = json_encode($var);
+                $args[$key] = filter_var_array($var, FILTER_SANITIZE_STRING);
+            } else {
+                $args[$key] = filter_var($var, FILTER_SANITIZE_STRING);
             }
-            $args[$key] = filter_var($var, FILTER_SANITIZE_STRING);
         }
-        
-        dd($args);
     
         $business_hours = [
             'businessHours' => [
