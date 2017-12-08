@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Address;
+use App\AddressType;
 use App\Helpers\ShopifyHelper;
 use App\UserGroup;
 use GuzzleHttp\Exception\ClientException;
@@ -22,21 +24,7 @@ class UserController extends Controller
                 return response()->json('no users', 404);
             }
 
-            $users = $result->get('Users');
-
-            $res = [];
-            foreach ($users as $user) {
-                $attributes = collect($user['Attributes']);
-                $res[] = [
-                    'id'      => $user['Username'],
-                    'userStatus'    => $user['UserStatus'],
-                    'email'         => $attributes->where('Name', 'email')->first()['Value'],
-                    'created'       => $user['UserCreateDate'],
-                    'shopifyId'     => intval($attributes->where('Name', env('COGNITO_SHOPIFY_CUSTOM_ATTRIBUTE'))->first()['Value'])
-                ];
-            }
-
-            return response()->json($res);
+            return response()->json($result);
         }
         catch(AwsException $e) {
             return response()->json([$e->getAwsErrorMessage()], 500);
@@ -50,27 +38,48 @@ class UserController extends Controller
     public function addUser(Request $request)
     {
         try {
-            $validatedData = $request->validate([
+            $fields = [
                 'email'     => 'required|email',
                 'password'  => 'required|min:8',
                 'firstName' => 'required',
                 'lastName'  => 'required',
                 'phone'     => 'nullable',
                 'legacyId'  => 'nullable|integer',
-                'commissionId'          => 'nullable|integer',
-                'wholesale'             => 'nullable',
-                'wholesale.address1'    => 'nullable',
-                'wholesale.address2'    => 'nullable',
-                'wholesale.city'        => 'nullable',
-                'wholesale.province'    => 'nullable',
-                'wholesale.phone'       => 'nullable',
-                'wholesale.zip'         => 'nullable',
-                'wholesale.country'     => 'nullable',
-                'discountCode'          => 'nullable|integer',
-                'groupName'             => 'nullable',
-                'permissions'           => 'nullable|array|min:1',
-                'permissions.*'         => 'nullable|string|distinct|exists:user_permissions,key'
-            ]);
+                'commission.id' => 'nullable|integer',
+                'discountCode'  => 'nullable|integer',
+                'groupName'     => 'nullable',
+                'permissions'   => 'nullable|array|min:1',
+                'permissions.*' => 'nullable|string|distinct|exists:user_permissions,key'
+            ];
+
+            //body includes a wholesale billing address, validate it
+            if($request->has('wholesale.billing')) {
+                $fields = array_merge($fields, [
+                    'wholesale.billing.address_1' => 'required',
+                    'wholesale.billing.address_2' => 'required',
+                    'wholesale.billing.city_id'   => 'required'
+                ]);
+            }
+
+            //body includes a wholesale shipping address, validate it
+            if($request->has('wholesale.shipping')) {
+                $fields = array_merge($fields, [
+                    'wholesale.shipping.address_1' => 'required',
+                    'wholesale.shipping.address_2' => 'required',
+                    'wholesale.shipping.city_id'   => 'required'
+                ]);
+            }
+
+            //body includes a commission billing address, validate it
+            if($request->has('commission.billing')) {
+                $fields = array_merge($fields, [
+                    'commission.billing.address_1' => 'required',
+                    'commission.billing.address_2' => 'required',
+                    'commission.billing.city_id'   => 'required'
+                ]);
+            }
+
+            $validatedData = $request->validate($fields);
 
             //Add user to Cognito
             $cognito = new CognitoHelper();
@@ -81,14 +90,16 @@ class UserController extends Controller
                 $validatedData['password']
             );
 
+            //user is associated to a location
             if(isset($validatedData['groupName'])) {
                 $cognito->addUserToGroup(
                     $cognitoUser->get('User')['Username'],
                     $validatedData['groupName']
                 );
             }
+            //user is not associated to a location
             else {
-                //no group selected. Create and add to a temporary group
+                //Create a group for just this associate
                 $tempGroup = $cognito->createGroup(
                     'user.' . $validatedData['email'],
                     'group for ' . $validatedData['email']
@@ -102,44 +113,72 @@ class UserController extends Controller
                     $params['legacy_affiliate_id'] = $validatedData['legacyId'];
                 }
 
-                if(isset($validatedData['commissionId'])) {
-                    $params['commission_id'] = $validatedData['commissionId'];
+                if(isset($validatedData['commission']['id'])) {
+                    $params['commission_id'] = $validatedData['commission']['id'];
                 }
 
                 if(isset($validatedData['discountCode'])) {
                     $params['discount_id'] = $validatedData['discountCode'];
                 }
 
-                UserGroup::create($params);
+                $userGroup = UserGroup::create($params);
 
                 $cognito->addUserToGroup($cognitoUser->get('User')['Username'], $tempGroup['GroupName']);
+
+                //request includes a wholesale shipping address, attach the address to the associate group
+                if($request->has('wholesale.shipping')) {
+                    $shippingAddress = Address::create([
+                        'address_1' => $request->input('wholesale.shipping.address_1'),
+                        'address_2' => $request->input('wholesale.shipping.address_2'),
+                        'city_id'   => intval($request->input('wholesale.shipping.city_id'))
+                    ]);
+
+                    $shippingAddress->groups()->attach(
+                        $userGroup->id,
+                        ['address_type_id' => AddressType::firstOrCreate(['name' => 'Wholesale Shipping'])->id]
+                    );
+                }
+
+                //request includes a wholesale billing address, attach the address to the associate group
+                if($request->has('wholesale.billing')) {
+                    $billingAddress = Address::create([
+                        'address_1' => $request->input('wholesale.billing.address_1'),
+                        'address_2' => $request->input('wholesale.billing.address_2'),
+                        'city_id'   => intval($request->input('wholesale.billing.city_id'))
+                    ]);
+
+                    $billingAddress->groups()->attach(
+                        $userGroup->id,
+                        ['address_type_id' => AddressType::firstOrCreate(['name' => 'Wholesale Billing'])->id]
+                    );
+                }
+
+                //request includes a commission billing address, attach the address to the associate group
+                if($request->has('commission.billing')) {
+                    $commissionBillingAddress = Address::create([
+                        'address_1' => $request->input('commission.billing.address_1'),
+                        'address_2' => $request->input('commission.billing.address_2'),
+                        'city_id'   => intval($request->input('commission.billing.city_id'))
+                    ]);
+
+                    $commissionBillingAddress->groups()->attach(
+                        $userGroup->id,
+                        ['address_type_id' => AddressType::firstOrCreate(['name' => 'Commission Billing'])->id]
+                    );
+                }
             }
 
             $customer = [
-                'email'         => $validatedData['email'],
-                'first_name'    => $validatedData['firstName'],
-                'last_name'     => $validatedData['lastName']
+                'email'      => $validatedData['email'],
+                'first_name' => $validatedData['firstName'],
+                'last_name'  => $validatedData['lastName']
             ];
 
-            if(!is_null($validatedData['phone'])) {
+            if(isset($validatedData['phone'])) {
                 $customer['phone'] = $validatedData['phone'];
             }
 
-            if(isset($validatedData['wholesale'])) {
-                $customer['addresses'] = [
-                    [
-                        'address1'  => $validatedData['wholesale']['address1'],
-                        'address2'  => $validatedData['wholesale']['address2'],
-                        'city'      => $validatedData['wholesale']['city'],
-                        'province'  => $validatedData['wholesale']['province'],
-                        'phone'     => $validatedData['wholesale']['phone'],
-                        'zip'       => $validatedData['wholesale']['zip'],
-                        'country'   => $validatedData['wholesale']['country'],
-                    ]
-                ];
-            }
-
-            //Add user to Shopify
+            //Add customer to Shopify
             $shopifyCustomer = $shopify->getOrCreateCustomer($customer);
 
             //Save Shopify ID to Cognito user attribute
@@ -149,8 +188,14 @@ class UserController extends Controller
                 $validatedData['email']
             );
 
-            //attach permissions to user
-            $cognito->updateUserAttribute('custom:permissions', implode(',', $validatedData['permissions']), $validatedData['email']);
+            if(isset($validatedData['permissions'])) {
+                //attach permissions to user
+                $cognito->updateUserAttribute(
+                    'custom:permissions',
+                    implode(',', $validatedData['permissions']),
+                    $validatedData['email']
+                );
+            }
 
             return response()->json();
         }

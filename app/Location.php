@@ -34,6 +34,11 @@ class Location extends Model
         'updated' => AddLocation::class
     ];
 
+    protected $hidden = [
+        'updated_id',
+        'deleted_at'
+    ];
+
     public function addresses()
     {
         return $this->belongsToMany('App\Address', 'locations_addresses');
@@ -57,5 +62,25 @@ class Location extends Model
 
     public function getFirstAddress() {
         return $this->addresses->first();
+    }
+
+    public static function filterByRadius($lat, $long, $distance) {
+
+        //TODO: figure out which fields need to be returned in this query
+        $filtered_locations = \DB::select("SELECT * FROM 
+                                (SELECT ROUND( ( 6371 * acos(
+                                cos( radians( $lat ) ) *
+                                cos( radians( latitude ) ) *
+                                cos( radians( longitude ) -
+                                radians( $long ) ) +
+                                sin( radians($lat ) ) *
+                                sin( radians( latitude ) )
+                                ) ), 2) as distance, affiliate_id, name, zip_postal_code, latitude, longitude,
+                                telephone, telephone_ext, fax, email, vanity_website_url, slug, pre_open_display_date,
+                                opening_date, closing_date, daylight_savings_applies
+                                FROM Locations) AS query 
+                                WHERE distance < $distance");
+
+        return $filtered_locations;
     }
 }

@@ -19,7 +19,7 @@ class GroupController extends Controller
 
     public function allWithLocation()
     {
-        return UserGroup::with(['location'])
+        return UserGroup::with(['location.addresses.city.region.country'])
             ->get()
             ->where('location', '!==', null)
             ->values()
@@ -31,6 +31,16 @@ class GroupController extends Controller
         return UserGroup::with('commission')->findOrFail($id);
     }
 
+    public function getUsersById($id)
+    {
+        $userGroup = UserGroup::with('commission')->findOrFail($id);
+
+        $cognito = new CognitoHelper();
+        $users = $cognito->listUsersForGroup($userGroup->group_name);
+
+        return $users;
+    }
+
     public function getByName(Request $request)
     {
         return UserGroup::with(['commission', 'location'])->where('group_name', $request->input('name'))->firstOrFail();
@@ -40,21 +50,15 @@ class GroupController extends Controller
     {
         try {
             $fields = [
-                'group_name' => 'required'
+                'group_name' => 'required',
+                'premium'    => 'nullable|boolean'
             ];
-            if($request->has('commission')) {
-                $fields = array_merge($fields, [
-                    'commission.id'                     => 'required',
-                    'commission.account_number'         => 'required',
-                    'commission.branch_number'          => 'required',
-                    'commission.institution_number'     => 'required'
-                ]);
-            }
+
             $request->validate($fields);
 
             $commission_id = null;
-            if (!is_null($request->input('commission.id'))) {
-                $commission_id = intval($request->input('commission.id'));
+            if (!is_null($request->input('commission_id'))) {
+                $commission_id = intval($request->input('commission_id'));
             }
 
             $location_id = null;
@@ -65,6 +69,11 @@ class GroupController extends Controller
             $discount_id = null;
             if (!is_null($request->input('discount_id'))) {
                 $discount_id = intval($request->input('discount_id'));
+            }
+
+            $premium = false;
+            if (!is_null($request->input('premium'))) {
+                $premium = boolval($request->input('premium'));
             }
 
             if($request->has('wholesale.shipping') && !is_null($location_id)) {
@@ -94,7 +103,8 @@ class GroupController extends Controller
                 'group_name'    => $request->input('group_name'),
                 'discount_id'   => $discount_id,
                 'commission_id' => $commission_id,
-                'location_id'   => $location_id
+                'location_id'   => $location_id,
+                'premium'       => $premium
             ]);
         }
         catch (ValidationException $e) {

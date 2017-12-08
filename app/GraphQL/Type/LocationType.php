@@ -28,18 +28,6 @@ class LocationType extends GraphQLType
                 'type' => Type::string(),
                 'description' => 'Name of the location'
             ],
-            'zip_postal_code' => [
-                'type' => Type::string(),
-                'description' => 'Zip/Postal Code'
-            ],
-            'latitude' => [
-                'type' => Type::float(),
-                'description' => 'Latitude of location'
-            ],
-            'longitude' => [
-                'type' => Type::float(),
-                'description' => 'Longitude of location'
-            ],
             'telephone' => [
                 'type' => Type::string(),
                 'description' => 'Telephone number of location'
@@ -86,20 +74,12 @@ class LocationType extends GraphQLType
             ],
             'addresses' => [
                 'name' => 'addresses',
-                'type' => Type::nonNull(Type::string())
+                'type' => Type::listOf(GraphQL::type('Address'))
             ],
-            'city' => [
-                'name' => 'city',
-                'type' => Type::nonNull(Type::string())
+            'businessHours' => [
+                'name' => 'businessHours',
+                'type' => Type::string(),
             ],
-            'region' => [
-                'name' => 'region',
-                'type' => Type::nonNull(Type::string())
-            ],
-            'country' => [
-                'name' => 'country',
-                'type' => Type::string()
-            ]
         ];
     }
 }

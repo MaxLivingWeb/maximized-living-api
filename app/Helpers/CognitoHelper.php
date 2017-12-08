@@ -30,9 +30,13 @@ class CognitoHelper
 
     public function listUsers()
     {
-        return $this->client->listUsers([
+        $result = $this->client->listUsers([
             'UserPoolId' => env('AWS_COGNITO_USER_POOL_ID'),
         ]);
+
+        return collect($result->get('Users'))->transform(function($user) {
+            return self::formatUserData($user);
+        });
     }
 
     public function createUser($username, $password)
@@ -140,7 +144,9 @@ class CognitoHelper
             'UserPoolId' => env('AWS_COGNITO_USER_POOL_ID'),
         ]);
 
-        return $result->get('Users');
+        return collect($result->get('Users'))->transform(function($user) {
+            return self::formatUserData($user);
+        });
     }
 
     public function removeUserAttribute($attributes, $username)
@@ -152,5 +158,17 @@ class CognitoHelper
         ]);
 
         return $result->get('Users');
+    }
+
+    public static function formatUserData($user)
+    {
+        $attributes = collect($user['Attributes']);
+        return [
+            'id'            => $user['Username'],
+            'userStatus'    => $user['UserStatus'],
+            'email'         => $attributes->where('Name', 'email')->first()['Value'],
+            'created'       => $user['UserCreateDate'],
+            'shopifyId'     => intval($attributes->where('Name', env('COGNITO_SHOPIFY_CUSTOM_ATTRIBUTE'))->first()['Value'])
+        ];
     }
 }

@@ -7,6 +7,8 @@ use Folklore\GraphQL\Support\Type as GraphQLType;
 
 class AddressType extends GraphQLType
 {
+    protected $inputObject = true;
+    
     protected $attributes = [
         'name' => 'Address',
         'description' => 'An address'
@@ -16,7 +18,7 @@ class AddressType extends GraphQLType
     {
         return [
             'id' => [
-                'type' => Type::nonNull(Type::int()),
+                'type' => Type::int(),
                 'description' => 'ID of the region'
             ],
             'address_1' => [
@@ -27,26 +29,34 @@ class AddressType extends GraphQLType
                 'type' => Type::string(),
                 'description' => 'address 2'
             ],
-            'type' => [
-                'type' => Type::listOf(GraphQL::type('AddressType')),
-                'description' => 'locations associated with an address',
-                'resolve' => function ($root, $args) {
-                    return $root->types;
-                }
+            'latitude' => [
+                'type' => Type::float(),
+                'description' => 'Latitude of location'
             ],
-            'locations' => [
-                'args' => [
-                    'id' => [
-                        'type' => Type::int(),
-                        'name' => 'id'
-                    ]
-                ],
-                'type' => Type::listOf(GraphQL::type('Location')),
-                'description' => 'locations associated with an address',
-                'resolve' => function ($root, $args) {
-                    return  $root->locations;
-                }
-            ]
+            'longitude' => [
+                'type' => Type::float(),
+                'description' => 'Longitude of location'
+            ],
+            'region' => [
+                'name' => 'region',
+                'type' => Type::string()
+            ],
+            'city' => [
+                'name' => 'city',
+                'type' => Type::string()
+            ],
+            'country' => [
+                'name' => 'country',
+                'type' => Type::string()
+            ],
+            'addressType' => [
+                'name' => 'addressType',
+                'type' => Type::int()
+            ],
+            'zip_postal_code' => [
+                'type' => Type::string(),
+                'description' => 'Zip/Postal Code'
+            ],
         ];
     }
 }

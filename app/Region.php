@@ -11,6 +11,12 @@ class Region extends Model
 
     protected $dates = ['deleted_at'];
 
+    protected $hidden = [
+        'updated_at',
+        'deleted_at',
+        'country_id'
+    ];
+
     public function cities() {
         return $this->hasMany('App\City');
     }
