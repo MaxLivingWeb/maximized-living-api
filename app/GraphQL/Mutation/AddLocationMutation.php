@@ -27,10 +27,13 @@ class AddLocationMutation extends Mutation
     
     public function resolve($root, $args)
     {
-        /*
-         * query format example
-         * http://max-living-locations-2.dev/graphql?query=mutation+mutation{addLocation(addresses:%22[{\%22address_1\%22:\%22richmond%20st\%22,\%22address_2\%22:\%22unit%203\%22,\%22type_id\%22:1},{\%22address_1\%22:\%22oxford%20st\%22,\%22address_2\%22:\%22unit%209\%22,\%22type_id\%22:2}]%22,region_id:1,city:%22Londy%22,daylight_savings_applies:false,pre_open_display_date:%2202-02-02%22,opening_date:%2202-02-02%22,closing_date:%2208-06-04%22,name:%22tommylandPART2%22,zip_postal_code:%2290210%22,latitude:45.8543456,longitude:-91.1234564,telephone:%22519-472-1718%22,telephone_ext:%2298%22,fax:%2212345%22,email:%22tom@tom.com%22,vanity_website_url:%22vanity_url%22,timezone_id:1){name,latitude}}
-        */
+        foreach ($args as $key => $var) {
+            if (is_array($var)) {
+                $args[$key] = filter_var_array($var, FILTER_SANITIZE_STRING);
+            } else {
+                $args[$key] = filter_var($var, FILTER_SANITIZE_STRING);
+            }
+        }
     
         $data = [
             'name' => 'Alexville',
@@ -110,7 +113,7 @@ class AddLocationMutation extends Mutation
             'opening_date'              => $args['opening_date'],
             'closing_date'              => $args['closing_date'],
             'daylight_savings_applies'  => $args['daylight_savings_applies'],
-            'operating_hours'           => $args['businessHours']
+            'operating_hours'           => $args['business_hours']
          ]);
         
         $addresses = $args['addresses'];

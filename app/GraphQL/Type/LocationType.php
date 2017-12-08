@@ -76,8 +76,8 @@ class LocationType extends GraphQLType
                 'name' => 'addresses',
                 'type' => Type::listOf(GraphQL::type('Address'))
             ],
-            'businessHours' => [
-                'name' => 'businessHours',
+            'business_hours' => [
+                'name' => 'business_hours',
                 'type' => Type::string(),
             ],
         ];

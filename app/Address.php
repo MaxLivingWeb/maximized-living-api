@@ -63,7 +63,7 @@ class Address extends Model
 
             $existing_address = Address::where('id', $address['id']);
 
-            $existing_address->locations()->attach($location_id, ['address_type_id' => $address['addressType']]);
+            $existing_address->locations()->attach($location_id, ['address_type_id' => $address['address_type']]);
             return;
         }
 
@@ -79,6 +79,6 @@ class Address extends Model
 
         $new_address->save();
         
-        $new_address->locations()->attach($location_id, ['address_type_id' => $address['addressType']]);
+        $new_address->locations()->attach($location_id, ['address_type_id' => $address['address_type']]);
     }
 }
