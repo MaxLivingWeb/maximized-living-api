@@ -84,11 +84,6 @@ class UserController extends Controller
 
             $validatedData = $request->validate($fields);
 
-            //Start building custom params array
-            $params = [
-                'group_name_display' => $validatedData['firstName'].' '.$validatedData['lastName']
-            ];
-
             //Add user to Cognito
             $cognitoUser = $cognito->createUser(
                 $validatedData['email'],
@@ -116,7 +111,10 @@ class UserController extends Controller
                     'user.' . $validatedData['email'],
                     'group for ' . $validatedData['email']
                 );
-                $params['group_name'] = $tempGroup['GroupName'];
+                $params = [
+                    'group_name' => $tempGroup['GroupName'],
+                    'group_name_display' => $validatedData['firstName'].' '.$validatedData['lastName'].' ('.$validatedData['email'].')'
+                ];
 
                 if(isset($validatedData['legacyId'])) {
                     $params['legacy_affiliate_id'] = $validatedData['legacyId'];
