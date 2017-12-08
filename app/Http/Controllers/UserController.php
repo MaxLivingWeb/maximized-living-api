@@ -56,7 +56,7 @@ class UserController extends Controller
             if($request->has('wholesale.billing')) {
                 $fields = array_merge($fields, [
                     'wholesale.billing.address_1' => 'required',
-                    'wholesale.billing.address_2' => 'required',
+                    'wholesale.billing.address_2' => 'nullable',
                     'wholesale.billing.city_id'   => 'required'
                 ]);
             }
@@ -65,7 +65,7 @@ class UserController extends Controller
             if($request->has('wholesale.shipping')) {
                 $fields = array_merge($fields, [
                     'wholesale.shipping.address_1' => 'required',
-                    'wholesale.shipping.address_2' => 'required',
+                    'wholesale.shipping.address_2' => 'nullable',
                     'wholesale.shipping.city_id'   => 'required'
                 ]);
             }
@@ -74,7 +74,7 @@ class UserController extends Controller
             if($request->has('commission.billing')) {
                 $fields = array_merge($fields, [
                     'commission.billing.address_1' => 'required',
-                    'commission.billing.address_2' => 'required',
+                    'commission.billing.address_2' => 'nullable',
                     'commission.billing.city_id'   => 'required'
                 ]);
             }
