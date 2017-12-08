@@ -237,9 +237,14 @@ class UserController extends Controller
                 ->where('Name', env('COGNITO_SHOPIFY_CUSTOM_ATTRIBUTE'))
                 ->first()['Value'];
 
+            $affiliateId = collect($cognitoUser['UserAttributes'])
+                ->where('Name', 'custom:affiliateId')
+                ->first()['Value'];
+
             $shopifyCustomer = $shopify->getCustomer($shopifyId);
 
             $res->shopify_id = $shopifyCustomer->id;
+            $res->referred_affiliate_id = is_null($affiliateId) ? $affiliateId : intval($affiliateId);
             $res->first_name = $shopifyCustomer->first_name;
             $res->last_name = $shopifyCustomer->last_name;
             $res->phone = $shopifyCustomer->phone;
@@ -327,6 +332,22 @@ class UserController extends Controller
         }
         catch (\Exception $e) {
             return response()->json($e->getMessage(), 500);
+        }
+    }
+
+    public function linkToAffiliate($id, $affiliateId)
+    {
+        try {
+            $cognito = new CognitoHelper();
+
+            $cognito->updateUserAttribute(
+                'custom:affiliateId',
+                $affiliateId,
+                $id
+            );
+        }
+        catch(AwsException $e) {
+            return response()->json([$e->getAwsErrorMessage()], 500);
         }
     }
 }
