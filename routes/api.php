@@ -28,6 +28,7 @@ Route::group(['prefix' => 'user'], function() {
     Route::get('/{id}', 'UserController@getUser');
     Route::post('/', 'UserController@addUser');
     Route::put('/{id}', 'UserController@updateUser');
+    Route::get('/{id}/affiliate/{affiliateId}', 'UserController@linkToAffiliate');
 });
 
 Route::get('/users', 'UserController@listUsers');
