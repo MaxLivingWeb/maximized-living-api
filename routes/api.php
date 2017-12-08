@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 
 Route::group(['prefix' => 'group'], function() {
     Route::get('/all', 'GroupController@all');
+    Route::get('/commissions', 'GroupController@allWithCommission');
     Route::get('/locations', 'GroupController@allWithLocation');
     Route::get('/{id}', 'GroupController@getById');
     Route::get('/{id}/users', 'GroupController@getUsersById');

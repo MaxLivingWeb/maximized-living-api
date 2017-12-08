@@ -41,6 +41,15 @@ class GroupController extends Controller
         return $users;
     }
 
+    public function allWithCommission()
+    {
+        return UserGroup::with(['commission'])
+            ->get()
+            ->where('commission', '!==', null)
+            ->values()
+            ->all();
+    }
+
     public function getByName(Request $request)
     {
         return UserGroup::with(['commission', 'location'])->where('group_name', $request->input('name'))->firstOrFail();
