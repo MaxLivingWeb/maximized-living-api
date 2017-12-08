@@ -60,7 +60,6 @@ class Address extends Model
         $cityId = City::checkCity( $address['country'], $address['region'], $address['city'] );
         
         if(isset($address['id'])) {
-            dd($address['id']);
 
             $existing_address = Address::where('id', $address['id']);
 

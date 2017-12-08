@@ -56,7 +56,7 @@ class UserController extends Controller
             if($request->has('wholesale.billing')) {
                 $fields = array_merge($fields, [
                     'wholesale.billing.address_1' => 'required',
-                    'wholesale.billing.address_2' => 'required',
+                    'wholesale.billing.address_2' => 'nullable',
                     'wholesale.billing.city_id'   => 'required'
                 ]);
             }
@@ -65,7 +65,7 @@ class UserController extends Controller
             if($request->has('wholesale.shipping')) {
                 $fields = array_merge($fields, [
                     'wholesale.shipping.address_1' => 'required',
-                    'wholesale.shipping.address_2' => 'required',
+                    'wholesale.shipping.address_2' => 'nullable',
                     'wholesale.shipping.city_id'   => 'required'
                 ]);
             }
@@ -74,7 +74,7 @@ class UserController extends Controller
             if($request->has('commission.billing')) {
                 $fields = array_merge($fields, [
                     'commission.billing.address_1' => 'required',
-                    'commission.billing.address_2' => 'required',
+                    'commission.billing.address_2' => 'nullable',
                     'commission.billing.city_id'   => 'required'
                 ]);
             }
@@ -237,9 +237,14 @@ class UserController extends Controller
                 ->where('Name', env('COGNITO_SHOPIFY_CUSTOM_ATTRIBUTE'))
                 ->first()['Value'];
 
+            $affiliateId = collect($cognitoUser['UserAttributes'])
+                ->where('Name', 'custom:affiliateId')
+                ->first()['Value'];
+
             $shopifyCustomer = $shopify->getCustomer($shopifyId);
 
             $res->shopify_id = $shopifyCustomer->id;
+            $res->referred_affiliate_id = is_null($affiliateId) ? $affiliateId : intval($affiliateId);
             $res->first_name = $shopifyCustomer->first_name;
             $res->last_name = $shopifyCustomer->last_name;
             $res->phone = $shopifyCustomer->phone;
@@ -327,6 +332,22 @@ class UserController extends Controller
         }
         catch (\Exception $e) {
             return response()->json($e->getMessage(), 500);
+        }
+    }
+
+    public function linkToAffiliate($id, $affiliateId)
+    {
+        try {
+            $cognito = new CognitoHelper();
+
+            $cognito->updateUserAttribute(
+                'custom:affiliateId',
+                $affiliateId,
+                $id
+            );
+        }
+        catch(AwsException $e) {
+            return response()->json([$e->getAwsErrorMessage()], 500);
         }
     }
 }
