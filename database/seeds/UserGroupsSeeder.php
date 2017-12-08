@@ -20,6 +20,7 @@ class UserGroupsSeeder extends Seeder
                 $newUserGroup = UserGroup::create([
                     'group_name' => $group['GroupName'],
                     'group_name_display' => '',
+                    'group_type' => 'group',
                     'location_id' => \App\Location::all()->random()->id
                 ]);
                 $newUserGroup->update(['group_name_display' => $newUserGroup->location->name]);

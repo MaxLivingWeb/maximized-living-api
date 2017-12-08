@@ -136,7 +136,6 @@ class GroupController extends Controller
     public function delete($id)
     {
         $group = UserGroup::findOrFail($id);
-
         $group->delete();
     }
 }

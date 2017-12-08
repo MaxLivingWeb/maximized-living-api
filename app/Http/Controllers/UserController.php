@@ -102,6 +102,7 @@ class UserController extends Controller
                     ->firstOrFail();
                 if (!is_null($location)) {
                     $params['group_name_display'] = $location->location->name;
+                    $params['group_type'] = 'group';
                 }
             }
             //user is not associated to a location
@@ -113,7 +114,8 @@ class UserController extends Controller
                 );
                 $params = [
                     'group_name' => $tempGroup['GroupName'],
-                    'group_name_display' => $validatedData['firstName'].' '.$validatedData['lastName'].' ('.$validatedData['email'].')'
+                    'group_name_display' => $validatedData['firstName'].' '.$validatedData['lastName'].' ('.$validatedData['email'].')',
+                    'group_type' => 'single_user'
                 ];
 
                 if(isset($validatedData['legacyId'])) {
