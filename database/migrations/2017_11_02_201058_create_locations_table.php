@@ -28,12 +28,9 @@ class CreateLocationsTable extends Migration
             $table->string('closing_date');
             $table->boolean('daylight_savings_applies')->default(1);
             $table->mediumText('operating_hours');
-            //$table->integer('timezone_id')->unsigned();
 
             $table->softDeletes();
             $table->timestamps();
-
-            //$table->foreign('timezone_id')->references('id')->on('timezones');
         });
     }
 
