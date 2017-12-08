@@ -28,10 +28,12 @@ class AddLocationMutation extends Mutation
     public function resolve($root, $args)
     {
         foreach ($args as $key => $var) {
-            $args[$key] = filter_var($var, FILTER_SANITIZE_STRING);
+            if (is_array($var)) {
+                $args[$key] = filter_var_array($var, FILTER_SANITIZE_STRING);
+            } else {
+                $args[$key] = filter_var($var, FILTER_SANITIZE_STRING);
+            }
         }
-        
-        dd($args);
     
         $data = [
             'name' => 'Alexville',
