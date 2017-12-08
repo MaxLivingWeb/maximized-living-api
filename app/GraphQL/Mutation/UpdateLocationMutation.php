@@ -6,6 +6,7 @@ use GraphQL;
 use Folklore\GraphQL\Support\Mutation;
 use App\Location;
 use App\GraphQL\Type\LocationType;
+use App\Address;
 
 class UpdateLocationMutation extends Mutation
 {
@@ -27,8 +28,13 @@ class UpdateLocationMutation extends Mutation
     public function resolve($root, $args)
     {
         foreach ($args as $key => $var) {
+            if (is_array($var)) {
+                $var = json_encode($var);
+            }
             $args[$key] = filter_var($var, FILTER_SANITIZE_STRING);
         }
+        
+        dd($args);
     
         $business_hours = [
             'businessHours' => [
@@ -73,9 +79,6 @@ class UpdateLocationMutation extends Mutation
             ->update([
                 'affiliate_id'              => "123",
                 'name'                      => $args['name'],
-                'zip_postal_code'           => $args['zip_postal_code'],
-                'latitude'                  => $args['latitude'],
-                'longitude'                 => $args['longitude'],
                 'telephone'                 => $args['telephone'],
                 'telephone_ext'             => $args['telephone_ext'],
                 'fax'                       => $args['fax'],
@@ -85,9 +88,15 @@ class UpdateLocationMutation extends Mutation
                 'opening_date'              => $args['opening_date'],
                 'closing_date'              => $args['closing_date'],
                 'daylight_savings_applies'  => $args['daylight_savings_applies'],
-                'operating_hours'           => json_encode($business_hours),
-                'timezone_id'               => $args['timezone_id']
+                'operating_hours'           => $args['businessHours']
             ]);
+    
+        $addresses = $args['addresses'];
+    
+        //takes all the addresses snd creates/updates as needed and attaches them to the location
+        foreach($addresses as $address) {
+            Address::attachAddress($args['id'], $address);
+        }
         
         if ($location === 1) {
             return $args;
