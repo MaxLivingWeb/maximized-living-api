@@ -253,7 +253,7 @@ class UserController extends Controller
             $userGroups = $cognito->getGroupsForUser($id);
 
             if($userGroups->isNotEmpty()) {
-                $res->affiliate = UserGroup::with('commission')
+                $res->affiliate = UserGroup::with(['commission', 'location'])
                     ->where('group_name', $userGroups->first()['GroupName'])
                     ->first();
             }
