@@ -110,7 +110,7 @@ class AddLocationMutation extends Mutation
             'opening_date'              => $args['opening_date'],
             'closing_date'              => $args['closing_date'],
             'daylight_savings_applies'  => $args['daylight_savings_applies'],
-            'operating_hours'           => $args['businessHours']
+            'operating_hours'           => $args['business_hours']
          ]);
         
         $addresses = $args['addresses'];

@@ -49,8 +49,8 @@ class AddressType extends GraphQLType
                 'name' => 'country',
                 'type' => Type::string()
             ],
-            'addressType' => [
-                'name' => 'addressType',
+            'address_type' => [
+                'name' => 'address_type',
                 'type' => Type::int()
             ],
             'zip_postal_code' => [
