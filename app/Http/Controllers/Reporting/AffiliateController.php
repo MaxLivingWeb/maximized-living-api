@@ -37,7 +37,7 @@ class AffiliateController extends Controller
                         return false;
                     }
 
-                    return intval($affiliateId->value) === $affiliate->id;
+                    return intval($affiliateId->value) === $affiliate->id || intval($affiliateId->value) === $affiliate->legacy_affiliate_id;
                 })->values();
             }
 
