@@ -48,5 +48,9 @@ Route::group(['prefix' => 'reporting'], function() {
     Route::group(['prefix' => 'affiliate'], function() {
         Route::get('/sales', 'AffiliateController@sales');
     });
+
+    Route::group(['prefix' => 'wholesale'], function() {
+        Route::get('{id}/sales', 'WholesaleController@sales');
+    });
 });
 
