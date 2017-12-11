@@ -108,7 +108,7 @@ class GroupController extends Controller
                     'city_id'   => intval($request->input('wholesale.shipping.city_id'))
                 ]);
 
-                $shippingAddress->locations()->attach(
+                $shippingAddress->groups()->attach(
                     $location_id,
                     ['address_type_id' => AddressType::firstOrCreate(['name' => 'Wholesale Shipping'])->id]
                 );
@@ -121,7 +121,7 @@ class GroupController extends Controller
                     'city_id'   => intval($request->input('wholesale.billing.city_id'))
                 ]);
 
-                $billingAddress->locations()->attach(
+                $billingAddress->groups()->attach(
                     $location_id,
                     ['address_type_id' => AddressType::firstOrCreate(['name' => 'Wholesale Billing'])->id]
                 );
@@ -134,7 +134,7 @@ class GroupController extends Controller
                     'city_id'   => intval($request->input('commission.billing.city_id'))
                 ]);
 
-                $billingAddress->locations()->attach(
+                $billingAddress->groups()->attach(
                     $location_id,
                     ['address_type_id' => AddressType::firstOrCreate(['name' => 'Commission Billing'])->id]
                 );
