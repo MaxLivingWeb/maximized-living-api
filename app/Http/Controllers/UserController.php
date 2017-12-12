@@ -114,7 +114,7 @@ class UserController extends Controller
                 );
                 $params = [
                     'group_name' => $tempGroup['GroupName'],
-                    'group_name_display' => $validatedData['firstName'].' '.$validatedData['lastName'].' ('.$validatedData['email'].')',
+                    'group_name_display' => $validatedData['firstName'].' '.$validatedData['lastName'],
                     'group_type' => 'single_user'
                 ];
 
