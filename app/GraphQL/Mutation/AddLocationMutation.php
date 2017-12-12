@@ -49,6 +49,7 @@ class AddLocationMutation extends Mutation
         $location->fax = $args['fax'];
         $location->email = $args['email'];
         $location->vanity_website_url = $args['vanity_website_url'];
+        $location->vanity_website_id = $args['vanity_website_id'];
         $location->slug = $location_slug;
         $location->pre_open_display_date = $args['pre_open_display_date'];
         $location->opening_date = $args['opening_date'];

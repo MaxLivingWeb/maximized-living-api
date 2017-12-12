@@ -60,6 +60,10 @@ class LocationType extends GraphQLType
                 'type' => Type::string(),
                 'description' => 'Vanity URL of location'
             ],
+            'vanity_website_id' => [
+                'type' => Type::int(),
+                'description' => 'Vanity ID of the location'
+            ],
             'slug' => [
                 'type' => Type::string(),
                 'description' => 'slug of location'

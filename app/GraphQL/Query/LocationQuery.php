@@ -7,6 +7,7 @@ use GraphQL\Type\Definition\Type;
 use Folklore\GraphQL\Support\Query;
 use App\Location;
 use DB;
+use Illuminate\Support\Facades\Log;
 
 class LocationQuery extends Query
 {
@@ -29,6 +30,10 @@ class LocationQuery extends Query
             'slug' => [
                 'name' => 'slug',
                 'type' => Type::string()
+            ],
+            'vanity_website_id' => [
+                'name' => 'vanity_website_id',
+                'type' => Type::int()
             ],
             'filter_by_radius' => [
                 'name' => 'filter_by_radius',
@@ -95,6 +100,10 @@ class LocationQuery extends Query
 
         if (isset($args['slug'])) {
             return Location::where('slug', $args['slug'])->get();
+        }
+
+        if (isset($args['vanity_website_id'])) {
+            return Location::where('vanity_website_id', $args['vanity_website_id'])->get();
         }
 
         $countryFilters = [ 'country', 'countryCode', 'countryID' ];
