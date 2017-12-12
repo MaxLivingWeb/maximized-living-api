@@ -96,13 +96,6 @@ class UserController extends Controller
                     $cognitoUser->get('User')['Username'],
                     $validatedData['groupName']
                 );
-
-                $location = UserGroup::with(['location'])
-                    ->where('group_name', $validatedData['groupName'])
-                    ->firstOrFail();
-                if (!is_null($location)) {
-                    $params['group_name_display'] = $location->location->name;
-                }
             }
             //user is not associated to a location
             else {
