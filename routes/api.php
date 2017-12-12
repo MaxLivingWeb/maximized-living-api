@@ -46,3 +46,4 @@ Route::group(['prefix' => 'permissions'], function() {
     Route::get('/', 'PermissionsController@all');
 });
 
+Route::post('/contact', 'TransactionalEmailController@save');
