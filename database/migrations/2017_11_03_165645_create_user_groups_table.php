@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
 class CreateUserGroupsTable extends Migration
 {
@@ -27,6 +28,8 @@ class CreateUserGroupsTable extends Migration
             $table->foreign('commission_id')->references('id')->on('commission_groups');
             $table->foreign('location_id')->references('id')->on('locations');
         });
+
+        DB::update('ALTER TABLE user_groups AUTO_INCREMENT = 100000;');
     }
 
     /**
