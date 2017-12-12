@@ -4,11 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Address;
 use App\AddressType;
-use App\Helpers\ShopifyHelper;
 use App\UserGroup;
+use App\Helpers\CognitoHelper;
+use App\Helpers\ShopifyHelper;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Http\Request;
-use App\Helpers\CognitoHelper;
 use Aws\Exception\AwsException;
 use Illuminate\Validation\ValidationException;
 
@@ -37,14 +37,17 @@ class UserController extends Controller
 
     public function addUser(Request $request)
     {
+        $cognito = new CognitoHelper();
+        $shopify = new ShopifyHelper();
+
         try {
             $fields = [
-                'email'     => 'required|email',
-                'password'  => 'required|min:8',
-                'firstName' => 'required',
-                'lastName'  => 'required',
-                'phone'     => 'nullable',
-                'legacyId'  => 'nullable|integer',
+                'email'         => 'required|email',
+                'password'      => 'required|min:8',
+                'firstName'     => 'required',
+                'lastName'      => 'required',
+                'phone'         => 'nullable',
+                'legacyId'      => 'nullable|integer',
                 'commission.id' => 'nullable|integer',
                 'discountCode'  => 'nullable|integer',
                 'groupName'     => 'nullable',
@@ -82,9 +85,6 @@ class UserController extends Controller
             $validatedData = $request->validate($fields);
 
             //Add user to Cognito
-            $cognito = new CognitoHelper();
-            $shopify = new ShopifyHelper();
-
             $cognitoUser = $cognito->createUser(
                 $validatedData['email'],
                 $validatedData['password']
@@ -104,9 +104,9 @@ class UserController extends Controller
                     'user.' . $validatedData['email'],
                     'group for ' . $validatedData['email']
                 );
-
                 $params = [
-                    'group_name' => $tempGroup['GroupName']
+                    'group_name' => $tempGroup['GroupName'],
+                    'group_name_display' => $validatedData['firstName'].' '.$validatedData['lastName']
                 ];
 
                 if(isset($validatedData['legacyId'])) {
@@ -123,7 +123,10 @@ class UserController extends Controller
 
                 $userGroup = UserGroup::create($params);
 
-                $cognito->addUserToGroup($cognitoUser->get('User')['Username'], $tempGroup['GroupName']);
+                $cognito->addUserToGroup(
+                    $cognitoUser->get('User')['Username'],
+                    $tempGroup['GroupName']
+                );
 
                 //request includes a wholesale shipping address, attach the address to the associate group
                 if($request->has('wholesale.shipping')) {

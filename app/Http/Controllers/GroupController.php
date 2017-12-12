@@ -4,8 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Address;
 use App\AddressType;
-use App\Helpers\CognitoHelper;
 use App\UserGroup;
+use App\Helpers\CognitoHelper;
+use App\Helpers\TextHelper;
 use Aws\Exception\AwsException;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -43,7 +44,7 @@ class GroupController extends Controller
 
     public function allWithCommission()
     {
-        return UserGroup::with(['commission'])
+        return UserGroup::with(['commission', 'location'])
             ->get()
             ->where('commission', '!==', null)
             ->values()
@@ -52,16 +53,18 @@ class GroupController extends Controller
 
     public function getByName(Request $request)
     {
-        return UserGroup::with(['commission', 'location'])->where('group_name', $request->input('name'))->firstOrFail();
+        $name = TextHelper::fixEscapeForSpecialCharacters($request->input('name'));
+        return UserGroup::with(['commission', 'location'])->where('group_name', $name)->firstOrFail();
     }
 
     public function add(Request $request)
     {
         try {
             $fields = [
-                'group_name'    => 'required',
-                'premium'       => 'nullable|boolean',
-                'commission.id' => 'nullable|integer',
+                'group_name'         => 'required',
+                'group_name_display' => 'required',
+                'premium'            => 'nullable|boolean',
+                'commission.id'      => 'nullable|integer',
             ];
 
             //body includes a wholesale billing address, validate it
@@ -150,14 +153,18 @@ class GroupController extends Controller
             }
 
             $cognito = new CognitoHelper();
-            $cognito->createGroup($request->input('group_name'), '');
+            $cognito->createGroup(
+                $request->input('group_name'),
+                $request->input('group_name_display')
+            );
 
             return UserGroup::create([
-                'group_name'    => $request->input('group_name'),
-                'discount_id'   => $discount_id,
-                'commission_id' => $commission_id,
-                'location_id'   => $location_id,
-                'premium'       => $premium
+                'group_name'         => $request->input('group_name'),
+                'group_name_display' => $request->input('group_name_display'),
+                'discount_id'        => $discount_id,
+                'commission_id'      => $commission_id,
+                'location_id'        => $location_id,
+                'premium'            => $premium
             ]);
         }
         catch (ValidationException $e) {
@@ -180,7 +187,6 @@ class GroupController extends Controller
     public function delete($id)
     {
         $group = UserGroup::findOrFail($id);
-
         $group->delete();
     }
 }
