@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\TextHelper;
 use App\Address;
 use App\AddressType;
 use App\Helpers\CognitoHelper;
@@ -52,7 +53,8 @@ class GroupController extends Controller
 
     public function getByName(Request $request)
     {
-        return UserGroup::with(['commission', 'location'])->where('group_name', $request->input('name'))->firstOrFail();
+        $name = TextHelper::fixEscapeForSpecialCharacters($request->input('name'));
+        return UserGroup::with(['commission', 'location'])->where('group_name', $name)->firstOrFail();
     }
 
     public function add(Request $request)
