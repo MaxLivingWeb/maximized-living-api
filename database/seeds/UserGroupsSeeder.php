@@ -17,12 +17,12 @@ class UserGroupsSeeder extends Seeder
 
         foreach($groups->get('Groups') as $group) {
             if (strpos($group['GroupName'], 'user.') === false) {
-                $newUserGroup = UserGroup::create([
+                $location = \App\Location::all()->random();
+                UserGroup::create([
                     'group_name' => $group['GroupName'],
-                    'group_name_display' => '',
-                    'location_id' => \App\Location::all()->random()->id
+                    'group_name_display' => $location->name,
+                    'location_id' => $location->id
                 ]);
-                $newUserGroup->update(['group_name_display' => $newUserGroup->location->name]);
             }
         }
     }
