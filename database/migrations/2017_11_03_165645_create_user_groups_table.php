@@ -17,7 +17,6 @@ class CreateUserGroupsTable extends Migration
             $table->increments('id');
             $table->string('group_name')->unique();
             $table->string('group_name_display');
-            $table->string('group_type');
             $table->bigInteger('discount_id')->nullable()->unsigned();
             $table->integer('legacy_affiliate_id')->nullable()->unsigned();
             $table->integer('commission_id')->nullable()->unsigned()->index();

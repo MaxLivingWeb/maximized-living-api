@@ -44,7 +44,7 @@ class GroupController extends Controller
 
     public function allWithCommission()
     {
-        return UserGroup::with(['commission'])
+        return UserGroup::with(['commission', 'location'])
             ->get()
             ->where('commission', '!==', null)
             ->values()

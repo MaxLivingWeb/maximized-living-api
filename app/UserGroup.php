@@ -10,7 +10,6 @@ class UserGroup extends Model
     protected $fillable = [
         'group_name',
         'group_name_display',
-        'group_type',
         'discount_id',
         'legacy_affiliate_id',
         'commission_id',
