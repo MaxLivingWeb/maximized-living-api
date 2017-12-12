@@ -11,5 +11,7 @@ class TextHelper
         if (strpos($str, '%40')) {
             return str_replace('%40', '@', $str);
         }
+
+        return $str;
     }
 }
