@@ -5,10 +5,11 @@ namespace App\Http\Controllers;
 use App\TransactionalEmail;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use GuzzleHttp;
 
 class TransactionalEmailController extends Controller
 {
-    protected $emailID;
+    protected $emailRecordID;
     protected $arcaneLeadsStatus;
     protected $sendgridStatus;
 
@@ -52,17 +53,25 @@ class TransactionalEmailController extends Controller
         }
 
         // Save request to the DB and returns ID
-        $this->emailID = $this->saveTransactionalEmail($requestData);
+        $this->emailRecordID = $this->saveTransactionalEmail($requestData);
 
         // Send to Arcane Leads API
+        $this->arcaneLeadsStatus = $this->leadsAPISubmission($requestData);
 
         // Save Arcane Leads API Status
+        $this->updateTransactionalEmails(['leads_api_submission_status' => $this->arcaneLeadsStatus]);
 
         // Send via Sendgrid
+        $this->sendgridStatus = $this->sendgridSubmission($requestData);
 
         // Save Sendgrid Response status
+        $this->updateTransactionalEmails(['sendgrid_submission_status' => $this->sendgridStatus]);
 
-        // If Sendgrid error return 202 and send error log to qa@arcane.ws
+        // If Sendgrid error return 202
+        if($this->sendgridStatus !== 202){
+            return response('Submission Processing', 202)
+                ->header('Content-type', 'text/plain');
+        }
 
         // Return Accepted Status Code After submission and all checks valid
         return response('All Good', 200)
@@ -92,7 +101,20 @@ class TransactionalEmailController extends Controller
     public function leadsAPISubmission($data)
     {
 
-        return (int) $statusCode;
+        $client = new GuzzleHttp\Client([
+            'base_uri' => 'https://api.arcane.ws/api/'
+        ]);
+
+        $response = $client->request('POST', 'save', [
+            'headers' => [
+                'Content-Type' => 'application/json',
+                'FormName' => $data['form_name'],
+                'Authorization' => 'Bearer ' . getenv('ARCANE_LEADS_API_KEY')
+            ],
+            'body' => json_encode($data)
+        ]);
+
+        return (int) $response->getStatusCode();
     }
 
     /**
@@ -103,23 +125,31 @@ class TransactionalEmailController extends Controller
      */
     public function saveTransactionalEmail($data)
     {
-        $email = new TransactionalEmail();
+        $emailRecord = new TransactionalEmail();
 
         foreach ($data as $key => $value):
-            $email->$key = $value;
+            $emailRecord->$key = $value;
         endforeach;
 
-        $email->request_data = json_encode($data);
-        $email->created_at = Carbon::now();
-        $email->updated_at = Carbon::now();
+        $emailRecord->request_data = json_encode($data);
+        $emailRecord->created_at = Carbon::now();
+        $emailRecord->updated_at = Carbon::now();
 
-        $email->save();
+        $emailRecord->save();
 
-        return (int) $email->id;
+        return (int) $emailRecord->id;
     }
 
     public function updateTransactionalEmails($data)
     {
+        $emailRecord = TransactionalEmail::find($this->emailRecordID);
 
+        foreach ($data as $key => $value):
+            $emailRecord->$key = $value;
+        endforeach;
+
+        $emailRecord->updated_at = Carbon::now();
+
+        $emailRecord->save();
     }
 }
