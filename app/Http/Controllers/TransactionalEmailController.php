@@ -6,6 +6,7 @@ use App\TransactionalEmail;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use GuzzleHttp;
+use SendGrid;
 
 class TransactionalEmailController extends Controller
 {
@@ -85,10 +86,23 @@ class TransactionalEmailController extends Controller
      * @param $data
      * @return int
      */
-    public function sendgridSubmission($data)
+    private function sendgridSubmission($data)
     {
+        $formattedData = $this->formatArrayData($data);
 
-        return (int) $statusCode;
+        $from = new SendGrid\Email($formattedData['from_name'], $formattedData['from_email']);
+        $to = new SendGrid\Email($formattedData['to_name'], $formattedData['to_email']);
+        $subject = $formattedData['email_subject'];
+        $content = new SendGrid\Content('text/plain', $formattedData['content']);
+
+        $mail = new SendGrid\Mail($from, $subject, $to, $content);
+
+        $apiKey = getenv('SENDGRID_API_KEY');
+        $sg = new SendGrid($apiKey);
+
+        $response = $sg->client->mail()->send()->post($mail);
+
+        return (int) $response->statusCode();
     }
 
 
@@ -98,7 +112,7 @@ class TransactionalEmailController extends Controller
      * @param $data
      * @return int
      */
-    public function leadsAPISubmission($data)
+    private function leadsAPISubmission($data)
     {
 
         $client = new GuzzleHttp\Client([
@@ -123,7 +137,7 @@ class TransactionalEmailController extends Controller
      * @param $data
      * @return int
      */
-    public function saveTransactionalEmail($data)
+    private function saveTransactionalEmail($data)
     {
         $emailRecord = new TransactionalEmail();
 
@@ -140,7 +154,12 @@ class TransactionalEmailController extends Controller
         return (int) $emailRecord->id;
     }
 
-    public function updateTransactionalEmails($data)
+    /**
+     * Saves update updated status code and update time stamp
+     *
+     * @param $data
+     */
+    private function updateTransactionalEmails($data)
     {
         $emailRecord = TransactionalEmail::find($this->emailRecordID);
 
@@ -151,5 +170,24 @@ class TransactionalEmailController extends Controller
         $emailRecord->updated_at = Carbon::now();
 
         $emailRecord->save();
+    }
+
+    private function formatArrayData($data)
+    {
+        $defaults = [
+            'to_name' => null,
+            'to_email' => null,
+            'from_name' => null,
+            'from_email' => null,
+            'email_subject' => 'Max Living Contact Form',
+            'form_name' => null,
+            'content' => 'This is an email'
+        ];
+
+        $formattedArray = array_replace_recursive(
+            $defaults,
+            array_intersect_key($data, $defaults)
+        );
+        return $formattedArray;
     }
 }
