@@ -20,4 +20,25 @@ class Country extends Model
     public function regions() {
         return $this->hasMany('App\Region');
     }
+    
+    public static function checkCountry($countryName) {
+        
+        $country = Country::where([
+            ["name", $countryName ]
+        ]);
+        
+        if($country->exists() ) {
+            //return the existing city id if the city exists
+            return $country->first()->id;
+        }
+        
+        //create the new city and return the new id
+        $newCountry = new Country();
+        
+        $newCountry->name = $countryName;
+        
+        $newCountry->save();
+        
+        return $newCountry->id;
+    }
 }

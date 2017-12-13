@@ -17,6 +17,9 @@ class CreateAddressesTable extends Migration
             $table->increments('id');
             $table->string('address_1');
             $table->string('address_2')->nullable();
+            $table->string('zip_postal_code');
+            $table->double('latitude', 13, 10);
+            $table->double('longitude', 13, 10);
             $table->integer('city_id')->unsigned();
 
             $table->softDeletes();

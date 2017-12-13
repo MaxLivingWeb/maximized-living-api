@@ -12,9 +12,6 @@ class Location extends Model
 
     protected $fillable = [
         'name',
-        'zip_postal_code',
-        'latitude',
-        'longitude',
         'telephone',
         'telephone_ext',
         'fax',
