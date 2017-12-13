@@ -30,6 +30,7 @@ Route::group(['prefix' => 'user'], function() {
     Route::post('/', 'UserController@addUser');
     Route::put('/{id}', 'UserController@updateUser');
     Route::get('/{id}/affiliate/{affiliateId}', 'UserController@linkToAffiliate');
+    Route::get('/{id}/affiliate', 'UserController@affiliate');
 });
 
 Route::get('/users', 'UserController@listUsers');

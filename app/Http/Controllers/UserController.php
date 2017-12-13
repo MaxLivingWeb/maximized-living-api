@@ -353,4 +353,29 @@ class UserController extends Controller
             return response()->json([$e->getAwsErrorMessage()], 500);
         }
     }
+
+    public function affiliate($id)
+    {
+        $cognito = new CognitoHelper();
+
+        try {
+
+            $userGroups = $cognito->getGroupsForUser($id);
+
+            $affiliate = null;
+            if($userGroups->isNotEmpty()) {
+                $affiliate = UserGroup::with('location')
+                    ->where('group_name', $userGroups->first()['GroupName'])
+                    ->first();
+            }
+
+            return response()->json($affiliate);
+        }
+        catch(AwsException $e) {
+            return response()->json([$e->getAwsErrorMessage()], 500);
+        }
+        catch (\Exception $e) {
+            return response()->json($e->getMessage(), 500);
+        }
+    }
 }

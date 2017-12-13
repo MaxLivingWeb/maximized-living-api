@@ -14,7 +14,8 @@ class UserGroup extends Model
         'legacy_affiliate_id',
         'commission_id',
         'location_id',
-        'premium'
+        'premium',
+        'event_promoter'
     ];
 
     protected $appends = [
@@ -27,6 +28,11 @@ class UserGroup extends Model
         'created_at',
         'updated_id',
         'deleted_at'
+    ];
+
+    protected $casts = [
+        'premium'        => 'boolean',
+        'event_promoter' => 'boolean'
     ];
 
     public function getCollectionsAttribute()
