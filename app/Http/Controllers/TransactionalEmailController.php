@@ -11,8 +11,6 @@ use SendGrid;
 class TransactionalEmailController extends Controller
 {
     protected $emailRecordID;
-    protected $arcaneLeadsStatus;
-    protected $sendgridStatus;
 
     /**
      * @param Request $request
@@ -53,23 +51,26 @@ class TransactionalEmailController extends Controller
                 ->header('Content-type', 'text/plain');
         }
 
+        // Format the data to assign defaults if no data exists
+        $formattedData = $this->formatArrayData($requestData);
+
         // Save request to the DB and returns ID
-        $this->emailRecordID = $this->saveTransactionalEmail($requestData);
+        $this->emailRecordID = $this->saveTransactionalEmail($formattedData);
 
         // Send to Arcane Leads API
-        $this->arcaneLeadsStatus = $this->leadsAPISubmission($requestData);
+        $arcaneLeadsStatus = $this->leadsAPISubmission($formattedData);
 
         // Save Arcane Leads API Status
-        $this->updateTransactionalEmails(['leads_api_submission_status' => $this->arcaneLeadsStatus]);
+        $this->updateTransactionalEmails(['leads_api_submission_status' => $arcaneLeadsStatus]);
 
         // Send via Sendgrid
-        $this->sendgridStatus = $this->sendgridSubmission($requestData);
+        $sendgridStatus = $this->sendgridSubmission($formattedData);
 
         // Save Sendgrid Response status
-        $this->updateTransactionalEmails(['sendgrid_submission_status' => $this->sendgridStatus]);
+        $this->updateTransactionalEmails(['sendgrid_submission_status' => $sendgridStatus]);
 
         // If Sendgrid error return 202
-        if($this->sendgridStatus !== 202){
+        if($sendgridStatus !== 202){
             return response('Submission Processing', 202)
                 ->header('Content-type', 'text/plain');
         }
@@ -88,12 +89,10 @@ class TransactionalEmailController extends Controller
      */
     private function sendgridSubmission($data)
     {
-        $formattedData = $this->formatArrayData($data);
-
-        $from = new SendGrid\Email($formattedData['from_name'], $formattedData['from_email']);
-        $to = new SendGrid\Email($formattedData['to_name'], $formattedData['to_email']);
-        $subject = $formattedData['email_subject'];
-        $content = new SendGrid\Content('text/plain', $formattedData['content']);
+        $from = new SendGrid\Email($data['from_name'], $data['from_email']);
+        $to = new SendGrid\Email($data['to_name'], $data['to_email']);
+        $subject = $data['email_subject'];
+        $content = new SendGrid\Content('text/plain', $data['content']);
 
         $mail = new SendGrid\Mail($from, $subject, $to, $content);
 
@@ -114,7 +113,6 @@ class TransactionalEmailController extends Controller
      */
     private function leadsAPISubmission($data)
     {
-
         $client = new GuzzleHttp\Client([
             'base_uri' => 'https://api.arcane.ws/api/'
         ]);
@@ -141,8 +139,10 @@ class TransactionalEmailController extends Controller
     {
         $emailRecord = new TransactionalEmail();
 
-        foreach ($data as $key => $value):
-            $emailRecord->$key = $value;
+        foreach ($emailRecord->getTableColumnsWithoutId() as $value) :
+            if (array_key_exists($value, $data)){
+                $emailRecord->$value = $data[$value];
+            }
         endforeach;
 
         $emailRecord->request_data = json_encode($data);
@@ -172,6 +172,12 @@ class TransactionalEmailController extends Controller
         $emailRecord->save();
     }
 
+    /**
+     * Merges email defaults with received data before sending to services
+     *
+     * @param $data
+     * @return array
+     */
     private function formatArrayData($data)
     {
         $defaults = [
@@ -188,6 +194,7 @@ class TransactionalEmailController extends Controller
             $defaults,
             array_intersect_key($data, $defaults)
         );
-        return $formattedArray;
+
+        return (array) $formattedArray;
     }
 }
