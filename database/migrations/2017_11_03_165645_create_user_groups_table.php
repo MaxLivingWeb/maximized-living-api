@@ -23,6 +23,7 @@ class CreateUserGroupsTable extends Migration
             $table->integer('commission_id')->nullable()->unsigned()->index();
             $table->integer('location_id')->nullable()->unsigned();
             $table->boolean('premium')->default(false);
+            $table->boolean('event_promoter')->default(false);
             $table->timestamps();
 
             $table->foreign('commission_id')->references('id')->on('commission_groups');
