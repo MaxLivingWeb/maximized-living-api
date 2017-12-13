@@ -34,43 +34,7 @@ class UpdateLocationMutation extends Mutation
                 $args[$key] = filter_var($var, FILTER_SANITIZE_STRING);
             }
         }
-    
-        $business_hours = [
-            'businessHours' => [
-                'periods' => [
-                    'openDay' => 'MONDAY',
-                    'closeDay' => 'MONDAY',
-                    'openTime' => '09:00',
-                    'closeTime' => '17:00'
-                ],
-                [
-                    'openDay' => 'TUESDAY',
-                    'closeDay' => 'TUESDAY',
-                    'openTime' => '09:00',
-                    'closeTime' => '17:00'
-                ],
-                [
-                    'openDay' => 'WEDNESDAY',
-                    'closeDay' => 'WEDNESDAY',
-                    'openTime' => '09:00',
-                    'closeTime' => '17:00'
-                ],
-                [
-                    'openDay' => 'THURSDAY',
-                    'closeDay' => 'THURSDAY',
-                    'openTime' => '09:00',
-                    'closeTime' => '17:00'
-                ],
-                [
-                    'openDay' => 'FRIDAY',
-                    'closeDay' => 'FRIDAY',
-                    'openTime' => '09:00',
-                    'closeTime' => '17:00'
-                ],
-            ]
-        ];
-
-        //TODO Need to get slug updating working
+        
         $location = Location
             ::where(
                 'id', $args['id']
