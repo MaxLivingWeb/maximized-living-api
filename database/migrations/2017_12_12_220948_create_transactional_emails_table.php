@@ -20,11 +20,11 @@ class CreateTransactionalEmailsTable extends Migration
             $table->string('to_name')->nullable();
             $table->string('to_email');
             $table->string('email_subject');
-            $table->integer('vanity_website_id')->unsigned();
+            $table->integer('vanity_website_id')->nullable();
             $table->string('form_name');
             $table->longText('request_data');
-            $table->integer('leads_api_submission_status');
-            $table->integer('sendgrid_submission_status');
+            $table->integer('leads_api_submission_status')->nullable();
+            $table->integer('sendgrid_submission_status')->nullable();
             $table->timestamps();
         });
     }
