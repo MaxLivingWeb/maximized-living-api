@@ -20,10 +20,6 @@ class LocationType extends GraphQLType
                 'type' => Type::int(),
                 'description' => 'ID of the region'
             ],
-            'affiliate_id' => [
-                'type' => Type::int(),
-                'description' => 'affiliate id'
-            ],
             'name' => [
                 'type' => Type::string(),
                 'description' => 'Name of the location'

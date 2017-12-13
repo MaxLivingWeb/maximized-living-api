@@ -11,7 +11,6 @@ class Location extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'affiliate_id',
         'name',
         'telephone',
         'telephone_ext',

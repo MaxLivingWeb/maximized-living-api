@@ -15,7 +15,6 @@ class LocationsTableSeeder extends Seeder
         $locations_array = [
             [
                 'name' => 'Castlefield Chiropractic',
-                'affiliate_id' => 123,
                 'zip_postal_code' => 'M4P2E5',
                 'latitude' => '43.7087621',
                 'longitude' => '-79.3987508',
@@ -34,7 +33,6 @@ class LocationsTableSeeder extends Seeder
             ],
             [
                 'name' => 'Elevation Chiropractic',
-                'affiliate_id' => 321,
                 'zip_postal_code' => 'T2J0P6',
                 'latitude' => '50.966858',
                 'longitude' => '-114.073013',
@@ -53,7 +51,6 @@ class LocationsTableSeeder extends Seeder
             ],
             [
                 'name' => 'Ferguson Life Chiropractic Centers',
-                'affiliate_id' => 789,
                 'zip_postal_code' => '07981',
                 'latitude' => '40.8260888',
                 'longitude' => '-74.4223778',
@@ -72,7 +69,6 @@ class LocationsTableSeeder extends Seeder
             ],
             [
                 'name' => 'Lake Nona Family Chiropractic',
-                'affiliate_id' => 987,
                 'zip_postal_code' => '32832',
                 'latitude' => '28.4111915',
                 'longitude' => '-81.2428853',
@@ -94,7 +90,6 @@ class LocationsTableSeeder extends Seeder
         foreach ($locations_array as $location) {
             Location::create([
                 'name' =>  $location['name'],
-                'affiliate_id' => $location['affiliate_id'],
                 'zip_postal_code' => $location['zip_postal_code'],
                 'latitude' => $location['latitude'],
                 'longitude' => $location['longitude'],
