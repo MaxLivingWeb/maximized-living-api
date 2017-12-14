@@ -16,7 +16,7 @@ class CreateTransactionalEmailsTable extends Migration
         Schema::create('transactional_emails', function (Blueprint $table) {
             $table->increments('id');
             $table->string('from_name')->nullable();
-            $table->string('from_email');
+            $table->string('reply_to');
             $table->string('to_name')->nullable();
             $table->string('to_email');
             $table->string('email_subject');

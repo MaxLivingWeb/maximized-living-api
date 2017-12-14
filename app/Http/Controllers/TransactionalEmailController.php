@@ -10,7 +10,7 @@ use SendGrid;
 
 class TransactionalEmailController extends Controller
 {
-    protected $emailRecordID;
+    private $emailRecordID;
 
     /**
      * @param Request $request
@@ -33,9 +33,9 @@ class TransactionalEmailController extends Controller
                 ->header('Content-type', 'text/plain');
         }
 
-        // Validate request has FROM
-        if(empty($requestData['from_email'])) {
-            return response('Missing Required Field: From Email Address', 400)
+        // Validate request has REPLY_TO
+        if(empty($requestData['reply_to'])) {
+            return response('Missing Required Field: Reply To Address', 400)
                 ->header('Content-type', 'text/plain');
         }
 
@@ -53,6 +53,8 @@ class TransactionalEmailController extends Controller
 
         // Format the data to assign defaults if no data exists
         $formattedData = $this->formatArrayData($requestData);
+
+//        dd($formattedData);
 
         // Save request to the DB and returns ID
         $this->emailRecordID = $this->saveTransactionalEmail($formattedData);
@@ -92,9 +94,27 @@ class TransactionalEmailController extends Controller
         $from = new SendGrid\Email($data['from_name'], $data['from_email']);
         $to = new SendGrid\Email($data['to_name'], $data['to_email']);
         $subject = $data['email_subject'];
-        $content = new SendGrid\Content('text/plain', $data['content']);
+        $content = new SendGrid\Content($data['content_type'], $data['content']);
 
         $mail = new SendGrid\Mail($from, $subject, $to, $content);
+
+        foreach($data['cc_records'] as $value) {
+            $email = new SendGrid\Email($value['name'], $value['email']);
+            $mail->personalization[0]->addCc($email);
+        }
+
+        foreach($data['bcc_records'] as $value) {
+            $email = new SendGrid\Email($value['name'], $value['email']);
+            $mail->personalization[0]->addBcc($email);
+        }
+
+        $reply_to = new SendGrid\ReplyTo($data['reply_to'], $data['from_name']);
+        $mail->setReplyTo($reply_to);
+
+        $mail->setTemplateId($data['template_id']);
+        foreach ($data['substitutions'] as $key => $value) {
+            $mail->personalization[0]->addSubstitution($key, $value);
+        }
 
         $apiKey = getenv('SENDGRID_API_KEY');
         $sg = new SendGrid($apiKey);
@@ -184,10 +204,16 @@ class TransactionalEmailController extends Controller
             'to_name' => null,
             'to_email' => null,
             'from_name' => null,
-            'from_email' => null,
+            'from_email' => 'no-reply@maxliving.com',
+            'cc_records' => array(),
+            'bcc_records' => array(),
+            'reply_to' => null,
             'email_subject' => 'Max Living Contact Form',
             'form_name' => null,
-            'content' => 'This is an email'
+            'content_type' => 'text/html',
+            'content' => '<span></span>',
+            'template_id' => null,
+            'substitutions' => []
         ];
 
         $formattedArray = array_replace_recursive(
