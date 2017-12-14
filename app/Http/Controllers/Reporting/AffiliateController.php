@@ -30,15 +30,19 @@ class AffiliateController extends Controller
             $affiliates = UserGroup::with(['commission', 'location'])->get()->where('commission', '!==', null);
 
             foreach ($affiliates as $affiliate) {
-                $affiliate->sales = $orders->filter(function ($value) use ($affiliate) {
-                    $affiliateId = collect($value->note_attributes)->where('name', 'affiliateId')->first();
+                $affiliate->sales = $orders
+                    ->filter(function ($value) use ($affiliate) {
+                    $affiliateId = collect($value->note_attributes)
+                        ->where('name', 'affiliateId')
+                        ->first();
 
                     if(is_null($affiliateId)) {
                         return false;
                     }
 
                     return intval($affiliateId->value) === $affiliate->id || intval($affiliateId->value) === $affiliate->legacy_affiliate_id;
-                })->values();
+                })
+                ->values();
             }
 
             return $affiliates->filter(function($affiliate) {

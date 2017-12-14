@@ -4,11 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Address;
 use App\AddressType;
-use App\Helpers\ShopifyHelper;
 use App\UserGroup;
+use App\Helpers\CognitoHelper;
+use App\Helpers\ShopifyHelper;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Http\Request;
-use App\Helpers\CognitoHelper;
 use Aws\Exception\AwsException;
 use Illuminate\Validation\ValidationException;
 
@@ -37,14 +37,17 @@ class UserController extends Controller
 
     public function addUser(Request $request)
     {
+        $cognito = new CognitoHelper();
+        $shopify = new ShopifyHelper();
+
         try {
             $fields = [
-                'email'     => 'required|email',
-                'password'  => 'required|min:8',
-                'firstName' => 'required',
-                'lastName'  => 'required',
-                'phone'     => 'nullable',
-                'legacyId'  => 'nullable|integer',
+                'email'         => 'required|email',
+                'password'      => 'required|min:8',
+                'firstName'     => 'required',
+                'lastName'      => 'required',
+                'phone'         => 'nullable',
+                'legacyId'      => 'nullable|integer',
                 'commission.id' => 'nullable|integer',
                 'discountCode'  => 'nullable|integer',
                 'groupName'     => 'nullable',
@@ -56,7 +59,7 @@ class UserController extends Controller
             if($request->has('wholesale.billing')) {
                 $fields = array_merge($fields, [
                     'wholesale.billing.address_1' => 'required',
-                    'wholesale.billing.address_2' => 'required',
+                    'wholesale.billing.address_2' => 'nullable',
                     'wholesale.billing.city_id'   => 'required'
                 ]);
             }
@@ -65,7 +68,7 @@ class UserController extends Controller
             if($request->has('wholesale.shipping')) {
                 $fields = array_merge($fields, [
                     'wholesale.shipping.address_1' => 'required',
-                    'wholesale.shipping.address_2' => 'required',
+                    'wholesale.shipping.address_2' => 'nullable',
                     'wholesale.shipping.city_id'   => 'required'
                 ]);
             }
@@ -74,7 +77,7 @@ class UserController extends Controller
             if($request->has('commission.billing')) {
                 $fields = array_merge($fields, [
                     'commission.billing.address_1' => 'required',
-                    'commission.billing.address_2' => 'required',
+                    'commission.billing.address_2' => 'nullable',
                     'commission.billing.city_id'   => 'required'
                 ]);
             }
@@ -82,9 +85,6 @@ class UserController extends Controller
             $validatedData = $request->validate($fields);
 
             //Add user to Cognito
-            $cognito = new CognitoHelper();
-            $shopify = new ShopifyHelper();
-
             $cognitoUser = $cognito->createUser(
                 $validatedData['email'],
                 $validatedData['password']
@@ -104,9 +104,9 @@ class UserController extends Controller
                     'user.' . $validatedData['email'],
                     'group for ' . $validatedData['email']
                 );
-
                 $params = [
-                    'group_name' => $tempGroup['GroupName']
+                    'group_name' => $tempGroup['GroupName'],
+                    'group_name_display' => $validatedData['firstName'].' '.$validatedData['lastName']
                 ];
 
                 if(isset($validatedData['legacyId'])) {
@@ -123,7 +123,10 @@ class UserController extends Controller
 
                 $userGroup = UserGroup::create($params);
 
-                $cognito->addUserToGroup($cognitoUser->get('User')['Username'], $tempGroup['GroupName']);
+                $cognito->addUserToGroup(
+                    $cognitoUser->get('User')['Username'],
+                    $tempGroup['GroupName']
+                );
 
                 //request includes a wholesale shipping address, attach the address to the associate group
                 if($request->has('wholesale.shipping')) {
@@ -237,9 +240,14 @@ class UserController extends Controller
                 ->where('Name', env('COGNITO_SHOPIFY_CUSTOM_ATTRIBUTE'))
                 ->first()['Value'];
 
+            $affiliateId = collect($cognitoUser['UserAttributes'])
+                ->where('Name', 'custom:affiliateId')
+                ->first()['Value'];
+
             $shopifyCustomer = $shopify->getCustomer($shopifyId);
 
             $res->shopify_id = $shopifyCustomer->id;
+            $res->referred_affiliate_id = is_null($affiliateId) ? $affiliateId : intval($affiliateId);
             $res->first_name = $shopifyCustomer->first_name;
             $res->last_name = $shopifyCustomer->last_name;
             $res->phone = $shopifyCustomer->phone;
@@ -248,7 +256,7 @@ class UserController extends Controller
             $userGroups = $cognito->getGroupsForUser($id);
 
             if($userGroups->isNotEmpty()) {
-                $res->affiliate = UserGroup::with('commission')
+                $res->affiliate = UserGroup::with(['commission', 'location'])
                     ->where('group_name', $userGroups->first()['GroupName'])
                     ->first();
             }
@@ -324,6 +332,47 @@ class UserController extends Controller
         }
         catch (ValidationException $e) {
             return response()->json($e->errors(), 400);
+        }
+        catch (\Exception $e) {
+            return response()->json($e->getMessage(), 500);
+        }
+    }
+
+    public function linkToAffiliate($id, $affiliateId)
+    {
+        try {
+            $cognito = new CognitoHelper();
+
+            $cognito->updateUserAttribute(
+                'custom:affiliateId',
+                $affiliateId,
+                $id
+            );
+        }
+        catch(AwsException $e) {
+            return response()->json([$e->getAwsErrorMessage()], 500);
+        }
+    }
+
+    public function affiliate($id)
+    {
+        $cognito = new CognitoHelper();
+
+        try {
+
+            $userGroups = $cognito->getGroupsForUser($id);
+
+            $affiliate = null;
+            if($userGroups->isNotEmpty()) {
+                $affiliate = UserGroup::with('location')
+                    ->where('group_name', $userGroups->first()['GroupName'])
+                    ->first();
+            }
+
+            return response()->json($affiliate);
+        }
+        catch(AwsException $e) {
+            return response()->json([$e->getAwsErrorMessage()], 500);
         }
         catch (\Exception $e) {
             return response()->json($e->getMessage(), 500);
