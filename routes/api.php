@@ -47,3 +47,9 @@ Route::group(['prefix' => 'permissions'], function() {
     Route::get('/', 'PermissionsController@all');
 });
 
+Route::group(['prefix' => 'reporting'], function() {
+    Route::group(['prefix' => 'affiliate'], function() {
+        Route::get('/sales', 'AffiliateController@sales');
+    });
+});
+
