@@ -90,7 +90,12 @@ class LocationQuery extends Query
     public function resolve ($root, $args)
     {
         //we have the parameters need for a filter by radius
-        if($args['filter_by_radius'] === TRUE && isset($args['latitude']) && isset($args['longitude']) && isset($args['distance'])) {
+        if (isset($args['filter_by_radius'])
+            && $args['filter_by_radius'] === TRUE
+            && isset($args['latitude'])
+            && isset($args['longitude'])
+            && isset($args['distance'])
+        ) {
             return Location::filterByRadius($args['latitude'], $args['longitude'], $args['distance']);
         }
 

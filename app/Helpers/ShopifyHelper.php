@@ -139,4 +139,63 @@ class ShopifyHelper
             return false;
         }
     }
+
+    public function getOrdersCount($startDate = null, $endDate = null)
+    {
+        $query = [];
+        if(!is_null($startDate) && !is_null($endDate)) {
+            if($startDate == $endDate) {
+                //dates are the same, add 23:59 to end time
+                $endDate->add(new \DateInterval('PT23H59M59S'));
+            }
+
+            $query = array_merge($query, [
+                'created_at_min' => $startDate->format('c'),
+                'created_at_max' => $endDate->format('c'),
+            ]);
+        }
+
+        $result = $this->client->get('orders/count.json', [
+            'query' => $query
+        ]);
+
+        return json_decode($result->getBody()->getContents())->count;
+    }
+
+    public function getAllOrders($startDate = null, $endDate = null)
+    {
+        $PER_PAGE = 250;
+
+        $count = $this->getOrdersCount($startDate, $endDate);
+
+        $numPages = intval(ceil($count / $PER_PAGE));
+
+        $allOrders = collect();
+        for($i = 1; $i <= $numPages; ++$i) {
+            $query = [
+                'limit' => $PER_PAGE,
+                'page'  => $i
+            ];
+
+            if(!is_null($startDate) && !is_null($endDate)) {
+                if($startDate == $endDate) {
+                    //dates are the same, add 23:59 to end time
+                    $endDate->add(new \DateInterval('PT23H59M59S'));
+                }
+
+                $query = array_merge($query, [
+                    'created_at_min' => $startDate->format('c'),
+                    'created_at_max' => $endDate->format('c'),
+                ]);
+            }
+
+            $result = $this->client->get('orders.json', [
+                'query' => $query
+            ]);
+
+            $allOrders = $allOrders->merge(json_decode($result->getBody()->getContents())->orders);
+        }
+
+        return $allOrders;
+    }
 }
