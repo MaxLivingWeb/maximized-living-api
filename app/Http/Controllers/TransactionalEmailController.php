@@ -54,8 +54,6 @@ class TransactionalEmailController extends Controller
         // Format the data to assign defaults if no data exists
         $formattedData = $this->formatArrayData($requestData);
 
-//        dd($formattedData);
-
         // Save request to the DB and returns ID
         $this->emailRecordID = $this->saveTransactionalEmail($formattedData);
 
@@ -213,7 +211,8 @@ class TransactionalEmailController extends Controller
             'content_type' => 'text/html',
             'content' => '<span></span>',
             'template_id' => null,
-            'substitutions' => []
+            'substitutions' => [],
+            'vanity_website_id' => null
         ];
 
         $formattedArray = array_replace_recursive(
