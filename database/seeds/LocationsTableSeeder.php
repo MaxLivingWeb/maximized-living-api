@@ -15,9 +15,6 @@ class LocationsTableSeeder extends Seeder
         $locations_array = [
             [
                 'name' => 'Castlefield Chiropractic',
-                'zip_postal_code' => 'M4P2E5',
-                'latitude' => '43.7087621',
-                'longitude' => '-79.3987508',
                 'telephone' => '555-123-9876',
                 'telephone_ext' => '765',
                 'fax' => '123-651-7324',
@@ -29,7 +26,7 @@ class LocationsTableSeeder extends Seeder
                 'closing_date' => '04-02-2020',
                 'daylight_savings_applies' => true,
                 'operating_hours' => '',
-                'timezone_id' => 1
+                'vanity_website_id' => 123
             ],
             [
                 'name' => 'Elevation Chiropractic',
@@ -47,7 +44,7 @@ class LocationsTableSeeder extends Seeder
                 'closing_date' => '07-02-2021',
                 'daylight_savings_applies' => true,
                 'operating_hours' => '',
-                'timezone_id' => 2
+                'vanity_website_id' => 234
             ],
             [
                 'name' => 'Ferguson Life Chiropractic Centers',
@@ -65,7 +62,7 @@ class LocationsTableSeeder extends Seeder
                 'closing_date' => '07-02-2021',
                 'daylight_savings_applies' => true,
                 'operating_hours' => '',
-                'timezone_id' => 1
+                'vanity_website_id' => 165
             ],
             [
                 'name' => 'Lake Nona Family Chiropractic',
@@ -83,16 +80,13 @@ class LocationsTableSeeder extends Seeder
                 'closing_date' => '02-02-2022',
                 'daylight_savings_applies' => true,
                 'operating_hours' => '',
-                'timezone_id' => 1
+                'vanity_website_id' => 198
             ]
         ];
 
         foreach ($locations_array as $location) {
             Location::create([
                 'name' =>  $location['name'],
-                'zip_postal_code' => $location['zip_postal_code'],
-                'latitude' => $location['latitude'],
-                'longitude' => $location['longitude'],
                 'telephone' => $location['telephone'],
                 'telephone_ext' => $location['telephone_ext'],
                 'fax' => $location['fax'],
@@ -104,7 +98,7 @@ class LocationsTableSeeder extends Seeder
                 'closing_date' => $location['closing_date'],
                 'daylight_savings_applies' => $location['daylight_savings_applies'],
                 'operating_hours' => $location['operating_hours'],
-                'timezone_id' => $location['timezone_id']
+                'vanity_website_id' => $location['vanity_website_id']
             ]);
         }
     }

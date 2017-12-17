@@ -38,28 +38,28 @@ class UpdateLocationMutation extends Mutation
         $location = Location
             ::where(
                 'id', $args['id']
+            )->orWhere(
+                'vanity_website_id', $args['vanity_website_id']
             )
             ->update([
-                'affiliate_id'              => "123",
                 'name'                      => $args['name'],
                 'telephone'                 => $args['telephone'],
                 'telephone_ext'             => $args['telephone_ext'],
                 'fax'                       => $args['fax'],
                 'email'                     => $args['email'],
                 'vanity_website_url'        => $args['vanity_website_url'],
-                'vanity_website_id'         => $args['vanity_website_id'],
                 'pre_open_display_date'     => $args['pre_open_display_date'],
                 'opening_date'              => $args['opening_date'],
                 'closing_date'              => $args['closing_date'],
                 'daylight_savings_applies'  => $args['daylight_savings_applies'],
-                'operating_hours'           => $args['businessHours']
+                'operating_hours'           => $args['business_hours']
             ]);
     
         $addresses = $args['addresses'];
     
         //takes all the addresses snd creates/updates as needed and attaches them to the location
         foreach($addresses as $address) {
-            Address::attachAddress($args['id'], $address);
+            Address::attachAddress($location->id, $address);
         }
         
         if ($location === 1) {
