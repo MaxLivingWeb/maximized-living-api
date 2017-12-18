@@ -17,6 +17,7 @@ class Location extends Model
         'fax',
         'email',
         'vanity_website_url',
+        'vanity_website_id',
         'slug',
         'pre_open_display_date',
         'opening_date',
