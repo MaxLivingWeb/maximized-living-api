@@ -7,7 +7,6 @@ use GraphQL\Type\Definition\Type;
 use Folklore\GraphQL\Support\Query;
 use App\Location;
 use DB;
-use Illuminate\Support\Facades\Log;
 
 class LocationQuery extends Query
 {

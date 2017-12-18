@@ -114,7 +114,7 @@ class TransactionalEmailController extends Controller
             $mail->personalization[0]->addSubstitution($key, $value);
         }
 
-        $apiKey = getenv('SENDGRID_API_KEY');
+        $apiKey = env('SENDGRID_API_KEY');
         $sg = new SendGrid($apiKey);
 
         $response = $sg->client->mail()->send()->post($mail);
@@ -139,7 +139,7 @@ class TransactionalEmailController extends Controller
             'headers' => [
                 'Content-Type' => 'application/json',
                 'FormName' => $data['form_name'],
-                'Authorization' => 'Bearer ' . getenv('ARCANE_LEADS_API_KEY')
+                'Authorization' => 'Bearer ' . env('ARCANE_LEADS_API_KEY')
             ],
             'body' => json_encode($data)
         ]);
