@@ -15,7 +15,6 @@
 /.vagrant
 Homestead.json
 Homestead.yaml
-composer.lock
 npm-debug.log
 .env
 .DS_Store

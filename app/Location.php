@@ -11,13 +11,13 @@ class Location extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'affiliate_id',
         'name',
         'telephone',
         'telephone_ext',
         'fax',
         'email',
         'vanity_website_url',
+        'vanity_website_id',
         'slug',
         'pre_open_display_date',
         'opening_date',

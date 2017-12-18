@@ -30,6 +30,10 @@ class LocationQuery extends Query
                 'name' => 'slug',
                 'type' => Type::string()
             ],
+            'vanity_website_id' => [
+                'name' => 'vanity_website_id',
+                'type' => Type::int()
+            ],
             'filter_by_radius' => [
                 'name' => 'filter_by_radius',
                 'type' => Type::boolean(),
@@ -85,7 +89,12 @@ class LocationQuery extends Query
     public function resolve ($root, $args)
     {
         //we have the parameters need for a filter by radius
-        if($args['filter_by_radius'] === TRUE && isset($args['latitude']) && isset($args['longitude']) && isset($args['distance'])) {
+        if (isset($args['filter_by_radius'])
+            && $args['filter_by_radius'] === TRUE
+            && isset($args['latitude'])
+            && isset($args['longitude'])
+            && isset($args['distance'])
+        ) {
             return Location::filterByRadius($args['latitude'], $args['longitude'], $args['distance']);
         }
 
@@ -95,6 +104,10 @@ class LocationQuery extends Query
 
         if (isset($args['slug'])) {
             return Location::where('slug', $args['slug'])->get();
+        }
+
+        if (isset($args['vanity_website_id'])) {
+            return Location::where('vanity_website_id', $args['vanity_website_id'])->get();
         }
 
         $countryFilters = [ 'country', 'countryCode', 'countryID' ];

@@ -4,8 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Address;
 use App\AddressType;
-use App\Helpers\CognitoHelper;
 use App\UserGroup;
+use App\Helpers\CognitoHelper;
+use App\Helpers\TextHelper;
 use Aws\Exception\AwsException;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -43,7 +44,7 @@ class GroupController extends Controller
 
     public function allWithCommission()
     {
-        return UserGroup::with(['commission'])
+        return UserGroup::with(['commission', 'location'])
             ->get()
             ->where('commission', '!==', null)
             ->values()
@@ -52,22 +53,49 @@ class GroupController extends Controller
 
     public function getByName(Request $request)
     {
-        return UserGroup::with(['commission', 'location'])->where('group_name', $request->input('name'))->firstOrFail();
+        $name = TextHelper::fixEscapeForSpecialCharacters($request->input('name'));
+        return UserGroup::with(['commission', 'location'])->where('group_name', $name)->firstOrFail();
     }
 
     public function add(Request $request)
     {
         try {
             $fields = [
-                'group_name' => 'required',
-                'premium'    => 'nullable|boolean'
+                'group_name'         => 'required',
+                'group_name_display' => 'required',
+                'premium'            => 'nullable|boolean',
+                'commission.id'      => 'nullable|integer',
             ];
+
+            //body includes a wholesale billing address, validate it
+            if($request->has('wholesale.billing')) {
+                $fields = array_merge($fields, [
+                    'wholesale.billing.address_1' => 'required',
+                    'wholesale.billing.city_id'   => 'required'
+                ]);
+            }
+
+            //body includes a wholesale shipping address, validate it
+            if($request->has('wholesale.shipping')) {
+                $fields = array_merge($fields, [
+                    'wholesale.shipping.address_1' => 'required',
+                    'wholesale.shipping.city_id'   => 'required'
+                ]);
+            }
+
+            //body includes a commission billing address, validate it
+            if($request->has('commission.billing')) {
+                $fields = array_merge($fields, [
+                    'commission.billing.address_1' => 'required',
+                    'commission.billing.city_id'   => 'required'
+                ]);
+            }
 
             $request->validate($fields);
 
             $commission_id = null;
-            if (!is_null($request->input('commission_id'))) {
-                $commission_id = intval($request->input('commission_id'));
+            if (!is_null($request->input('commission.id'))) {
+                $commission_id = intval($request->input('commission.id'));
             }
 
             $location_id = null;
@@ -88,32 +116,55 @@ class GroupController extends Controller
             if($request->has('wholesale.shipping') && !is_null($location_id)) {
                 $shippingAddress = Address::create([
                     'address_1' => $request->input('wholesale.shipping.address_1'),
-                    'address_2' => $request->input('wholesale.shipping.address_2'),
+                    'address_2' => $request->input('wholesale.shipping.address_2') ?? '',
                     'city_id'   => intval($request->input('wholesale.shipping.city_id'))
                 ]);
 
-                $shippingAddress->locations()->attach($location_id, ['address_type_id' => AddressType::firstOrCreate(['name' => 'Shipping'])->id]);
+                $shippingAddress->groups()->attach(
+                    $location_id,
+                    ['address_type_id' => AddressType::firstOrCreate(['name' => 'Wholesale Shipping'])->id]
+                );
             }
 
             if($request->has('wholesale.billing') && !is_null($location_id)) {
                 $billingAddress = Address::create([
                     'address_1' => $request->input('wholesale.billing.address_1'),
-                    'address_2' => $request->input('wholesale.billing.address_2'),
+                    'address_2' => $request->input('wholesale.billing.address_2') ?? '',
                     'city_id'   => intval($request->input('wholesale.billing.city_id'))
                 ]);
 
-                $billingAddress->locations()->attach($location_id, ['address_type_id' => AddressType::firstOrCreate(['name' => 'Billing'])->id]);
+                $billingAddress->groups()->attach(
+                    $location_id,
+                    ['address_type_id' => AddressType::firstOrCreate(['name' => 'Wholesale Billing'])->id]
+                );
+            }
+
+            if($request->has('commission.billing') && !is_null($location_id)) {
+                $billingAddress = Address::create([
+                    'address_1' => $request->input('commission.billing.address_1'),
+                    'address_2' => $request->input('commission.billing.address_2')  ?? '',
+                    'city_id'   => intval($request->input('commission.billing.city_id'))
+                ]);
+
+                $billingAddress->groups()->attach(
+                    $location_id,
+                    ['address_type_id' => AddressType::firstOrCreate(['name' => 'Commission Billing'])->id]
+                );
             }
 
             $cognito = new CognitoHelper();
-            $cognito->createGroup($request->input('group_name'), '');
+            $cognito->createGroup(
+                $request->input('group_name'),
+                $request->input('group_name_display')
+            );
 
             return UserGroup::create([
-                'group_name'    => $request->input('group_name'),
-                'discount_id'   => $discount_id,
-                'commission_id' => $commission_id,
-                'location_id'   => $location_id,
-                'premium'       => $premium
+                'group_name'         => $request->input('group_name'),
+                'group_name_display' => $request->input('group_name_display'),
+                'discount_id'        => $discount_id,
+                'commission_id'      => $commission_id,
+                'location_id'        => $location_id,
+                'premium'            => $premium
             ]);
         }
         catch (ValidationException $e) {
@@ -136,7 +187,6 @@ class GroupController extends Controller
     public function delete($id)
     {
         $group = UserGroup::findOrFail($id);
-
         $group->delete();
     }
 }
