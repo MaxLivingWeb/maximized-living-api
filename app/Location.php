@@ -67,7 +67,7 @@ class Location extends Model
     public static function filterByRadius($lat, $long, $distance) {
 
         //TODO: figure out which fields need to be returned in this query
-        $filtered_locations = \DB::select("SELECT * FROM
+        $filteredLocations = \DB::select("SELECT * FROM
                                 (SELECT ROUND( ( 6371 * acos(
                                 cos( radians( $lat ) ) *
                                 cos( radians( latitude ) ) *
@@ -84,6 +84,6 @@ class Location extends Model
                                 JOIN addresses a2 ON a.address_id = a2.id) AS query
                                 WHERE distance < $distance");
 
-        return $filtered_locations;
+        return $filteredLocations;
     }
 }
