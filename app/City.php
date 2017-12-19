@@ -45,6 +45,7 @@ class City extends Model
 
         $new_city->name = $city;
         $new_city->region_id = $regionId;
+        $new_city->slug = str_slug($city);
 
         $new_city->save();
 
