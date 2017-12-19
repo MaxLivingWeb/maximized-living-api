@@ -87,6 +87,7 @@ return [
                 'regions' => 'App\GraphQL\Query\RegionQuery',
                 'cities' => 'App\GraphQL\Query\CityQuery',
                 'locations' => 'App\GraphQL\Query\LocationQuery',
+                'addressTypes' => 'App\GraphQL\Query\AddressTypeQuery'
             ],
             'mutation' => [
                 'addLocation' => 'App\GraphQL\Mutation\AddLocationMutation',
@@ -110,7 +111,8 @@ return [
         'Region' => 'App\GraphQL\Type\RegionType',
         'City' => 'App\GraphQL\Type\CityType',
         'Location' => 'App\GraphQL\Type\LocationType',
-        'Address' => 'App\GraphQL\Type\AddressType'
+        'Address' => 'App\GraphQL\Type\AddressType',
+        'AddressType' => 'App\GraphQL\Type\AddressTypeType'
     ],
 
     // This callable will be passed the Error object for each errors GraphQL catch.
