@@ -79,9 +79,9 @@ class Location extends Model
                                 telephone, telephone_ext, fax, email, vanity_website_url, slug, pre_open_display_date,
                                 opening_date, closing_date, daylight_savings_applies
                                 FROM Locations
-                                LEFT JOIN locations_addresses a
-                                ON locations.id = a.location_id
-                                JOIN addresses a2 ON a.address_id = a2.id) AS query
+                                LEFT JOIN locations_addresses la
+                                ON locations.id = la.location_id
+                                JOIN addresses a ON la.address_id = a.id) AS query
                                 WHERE distance < $distance");
 
         return $filteredLocations;
