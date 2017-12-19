@@ -12,14 +12,12 @@ class Location extends Model
 
     protected $fillable = [
         'name',
-        'zip_postal_code',
-        'latitude',
-        'longitude',
         'telephone',
         'telephone_ext',
         'fax',
         'email',
         'vanity_website_url',
+        'vanity_website_id',
         'slug',
         'pre_open_display_date',
         'opening_date',

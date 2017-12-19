@@ -14,7 +14,8 @@ class UserGroup extends Model
         'legacy_affiliate_id',
         'commission_id',
         'location_id',
-        'premium'
+        'premium',
+        'event_promoter'
     ];
 
     protected $hidden = [
@@ -25,6 +26,11 @@ class UserGroup extends Model
         'deleted_at'
     ];
 
+    protected $casts = [
+        'premium'        => 'boolean',
+        'event_promoter' => 'boolean'
+    ];
+    
     public function commission() {
         return $this->hasOne('App\CommissionGroup', 'id', 'commission_id');
     }

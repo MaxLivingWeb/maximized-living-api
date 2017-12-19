@@ -30,6 +30,7 @@ Route::group(['prefix' => 'user'], function() {
     Route::post('/', 'UserController@addUser');
     Route::put('/{id}', 'UserController@updateUser');
     Route::get('/{id}/affiliate/{affiliateId}', 'UserController@linkToAffiliate');
+    Route::get('/{id}/affiliate', 'UserController@affiliate');
 });
 
 Route::get('/users', 'UserController@listUsers');
@@ -46,3 +47,14 @@ Route::group(['prefix' => 'permissions'], function() {
     Route::get('/', 'PermissionsController@all');
 });
 
+Route::post('/contact', 'TransactionalEmailController@save');
+
+Route::group(['prefix' => 'reporting'], function() {
+    Route::group(['prefix' => 'affiliate'], function() {
+        Route::get('/sales', 'AffiliateController@sales');
+    });
+
+    Route::group(['prefix' => 'wholesale'], function() {
+        Route::get('{id}/sales', 'WholesaleController@sales');
+    });
+});
