@@ -19,7 +19,7 @@ class LocationQuery extends Query
 
     public function type ()
     {
-        return Type::listOf(GraphQL::type('Location'));
+        return Type::listOf(GraphQL::type('OutputLocation'));
     }
 
     public function args ()
