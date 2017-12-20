@@ -14,4 +14,24 @@ class OutputAddressType extends AddressType
         'description' => 'An address for outputting'
     ];
 
+    public function fields() {
+        $fields = parent::fields();
+
+        $fields['city'] = [
+            'args' => [
+                'id' => [
+                    'type' => Type::int(),
+                    'name' => 'id'
+                ]
+            ],
+            'type' => Type::listOf(GraphQL::type('City')),
+            'description' => 'cities',
+            'resolve' => function ($root, $args) {
+                return  [ $root->city ] ;
+            }
+        ];
+
+        return $fields;
+    }
+
 }

@@ -66,9 +66,9 @@ class Location extends Model
 
     public static function filterByRadius($lat, $long, $distance) {
 
-        //default of 250 sounds about right
+        //default of 50 sounds about right
         if(empty($distance)) {
-            $distance = 51;
+            $distance = 50;
         }
 
         $lat = round($lat, 5);
@@ -94,7 +94,9 @@ class Location extends Model
                                   l.telephone_ext as 'location_telephone_ext',
                                   l.vanity_website_id as 'location_vanity_website_id',
                                   l.operating_hours as 'location_operating_hours',
+                                  l.slug as 'location_slug',
                                   cities.name as 'city_name',
+                                  cities.slug as 'city_slug',
                                   regions.name as 'region_name',
                                   regions.abbreviation as 'region_code',
                                   countries.name as 'country_name',
@@ -110,7 +112,7 @@ class Location extends Model
                                   ON addresses.id = la.address_id
                                   JOIN locations l ON la.location_id = l.id) AS query
                                 WHERE distance <= $distance");
-        
-        return $filteredLocations;
+
+        return collect($filteredLocations);
     }
 }

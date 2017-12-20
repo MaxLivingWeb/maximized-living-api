@@ -53,7 +53,7 @@ class LocationQuery extends Query
                 'type' => Type::int(),
                 'description' => 'the radius of your query'
             ],
-            'country' => [ //country name
+            'country' => [
                 'name' => 'country',
                 'type' => Type::string()
             ],
