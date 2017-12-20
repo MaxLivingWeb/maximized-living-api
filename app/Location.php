@@ -94,6 +94,7 @@ class Location extends Model
                                   l.telephone_ext as 'location_telephone_ext',
                                   l.vanity_website_id as 'location_vanity_website_id',
                                   l.operating_hours as 'location_operating_hours',
+                                  l.slug as 'location_slug',
                                   cities.name as 'city_name',
                                   cities.slug as 'city_slug',
                                   regions.name as 'region_name',
