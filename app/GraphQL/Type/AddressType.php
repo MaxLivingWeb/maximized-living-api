@@ -8,7 +8,7 @@ use Folklore\GraphQL\Support\Type as GraphQLType;
 class AddressType extends GraphQLType
 {
     protected $inputObject = true;
-    
+
     protected $attributes = [
         'name' => 'Address',
         'description' => 'An address'
@@ -56,7 +56,7 @@ class AddressType extends GraphQLType
             'zip_postal_code' => [
                 'type' => Type::string(),
                 'description' => 'Zip/Postal Code'
-            ],
+            ]
         ];
     }
 }
