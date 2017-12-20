@@ -18,8 +18,17 @@ class OutputAddressType extends AddressType
         $fields = parent::fields();
 
         $fields['city'] = [
-            'name' => 'city',
-            'type' => Type::listOf(GraphQL::type('City'))
+            'args' => [
+                'id' => [
+                    'type' => Type::int(),
+                    'name' => 'id'
+                ]
+            ],
+            'type' => Type::listOf(GraphQL::type('City')),
+            'description' => 'cities',
+            'resolve' => function ($root, $args) {
+                return  [ $root->city ] ;
+            }
         ];
 
         return $fields;
