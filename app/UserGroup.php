@@ -18,10 +18,6 @@ class UserGroup extends Model
         'event_promoter'
     ];
 
-    protected $appends = [
-        'collections'
-    ];
-
     protected $hidden = [
         'commission_id',
         'location_id',
@@ -34,12 +30,7 @@ class UserGroup extends Model
         'premium'        => 'boolean',
         'event_promoter' => 'boolean'
     ];
-
-    public function getCollectionsAttribute()
-    {
-        return DB::table('usergroup_collections')->where('usergroup_id', $this->id)->pluck('collection_id');
-    }
-
+    
     public function commission() {
         return $this->hasOne('App\CommissionGroup', 'id', 'commission_id');
     }

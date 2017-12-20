@@ -17,6 +17,7 @@ class Location extends Model
         'fax',
         'email',
         'vanity_website_url',
+        'vanity_website_id',
         'slug',
         'pre_open_display_date',
         'opening_date',
@@ -66,7 +67,7 @@ class Location extends Model
     public static function filterByRadius($lat, $long, $distance) {
 
         //TODO: figure out which fields need to be returned in this query
-        $filtered_locations = \DB::select("SELECT * FROM 
+        $filteredLocations = \DB::select("SELECT * FROM
                                 (SELECT ROUND( ( 6371 * acos(
                                 cos( radians( $lat ) ) *
                                 cos( radians( latitude ) ) *
@@ -77,9 +78,12 @@ class Location extends Model
                                 ) ), 2) as distance, affiliate_id, name, zip_postal_code, latitude, longitude,
                                 telephone, telephone_ext, fax, email, vanity_website_url, slug, pre_open_display_date,
                                 opening_date, closing_date, daylight_savings_applies
-                                FROM Locations) AS query 
+                                FROM Locations
+                                LEFT JOIN locations_addresses la
+                                ON locations.id = la.location_id
+                                JOIN addresses a ON la.address_id = a.id) AS query
                                 WHERE distance < $distance");
 
-        return $filtered_locations;
+        return $filteredLocations;
     }
 }
