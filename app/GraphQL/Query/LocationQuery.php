@@ -53,7 +53,7 @@ class LocationQuery extends Query
                 'type' => Type::int(),
                 'description' => 'the radius of your query'
             ],
-            'country' => [ //country name
+            'country' => [
                 'name' => 'country',
                 'type' => Type::string()
             ],
@@ -118,6 +118,7 @@ class LocationQuery extends Query
         }
 
         if (isset($args['id'])) {
+            dd( Location::where('id', $args['id'])->get() );
             return Location::where('id', $args['id'])->get();
         }
 
