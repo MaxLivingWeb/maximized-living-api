@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Helpers\ShopifyHelper;
 use Illuminate\Http\Request;
 
-class SalesController extends Controller
+class RetailController extends Controller
 {
     public function sales(Request $request)
     {
