@@ -37,7 +37,6 @@ class AddLocationMutation extends Mutation
         }
         
         $location = Location::create([
-            'affiliate_id'              => "123",
             'name'                      => $args['name'],
             'telephone'                 => $args['telephone'],
             'telephone_ext'             => $args['telephone_ext'],
