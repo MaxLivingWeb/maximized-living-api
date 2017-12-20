@@ -34,12 +34,4 @@ class OutputAddressType extends AddressType
         return $fields;
     }
 
-
-
-
-
-
-
-
-
 }
