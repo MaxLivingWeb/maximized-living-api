@@ -9,7 +9,6 @@ use App\Location;
 use App\Region;
 use App\City;
 use DB;
-use Illuminate\Support\Facades\Log;
 
 class LocationQuery extends Query
 {

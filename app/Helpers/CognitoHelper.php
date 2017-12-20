@@ -44,7 +44,17 @@ class CognitoHelper
         return $this->client->adminCreateUser([
             'TemporaryPassword' => $password,
             'UserPoolId' => env('AWS_COGNITO_USER_POOL_ID'),
-            'Username' => $username
+            'Username' => $username,
+            'UserAttributes' => [
+                [
+                    'Name' => 'email_verified',
+                    'Value' => 'true',
+                ],
+                [
+                    'Name' => 'email',
+                    'Value' => $username
+                ]
+            ],
         ]);
 
     }
