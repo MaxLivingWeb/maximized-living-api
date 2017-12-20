@@ -66,6 +66,14 @@ class Location extends Model
 
     public static function filterByRadius($lat, $long, $distance) {
 
+        //default of 250 sounds about right
+        if(empty($distance)) {
+            $distance = 51;
+        }
+
+        $lat = round($lat, 5);
+        $long = round($long, 5);
+
         //TODO: figure out which fields need to be returned in this query
         $filteredLocations = \DB::select("SELECT * FROM
                                 (SELECT ROUND( ( 6371 * acos(
@@ -75,15 +83,34 @@ class Location extends Model
                                 radians( $long ) ) +
                                 sin( radians($lat ) ) *
                                 sin( radians( latitude ) )
-                                ) ), 2) as distance, affiliate_id, name, zip_postal_code, latitude, longitude,
-                                telephone, telephone_ext, fax, email, vanity_website_url, slug, pre_open_display_date,
-                                opening_date, closing_date, daylight_savings_applies
-                                FROM Locations
+                                ) ), 2) as distance,
+                                  address_1,
+                                  latitude,
+                                  longitude,
+                                  zip_postal_code,
+                                  l.name as 'location_name',
+                                  l.id as 'location_id',
+                                  l.telephone as 'location_telephone',
+                                  l.telephone_ext as 'location_telephone_ext',
+                                  l.vanity_website_id as 'location_vanity_website_id',
+                                  l.operating_hours as 'location_operating_hours',
+                                  cities.name as 'city_name',
+                                  regions.name as 'region_name',
+                                  regions.abbreviation as 'region_code',
+                                  countries.name as 'country_name',
+                                  countries.abbreviation as 'country_code'
+                                FROM Addresses
+                                INNER JOIN cities
+                                  ON addresses.city_id = cities.id
+                                INNER JOIN regions
+                                  ON cities.region_id = regions.id
+                                INNER JOIN countries
+                                  ON regions.country_id = countries.id
                                 LEFT JOIN locations_addresses la
-                                ON locations.id = la.location_id
-                                JOIN addresses a ON la.address_id = a.id) AS query
-                                WHERE distance < $distance");
-
+                                  ON addresses.id = la.address_id
+                                  JOIN locations l ON la.location_id = l.id) AS query
+                                WHERE distance <= $distance");
+        
         return $filteredLocations;
     }
 }

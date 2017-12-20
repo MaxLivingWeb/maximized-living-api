@@ -8,6 +8,8 @@ use Folklore\GraphQL\Support\Type as GraphQLType;
 
 class LocationType extends GraphQLType
 {
+    protected $inputObject = true;
+
     protected $attributes = [
         'name' => 'LocationType',
         'description' => 'A type'
