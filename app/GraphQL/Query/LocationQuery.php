@@ -118,7 +118,6 @@ class LocationQuery extends Query
         }
 
         if (isset($args['id'])) {
-            dd( Location::where('id', $args['id'])->get() );
             return Location::where('id', $args['id'])->get();
         }
 
