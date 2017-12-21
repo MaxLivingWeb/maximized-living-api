@@ -86,7 +86,6 @@ class AffiliateController extends Controller
                 return response()->json($affiliate);
         }
         catch (\Exception $e) {
-            return $e;
             return response()->json($e->getMessage(), 500);
         }
     }
