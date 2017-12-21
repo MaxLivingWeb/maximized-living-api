@@ -52,6 +52,7 @@ Route::post('/contact', 'TransactionalEmailController@save');
 Route::group(['prefix' => 'reporting'], function() {
     Route::group(['prefix' => 'affiliate'], function() {
         Route::get('/sales', 'AffiliateController@sales');
+        Route::get('/{id}/sales', 'AffiliateController@salesById');
     });
 
     Route::group(['prefix' => 'wholesale'], function() {
