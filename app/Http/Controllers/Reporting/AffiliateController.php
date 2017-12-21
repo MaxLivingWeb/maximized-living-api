@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\UserGroup;
 use App\Helpers\ShopifyHelper;
-use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 
 class AffiliateController extends Controller
@@ -66,8 +65,7 @@ class AffiliateController extends Controller
             $endDate = $this->getDates($request)->endDate;
             $orders = $shopify->getAllOrders($startDate, $endDate);
 
-            $affiliateUser = $userController->getUser($request->id)->getData();
-            $affiliate = UserGroup::with(['commission', 'location'])->findOrFail($affiliateUser->affiliate->id);
+            $affiliate = UserGroup::with(['commission', 'location'])->findOrFail($request->id);
             $affiliate->sales = $orders
                 ->filter(function ($value) use ($affiliate) {
                     $affiliateId = collect($value->note_attributes)
