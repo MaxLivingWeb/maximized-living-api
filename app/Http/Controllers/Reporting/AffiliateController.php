@@ -17,8 +17,9 @@ class AffiliateController extends Controller
         try {
             $shopify = new ShopifyHelper();
 
-            $startDate = $this->getDates($request)->startDate;
-            $endDate = $this->getDates($request)->endDate;
+            $dates = $this->getDates($request);
+            $startDate = $dates->startDate;
+            $endDate = $dates->endDate;
             $orders = $shopify->getAllOrders($startDate, $endDate);
 
             $affiliates = UserGroup::with(['commission', 'location'])->get()->where('commission', '!==', null);
@@ -60,8 +61,9 @@ class AffiliateController extends Controller
         try {
             $shopify = new ShopifyHelper();
 
-            $startDate = $this->getDates($request)->startDate;
-            $endDate = $this->getDates($request)->endDate;
+            $dates = $this->getDates($request);
+            $startDate = $dates->startDate;
+            $endDate = $dates->endDate;
             $orders = $shopify->getAllOrders($startDate, $endDate);
 
             $affiliate = UserGroup::with(['commission', 'location'])->findOrFail($request->id);
