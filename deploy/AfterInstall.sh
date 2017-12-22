@@ -3,6 +3,11 @@
 # set the folder in which to run the installs
 cd /var/www/html/
 
+# Install composer packages
+COMPOSER_HOME="/var/www/html/" php composer.phar install
+
+echo "Hello!" > test.txt
+
 if [ -f .env ]; then
     rm .env
 fi
