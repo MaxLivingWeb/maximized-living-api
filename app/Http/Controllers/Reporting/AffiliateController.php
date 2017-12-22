@@ -44,7 +44,7 @@ class AffiliateController extends Controller
                 }
 
                 return true;
-            });
+            })->values();
         }
         catch (\Exception $e) {
             return response()->json($e->getMessage(), 500);
