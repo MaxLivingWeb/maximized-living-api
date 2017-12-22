@@ -59,7 +59,6 @@ class AffiliateController extends Controller
     {
         try {
             $shopify = new ShopifyHelper();
-            $userController = new UserController();
 
             $startDate = $this->getDates($request)->startDate;
             $endDate = $this->getDates($request)->endDate;
