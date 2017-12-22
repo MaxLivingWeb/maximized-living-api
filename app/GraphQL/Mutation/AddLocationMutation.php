@@ -27,7 +27,6 @@ class AddLocationMutation extends Mutation
     
     public function resolve($root, $args)
     {
-
         foreach ($args as $key => $var) {
             if (is_array($var)) {
                 $args[$key] = filter_var_array($var, FILTER_SANITIZE_STRING);
@@ -48,7 +47,7 @@ class AddLocationMutation extends Mutation
             'opening_date'              => $args['opening_date'],
             'closing_date'              => $args['closing_date'],
             'daylight_savings_applies'  => $args['daylight_savings_applies'],
-            'operating_hours'           => $args['business_hours']
+            'business_hours'           => $args['business_hours']
          ]);
         
         $addresses = $args['addresses'];

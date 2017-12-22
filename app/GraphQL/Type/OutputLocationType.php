@@ -74,8 +74,8 @@ class OutputLocationType extends LocationType
             'type' => Type::int()
         ];
 
-        $fields['location_operating_hours'] = [
-            'name' => 'location_operating_hours',
+        $fields['location_business_hours'] = [
+            'name' => 'location_business_hours',
             'type' => Type::string()
         ];
 

@@ -23,7 +23,7 @@ class Location extends Model
         'opening_date',
         'closing_date',
         'daylight_savings_applies',
-        'operating_hours',
+        'business_hours',
         'timezone_id',
         'deleted_at'
     ];
@@ -93,7 +93,7 @@ class Location extends Model
                                   l.telephone as 'location_telephone',
                                   l.telephone_ext as 'location_telephone_ext',
                                   l.vanity_website_id as 'location_vanity_website_id',
-                                  l.operating_hours as 'location_operating_hours',
+                                  l.business_hours as 'location_business_hours',
                                   l.slug as 'location_slug',
                                   cities.name as 'city_name',
                                   cities.slug as 'city_slug',
