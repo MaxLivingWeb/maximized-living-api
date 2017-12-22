@@ -43,7 +43,7 @@ hooks:
     - location: deploy/BeforeInstall.sh
       runas: root
   Install:
-    - location: deploy/Install.sh
+    - location: deploy/InstallTest.sh
       runas: root
   AfterInstall:
     - location: deploy/AfterInstall.sh
