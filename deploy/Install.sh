@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cd /var/www/html
+
 #yum -y install php71-mysqlnd
 
 sudo pip install boto3
