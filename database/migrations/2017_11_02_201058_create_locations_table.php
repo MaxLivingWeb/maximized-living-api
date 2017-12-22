@@ -26,7 +26,7 @@ class CreateLocationsTable extends Migration
             $table->string('opening_date');
             $table->string('closing_date');
             $table->boolean('daylight_savings_applies')->default(1);
-            $table->mediumText('operating_hours');
+            $table->mediumText('business_hours');
 
             $table->softDeletes();
             $table->timestamps();

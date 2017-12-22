@@ -25,7 +25,7 @@ class LocationsTableSeeder extends Seeder
                 'opening_date' => '05-03-2011',
                 'closing_date' => '04-02-2020',
                 'daylight_savings_applies' => true,
-                'operating_hours' => '',
+                'business_hours' => '',
                 'vanity_website_id' => 123
             ],
             [
@@ -43,7 +43,7 @@ class LocationsTableSeeder extends Seeder
                 'opening_date' => '04-03-2007',
                 'closing_date' => '07-02-2021',
                 'daylight_savings_applies' => true,
-                'operating_hours' => '',
+                'business_hours' => '',
                 'vanity_website_id' => 234
             ],
             [
@@ -61,7 +61,7 @@ class LocationsTableSeeder extends Seeder
                 'opening_date' => '04-03-2014',
                 'closing_date' => '07-02-2021',
                 'daylight_savings_applies' => true,
-                'operating_hours' => '',
+                'business_hours' => '',
                 'vanity_website_id' => 165
             ],
             [
@@ -79,7 +79,7 @@ class LocationsTableSeeder extends Seeder
                 'opening_date' => '08-03-2012',
                 'closing_date' => '02-02-2022',
                 'daylight_savings_applies' => true,
-                'operating_hours' => '',
+                'business_hours' => '',
                 'vanity_website_id' => 198
             ]
         ];
@@ -97,7 +97,7 @@ class LocationsTableSeeder extends Seeder
                 'opening_date' => $location['opening_date'],
                 'closing_date' => $location['closing_date'],
                 'daylight_savings_applies' => $location['daylight_savings_applies'],
-                'operating_hours' => $location['operating_hours'],
+                'business_hours' => $location['business_hours'],
                 'vanity_website_id' => $location['vanity_website_id']
             ]);
         }
