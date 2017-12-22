@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Reporting;
 
 use App\Helpers\ShopifyHelper;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 class RetailController extends Controller

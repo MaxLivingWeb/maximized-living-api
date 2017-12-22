@@ -51,14 +51,14 @@ Route::post('/contact', 'TransactionalEmailController@save');
 
 Route::group(['prefix' => 'reporting'], function() {
     Route::group(['prefix' => 'retail'], function() {
-        Route::get('/sales', 'RetailController@sales');
+        Route::get('/sales', 'Reporting\RetailController@sales');
     });
 
     Route::group(['prefix' => 'affiliate'], function() {
-        Route::get('/sales', 'AffiliateController@sales');
+        Route::get('/sales', 'Reporting\AffiliateController@sales');
     });
 
     Route::group(['prefix' => 'wholesale'], function() {
-        Route::get('{id}/sales', 'WholesaleController@sales');
+        Route::get('{id}/sales', 'Reporting\WholesaleController@sales');
     });
 });
