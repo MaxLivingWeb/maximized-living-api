@@ -50,7 +50,7 @@ Route::group(['prefix' => 'permissions'], function() {
 Route::post('/contact', 'TransactionalEmailController@save');
 
 Route::group(['prefix' => 'reporting'], function() {
-    Route::get('/sales', 'SalesController@sales');
+    Route::get('/sales', 'Reporting\SalesController@sales');
 
     Route::group(['prefix' => 'retail'], function() {
         Route::get('/sales', 'Reporting\RetailController@sales');
