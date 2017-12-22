@@ -3,13 +3,19 @@
 # set the folder in which to run the installs
 cd /var/www/html/
 
-rm .env
+if [ -f .env ]; then
+    rm .env
+fi
 
 python CreateEnvFile.py
 
-rm CreateEnvFile.py
+if [ -f CreateEnvFile.py ]; then
+    rm CreateEnvFile.py
+fi
 
-rm env.txt
+if [ -f env.txt ]; then
+    rm env.txt
+fi
 
 # Run Artisan Commands if needed
 if [ -f artisan ]; then
