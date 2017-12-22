@@ -7,4 +7,6 @@ cd /var/www/html/
 sudo pip install boto3
 
 # Install composer packages
-COMPOSER_HOME="/var/www/html" php composer.phar install
+COMPOSER_HOME="/var/www/html/" php composer.phar install
+
+echo "Hello!" > test.txt
