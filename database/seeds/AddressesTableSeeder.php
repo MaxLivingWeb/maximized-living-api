@@ -26,7 +26,8 @@ class AddressesTableSeeder extends Seeder
             [
                 'address_1' => '760 State Rt 10',
                 'address_2' => 'Suite 205',
-                'city_id' => 3],
+                'city_id' => 3
+            ],
             [
                 'address_1' => '10743 Narcoossee Rd',
                 'address_2' => 'Suite A-12',
@@ -38,7 +39,10 @@ class AddressesTableSeeder extends Seeder
             Address::create([
                 'address_1' =>  $address['address_1'],
                 'address_2' => $address['address_2'],
-                'city_id' => $address['city_id']
+                'city_id' => $address['city_id'],
+                'latitude' => 49.04252,
+                'longitude' => -22.4201496,
+                'zip_postal_code' => 'N1N 1N1'
             ]);
         }
     }
