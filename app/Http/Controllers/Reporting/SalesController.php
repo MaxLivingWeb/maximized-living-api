@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Reporting;
 
+use App\Http\Controllers\Controller;
 use App\Helpers\ShopifyHelper;
 use Illuminate\Http\Request;
 
