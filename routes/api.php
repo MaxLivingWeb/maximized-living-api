@@ -13,6 +13,55 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+Route::group(['prefix' => 'group'], function() {
+    Route::get('/all', 'GroupController@all');
+    Route::get('/commissions', 'GroupController@allWithCommission');
+    Route::get('/locations', 'GroupController@allWithLocation');
+    Route::get('/{id}', 'GroupController@getById');
+    Route::get('/{id}/users', 'GroupController@getUsersById');
+    Route::get('/', 'GroupController@getByName');
+    Route::post('/', 'GroupController@add');
+    Route::put('/{id}', 'GroupController@update');
+    Route::delete('/{id}', 'GroupController@delete');
+});
+
+Route::group(['prefix' => 'user'], function() {
+    Route::get('/{id}', 'UserController@getUser');
+    Route::post('/', 'UserController@addUser');
+    Route::put('/{id}', 'UserController@updateUser');
+    Route::get('/{id}/affiliate/{affiliateId}', 'UserController@linkToAffiliate');
+    Route::get('/{id}/affiliate', 'UserController@affiliate');
+});
+
+Route::get('/users', 'UserController@listUsers');
+
+Route::group(['prefix' => 'commission'], function() {
+    Route::get('/', 'CommissionController@all');
+    Route::get('/{id}', 'CommissionController@getById');
+    Route::post('/', 'CommissionController@add');
+    Route::put('/{id}', 'CommissionController@update');
+    Route::delete('/{id}', 'CommissionController@delete');
+});
+
+Route::group(['prefix' => 'permissions'], function() {
+    Route::get('/', 'PermissionsController@all');
+});
+
+Route::post('/contact', 'TransactionalEmailController@save');
+
+Route::group(['prefix' => 'reporting'], function() {
+    Route::get('/sales', 'Reporting\SalesController@sales');
+
+    Route::group(['prefix' => 'retail'], function() {
+        Route::get('/sales', 'Reporting\RetailController@sales');
+    });
+
+    Route::group(['prefix' => 'affiliate'], function() {
+        Route::get('/sales', 'Reporting\AffiliateController@sales');
+        Route::get('/{id}/sales', 'Reporting\AffiliateController@salesById');
+    });
+
+    Route::group(['prefix' => 'wholesale'], function() {
+        Route::get('{id}/sales', 'Reporting\WholesaleController@sales');
+    });
 });
