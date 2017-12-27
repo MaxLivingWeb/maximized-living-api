@@ -148,10 +148,10 @@ class ShopifyHelper
      * @param $status | 'open' (default), 'closed', 'cancelled', 'any'
      * @return Shopify Orders Count
      */
-    public function getOrdersCount($startDate = null, $endDate = null, $status = 'any')
+    public function getOrdersCount($startDate = null, $endDate = null, $status = null)
     {
         $query = [
-            'status' => $status
+            'status' => $status ?? 'any' //to override the default value of 'open'
         ];
 
         if(!is_null($startDate) && !is_null($endDate)) {
@@ -183,8 +183,10 @@ class ShopifyHelper
      * @return Shopify Orders
      */
 
-    public function getAllOrders($startDate = null, $endDate = null, $status = 'any')
+    public function getAllOrders($startDate = null, $endDate = null, $status = null)
     {
+        $status = $status ?? 'any'; //to override the default value of 'open'
+
         $PER_PAGE = 250;
 
         $count = $this->getOrdersCount($startDate, $endDate, $status);
