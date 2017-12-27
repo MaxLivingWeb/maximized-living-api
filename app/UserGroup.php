@@ -15,7 +15,8 @@ class UserGroup extends Model
         'commission_id',
         'location_id',
         'premium',
-        'event_promoter'
+        'event_promoter',
+        'maxtv_token'
     ];
 
     protected $hidden = [
