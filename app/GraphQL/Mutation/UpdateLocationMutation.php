@@ -52,19 +52,22 @@ class UpdateLocationMutation extends Mutation
                 'opening_date'              => $args['opening_date'],
                 'closing_date'              => $args['closing_date'],
                 'daylight_savings_applies'  => $args['daylight_savings_applies'],
-                'business_hours'           => $args['business_hours']
+                'business_hours'            => $args['business_hours']
             ]);
+
+        $location_id = Location::where('vanity_website_id', $args['vanity_website_id'])->first();
     
         $addresses = $args['addresses'];
-    
+
         //takes all the addresses snd creates/updates as needed and attaches them to the location
         foreach($addresses as $address) {
-            Address::attachAddress($location->id, $address);
+            Address::attachAddress($location_id->id, $address);
         }
-        
+
         if ($location === 1) {
             return $args;
         }
+
         return $location;
     }
 
