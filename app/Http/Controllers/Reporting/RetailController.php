@@ -4,10 +4,9 @@ namespace App\Http\Controllers\Reporting;
 
 use App\Helpers\ShopifyHelper;
 use App\Http\Controllers\Controller;
-use App\UserGroup;
 use Illuminate\Http\Request;
 
-class WholesaleController extends Controller
+class RetailController extends Controller
 {
     public function sales(Request $request)
     {
@@ -19,19 +18,9 @@ class WholesaleController extends Controller
             $endDate = $dateObject->endDate;
             $orders = $shopify->getAllOrders($startDate, $endDate);
 
-            $affiliate = UserGroup::with(['commission', 'location'])->findOrFail($request->id);
-
-            $affiliate->sales = $orders->filter(function ($value) use ($affiliate) {
-                $wholesaleId = collect($value->note_attributes)->where('name', 'wholesaleId')->first();
-
-                if(is_null($wholesaleId)) {
-                    return false;
-                }
-
-                return intval($wholesaleId->value) === $affiliate->id;
+            return $orders->filter(function ($value) {
+                return !collect($value->note_attributes)->contains('name', 'wholesaleId');
             })->values();
-
-            return $affiliate;
         }
         catch (\Exception $e) {
             return response()->json($e->getMessage(), 500);

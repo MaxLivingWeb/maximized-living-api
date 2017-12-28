@@ -50,11 +50,18 @@ Route::group(['prefix' => 'permissions'], function() {
 Route::post('/contact', 'TransactionalEmailController@save');
 
 Route::group(['prefix' => 'reporting'], function() {
+    Route::get('/sales', 'Reporting\SalesController@sales');
+
+    Route::group(['prefix' => 'retail'], function() {
+        Route::get('/sales', 'Reporting\RetailController@sales');
+    });
+
     Route::group(['prefix' => 'affiliate'], function() {
-        Route::get('/sales', 'AffiliateController@sales');
+        Route::get('/sales', 'Reporting\AffiliateController@sales');
+        Route::get('/{id}/sales', 'Reporting\AffiliateController@salesById');
     });
 
     Route::group(['prefix' => 'wholesale'], function() {
-        Route::get('{id}/sales', 'WholesaleController@sales');
+        Route::get('{id}/sales', 'Reporting\WholesaleController@sales');
     });
 });
