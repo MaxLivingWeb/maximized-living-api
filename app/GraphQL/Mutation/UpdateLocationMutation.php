@@ -55,13 +55,16 @@ class UpdateLocationMutation extends Mutation
                 'business_hours'            => $args['business_hours']
             ]);
 
-        $location_id = Location::where('vanity_website_id', $args['vanity_website_id'])->first();
+        $updated_location = Location::where('vanity_website_id', $args['vanity_website_id'])->first();
     
         $addresses = $args['addresses'];
 
+        //detach before add the new addresses
+        $updated_location->addresses()->detach();
+
         //takes all the addresses snd creates/updates as needed and attaches them to the location
         foreach($addresses as $address) {
-            Address::attachAddress($location_id->id, $address);
+            Address::attachAddress($updated_location->id, $address);
         }
 
         if ($location === 1) {
