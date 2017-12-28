@@ -14,8 +14,7 @@ class AddMaxtvTokenField extends Migration
     public function up()
     {
         Schema::table('user_groups', function(Blueprint $table) {
-            $table->string('maxtv_token', 64)->nullable()->after('event_promoter');
-            $table->unique('maxtv_token');
+            $table->string('maxtv_token', 64)->nullable()->unique()->after('event_promoter');
         });
     }
 
