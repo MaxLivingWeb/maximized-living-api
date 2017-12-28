@@ -25,6 +25,8 @@ class AddMaxtvTokenField extends Migration
      */
     public function down()
     {
-        //
+        Schema::table('user_groups', function(Blueprint $table) {
+            $table->dropColumn('maxtv_token');
+        });
     }
 }
