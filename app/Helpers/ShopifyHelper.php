@@ -109,11 +109,11 @@ class ShopifyHelper
     {
         try
         {
-            $result = $this->client->post('customers/' . $userId . '/metafields.json', [
+            $this->client->post('customers/' . $userId . '/metafields.json', [
                 'json' => [
                     'metafield' => [
-                        'id' => intval($id),
-                        'value' => intval($value)
+                        'id' => (int)$id,
+                        'value' => (int)$value
                     ]
                 ]
             ]);
@@ -191,7 +191,7 @@ class ShopifyHelper
 
         $count = $this->getOrdersCount($startDate, $endDate, $status);
 
-        $numPages = intval(ceil($count / $PER_PAGE));
+        $numPages = (int)ceil($count / $PER_PAGE);
 
         $allOrders = collect();
         for($i = 1; $i <= $numPages; ++$i) {
