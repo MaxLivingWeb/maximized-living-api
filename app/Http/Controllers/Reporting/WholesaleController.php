@@ -17,7 +17,7 @@ class WholesaleController extends Controller
             $dateObject = $this->getDateObject($request);
             $startDate = $dateObject->startDate;
             $endDate = $dateObject->endDate;
-            $orders = $shopify->getAllOrders($startDate, $endDate);
+            $orders = $shopify->getAllOrders($startDate, $endDate, request()->input('status'));
 
             $affiliate = UserGroup::with(['commission', 'location'])->findOrFail($request->id);
 

@@ -16,7 +16,7 @@ class RetailController extends Controller
             $dateObject = $this->getDateObject($request);
             $startDate = $dateObject->startDate;
             $endDate = $dateObject->endDate;
-            $orders = $shopify->getAllOrders($startDate, $endDate);
+            $orders = $shopify->getAllOrders($startDate, $endDate, request()->input('status'));
 
             return $orders->filter(function ($value) {
                 return !collect($value->note_attributes)->contains('name', 'wholesaleId');

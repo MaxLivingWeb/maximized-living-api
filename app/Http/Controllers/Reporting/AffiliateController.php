@@ -21,7 +21,7 @@ class AffiliateController extends Controller
             $dateObject = $this->getDateObject($request);
             $startDate = $dateObject->startDate;
             $endDate = $dateObject->endDate;
-            $orders = $shopify->getAllOrders($startDate, $endDate);
+            $orders = $shopify->getAllOrders($startDate, $endDate, request()->input('status'));
 
             $affiliates = UserGroup::with(['commission', 'location'])->get()->where('commission', '!==', null);
             foreach ($affiliates as $affiliate) {
@@ -66,7 +66,7 @@ class AffiliateController extends Controller
             $dateObject = $this->getDateObject($request);
             $startDate = $dateObject->startDate;
             $endDate = $dateObject->endDate;
-            $orders = $shopify->getAllOrders($startDate, $endDate);
+            $orders = $shopify->getAllOrders($startDate, $endDate, request()->input('status'));
 
             $affiliate = UserGroup::with(['commission', 'location'])->findOrFail($request->id);
             $affiliate->sales = $orders

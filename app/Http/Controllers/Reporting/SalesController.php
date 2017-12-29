@@ -17,7 +17,7 @@ class SalesController extends Controller
             $startDate = $dateObject->startDate;
             $endDate = $dateObject->endDate;
 
-            return $shopify->getAllOrders($startDate, $endDate);
+            return $shopify->getAllOrders($startDate, $endDate, request()->input('status'));
         }
         catch (\Exception $e) {
             return response()->json($e->getMessage(), 500);
