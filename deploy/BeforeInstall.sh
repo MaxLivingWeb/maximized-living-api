@@ -12,6 +12,4 @@ php -r "unlink('composer-setup.php');"
 
 echo $DEPLOYMENT_GROUP_NAME > env.txt
 
-yum -y install php71-mysqlnd
-
 sudo pip install boto3
