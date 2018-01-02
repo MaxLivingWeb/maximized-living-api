@@ -6,6 +6,8 @@ use GraphQL;
 use GraphQL\Type\Definition\Type;
 use Folklore\GraphQL\Support\Query;
 use App\Location;
+use App\Region;
+use App\City;
 use DB;
 
 class LocationQuery extends Query
@@ -16,7 +18,7 @@ class LocationQuery extends Query
 
     public function type ()
     {
-        return Type::listOf(GraphQL::type('Location'));
+        return Type::listOf(GraphQL::type('OutputLocation'));
     }
 
     public function args ()
@@ -51,7 +53,7 @@ class LocationQuery extends Query
                 'type' => Type::int(),
                 'description' => 'the radius of your query'
             ],
-            'country' => [ //country name
+            'country' => [
                 'name' => 'country',
                 'type' => Type::string()
             ],
@@ -82,12 +84,29 @@ class LocationQuery extends Query
             'cityID' => [
                 'name' => 'cityID',
                 'type' => Type::int()
+            ],
+            'citySlug' => [
+                'name' => 'citySlug',
+                'type' => Type::string()
             ]
         ];
     }
 
     public function resolve ($root, $args)
     {
+        if (isset($args['slug']) && isset($args['citySlug']) && isset($args['regionCode']) ) {
+
+            $location = Location::with('addresses.city.region')
+                ->whereHas('addresses.city.region', function ($q) use ($args) {
+                    return $q->where('abbreviation', filter_var($args['regionCode'], FILTER_SANITIZE_STRING));
+                })->whereHas('addresses.city', function ($q) use ($args) {
+                    return $q->where('slug', filter_var($args['citySlug'], FILTER_SANITIZE_STRING));
+                })->where("slug", $args['slug'])
+                ->get();
+
+            return $location;
+        }
+
         //we have the parameters need for a filter by radius
         if (isset($args['filter_by_radius'])
             && $args['filter_by_radius'] === TRUE

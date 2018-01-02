@@ -109,11 +109,11 @@ class ShopifyHelper
     {
         try
         {
-            $result = $this->client->post('customers/' . $userId . '/metafields.json', [
+            $this->client->post('customers/' . $userId . '/metafields.json', [
                 'json' => [
                     'metafield' => [
-                        'id' => intval($id),
-                        'value' => intval($value)
+                        'id' => (int)$id,
+                        'value' => (int)$value
                     ]
                 ]
             ]);
@@ -140,9 +140,20 @@ class ShopifyHelper
         }
     }
 
-    public function getOrdersCount($startDate = null, $endDate = null)
+    /**
+     * Retrieve a count of all the orders using Shopify's AdminAPI
+     * https://help.shopify.com/api/reference/order
+     * @param $startDate
+     * @param $endDate
+     * @param $status | 'open' (default), 'closed', 'cancelled', 'any'
+     * @return Shopify Orders Count
+     */
+    public function getOrdersCount($startDate = null, $endDate = null, $status = null)
     {
-        $query = [];
+        $query = [
+            'status' => $status ?? 'any' //to override the default value of 'open'
+        ];
+
         if(!is_null($startDate) && !is_null($endDate)) {
             if($startDate == $endDate) {
                 //dates are the same, add 23:59 to end time
@@ -162,19 +173,32 @@ class ShopifyHelper
         return json_decode($result->getBody()->getContents())->count;
     }
 
-    public function getAllOrders($startDate = null, $endDate = null)
+
+    /**
+     * Retrieve a list of Orders using Shopify's AdminAPI
+     * https://help.shopify.com/api/reference/order
+     * @param $startDate
+     * @param $endDate
+     * @param $status | 'open' (default), 'closed', 'cancelled', 'any'
+     * @return Shopify Orders
+     */
+
+    public function getAllOrders($startDate = null, $endDate = null, $status = null)
     {
+        $status = $status ?? 'any'; //to override the default value of 'open'
+
         $PER_PAGE = 250;
 
-        $count = $this->getOrdersCount($startDate, $endDate);
+        $count = $this->getOrdersCount($startDate, $endDate, $status);
 
-        $numPages = intval(ceil($count / $PER_PAGE));
+        $numPages = (int)ceil($count / $PER_PAGE);
 
         $allOrders = collect();
         for($i = 1; $i <= $numPages; ++$i) {
             $query = [
-                'limit' => $PER_PAGE,
-                'page'  => $i
+                'status' => $status,
+                'limit'  => $PER_PAGE,
+                'page'   => $i
             ];
 
             if(!is_null($startDate) && !is_null($endDate)) {
