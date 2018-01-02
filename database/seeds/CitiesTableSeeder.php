@@ -30,7 +30,8 @@ class CitiesTableSeeder extends Seeder
         foreach($cities_array as $city) {
             City::create([
                 'name' => $city['name'],
-                'region_id' => $city['region_id']
+                'region_id' => $city['region_id'],
+                'slug' => str_slug($city['name'])
             ]);
         }
     }
