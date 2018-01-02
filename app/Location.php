@@ -101,7 +101,7 @@ class Location extends Model
                                   regions.abbreviation as 'region_code',
                                   countries.name as 'country_name',
                                   countries.abbreviation as 'country_code'
-                                FROM Addresses
+                                FROM addresses
                                 INNER JOIN cities
                                   ON addresses.city_id = cities.id
                                 INNER JOIN regions
