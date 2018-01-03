@@ -1,0 +1,50 @@
+version: 0.0
+os: linux
+files:
+  - source: /app
+    destination: /var/www/html/app
+  - source: /bootstrap
+    destination: /var/www/html/bootstrap
+  - source: /config
+    destination: /var/www/html/config
+  - source: /database
+    destination: /var/www/html/database
+  - source: /log
+    destination: /var/www/html/log
+  - source: /public
+    destination: /var/www/html/public
+  - source: /resources
+    destination: /var/www/html/resources
+  - source: /routes
+    destination: /var/www/html/routes
+  - source: /storage
+    destination: /var/www/html/storage
+  - source: /tests
+    destination: /var/www/html/tests
+  - source: /tmp
+    destination: /var/www/html/tmp
+  - source: /artisan
+    destination: /var/www/html
+  - source: /composer.json
+    destination: /var/www/html
+  - source: /composer.lock
+    destination: /var/www/html
+  - source: /phpunit.xml
+    destination: /var/www/html
+  - source: /server.php
+    destination: /var/www/html
+  - source: /deploy/CreateEnvFile.py
+    destination: /var/www/html
+hooks:
+  ApplicationStop:
+    - location: deploy/ApplicationStop.sh
+      runas: root
+  BeforeInstall:
+    - location: deploy/BeforeInstall.sh
+      runas: root
+  AfterInstall:
+    - location: deploy/AfterInstall.sh
+      runas: root
+  ApplicationStart:
+    - location: deploy/ApplicationStart.sh
+      runas: root
