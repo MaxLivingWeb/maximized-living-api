@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # set the folder in which to run the installs
 cd /var/www/html/
 
