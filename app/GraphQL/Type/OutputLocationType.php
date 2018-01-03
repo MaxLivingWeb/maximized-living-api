@@ -29,6 +29,11 @@ class OutputLocationType extends LocationType
             'type' => Type::string()
         ];
 
+        $fields['address_2'] = [
+            'name' => 'address_1',
+            'type' => Type::string()
+        ];
+
         $fields['latitude'] = [
             'name' => 'latitude',
             'type' => Type::float()
