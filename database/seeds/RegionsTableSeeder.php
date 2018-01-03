@@ -90,7 +90,7 @@ class RegionsTableSeeder extends Seeder
             ],
             [
                 'name' => 'Arizona',
-                'abbreviation' => 'AR',
+                'abbreviation' => 'AZ',
                 'country_id' => 2
             ],
             [
