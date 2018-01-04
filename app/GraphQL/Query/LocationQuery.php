@@ -167,13 +167,17 @@ class LocationQuery extends Query
                 ->get();
         }
 
-        $cityFilters = [ 'city', 'cityID' ];
+        $cityFilters = [ 'city', 'cityID', 'citySlug' ];
         $hasCityFilter = !empty(array_intersect(array_keys($args), $cityFilters));
         if ($hasCityFilter) {
             return Location::with('addresses.city')
                 ->whereHas('addresses.city', function ($q) use ($args) {
                     if (isset($args['cityID'])) {
                         return $q->where('id', filter_var($args['cityID'], FILTER_SANITIZE_STRING));
+                    }
+
+                    if (isset($args['citySlug'])) {
+                        return $q->where('slug', filter_var($args['citySlug'], FILTER_SANITIZE_STRING));
                     }
 
                     return $q->where('name', filter_var($args['city'], FILTER_SANITIZE_STRING));
