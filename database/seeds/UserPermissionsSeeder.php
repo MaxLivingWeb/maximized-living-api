@@ -32,6 +32,10 @@ class UserPermissionsSeeder extends Seeder
             [
                 'key' => 'contentportal',
                 'name' => 'Content Portal'
+            ],
+            [
+                'key' => 'contentportal-admin',
+                'name' => 'Content Portal - Admin'
             ]
         ];
 
