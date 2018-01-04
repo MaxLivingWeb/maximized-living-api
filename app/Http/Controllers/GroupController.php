@@ -117,7 +117,10 @@ class GroupController extends Controller
                 $shippingAddress = Address::create([
                     'address_1' => $request->input('wholesale.shipping.address_1'),
                     'address_2' => $request->input('wholesale.shipping.address_2') ?? '',
-                    'city_id'   => intval($request->input('wholesale.shipping.city_id'))
+                    'zip_postal_code' => $request->input('wholesale.shipping.zip_postal_code') ?? '',
+                    'city_id'   => intval($request->input('wholesale.shipping.city_id')),
+                    'latitude' => 0,
+                    'longitude' => 0
                 ]);
 
                 $shippingAddress->groups()->attach(
@@ -130,7 +133,10 @@ class GroupController extends Controller
                 $billingAddress = Address::create([
                     'address_1' => $request->input('wholesale.billing.address_1'),
                     'address_2' => $request->input('wholesale.billing.address_2') ?? '',
-                    'city_id'   => intval($request->input('wholesale.billing.city_id'))
+                    'zip_postal_code' => $request->input('wholesale.billing.zip_postal_code') ?? '',
+                    'city_id'   => intval($request->input('wholesale.billing.city_id')),
+                    'latitude' => 0,
+                    'longitude' => 0
                 ]);
 
                 $billingAddress->groups()->attach(
@@ -143,7 +149,10 @@ class GroupController extends Controller
                 $billingAddress = Address::create([
                     'address_1' => $request->input('commission.billing.address_1'),
                     'address_2' => $request->input('commission.billing.address_2')  ?? '',
-                    'city_id'   => intval($request->input('commission.billing.city_id'))
+                    'zip_postal_code' => $request->input('commission.billing.zip_postal_code') ?? '',
+                    'city_id'   => intval($request->input('commission.billing.city_id')),
+                    'latitude' => 0,
+                    'longitude' => 0
                 ]);
 
                 $billingAddress->groups()->attach(
