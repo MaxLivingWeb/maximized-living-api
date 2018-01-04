@@ -164,7 +164,8 @@ class GroupController extends Controller
                 'discount_id'        => $discount_id,
                 'commission_id'      => $commission_id,
                 'location_id'        => $location_id,
-                'premium'            => $premium
+                'premium'            => $premium,
+                'maxtv_token'        => bin2hex(random_bytes(24))
             ]);
         }
         catch (ValidationException $e) {
