@@ -94,11 +94,13 @@ class LocationQuery extends Query
 
     public function resolve ($root, $args)
     {
-        if (isset($args['slug']) && isset($args['citySlug']) && isset($args['regionCode']) ) {
+        if (isset($args['slug']) && isset($args['citySlug']) && isset($args['regionCode']) && isset($args['countryCode']) ) {
 
             $location = Location::with('addresses.city.region')
                 ->whereHas('addresses.city.region', function ($q) use ($args) {
                     return $q->where('abbreviation', filter_var($args['regionCode'], FILTER_SANITIZE_STRING));
+                })->whereHas('addresses.city.region.country', function ($q) use ($args) {
+                    return $q->where('abbreviation', filter_var($args['countryCode'], FILTER_SANITIZE_STRING));
                 })->whereHas('addresses.city', function ($q) use ($args) {
                     return $q->where('slug', filter_var($args['citySlug'], FILTER_SANITIZE_STRING));
                 })->where("slug", $args['slug'])
