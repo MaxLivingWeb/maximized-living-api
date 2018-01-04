@@ -113,6 +113,11 @@ class GroupController extends Controller
                 $premium = boolval($request->input('premium'));
             }
 
+            $event_promoter = false;
+            if (!is_null($request->input('event_promoter'))) {
+                $event_promoter = boolval($request->input('event_promoter'));
+            }
+
             if($request->has('wholesale.shipping') && !is_null($location_id)) {
                 $shippingAddress = Address::create([
                     'address_1' => $request->input('wholesale.shipping.address_1'),
@@ -174,6 +179,7 @@ class GroupController extends Controller
                 'commission_id'      => $commission_id,
                 'location_id'        => $location_id,
                 'premium'            => $premium,
+                'event_promoter'     => $event_promoter,
                 'maxtv_token'        => bin2hex(random_bytes(32))
             ]);
         }
