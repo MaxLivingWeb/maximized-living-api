@@ -39,4 +39,13 @@ class UserGroup extends Model
     public function location() {
         return $this->hasOne('App\Location', 'id', 'location_id');
     }
+
+    public function addUser($id) {
+        DB::table('usergroup_users')->insert(
+            [
+                'user_group_id' => $this->id,
+                'user_id' => $id
+            ]
+        );
+    }
 }

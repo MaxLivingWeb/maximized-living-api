@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Address;
 use App\AddressType;
+use App\CognitoUser;
 use App\UserGroup;
 use App\Helpers\CognitoHelper;
 use App\Helpers\ShopifyHelper;
@@ -92,10 +93,9 @@ class UserController extends Controller
 
             //user is associated to a location
             if(isset($validatedData['groupName'])) {
-                $cognito->addUserToGroup(
-                    $cognitoUser->get('User')['Username'],
-                    $validatedData['groupName']
-                );
+                $userGroup = UserGroup::where('group_name', $validatedData['groupName'])->first();
+
+                $userGroup->addUser($cognitoUser->get('User')['Username']);
             }
             //user is not associated to a location
             else {
@@ -123,10 +123,7 @@ class UserController extends Controller
 
                 $userGroup = UserGroup::create($params);
 
-                $cognito->addUserToGroup(
-                    $cognitoUser->get('User')['Username'],
-                    $tempGroup['GroupName']
-                );
+                $userGroup->addUser($cognitoUser->get('User')['Username']);
 
                 //request includes a wholesale shipping address, attach the address to the associate group
                 if($request->has('wholesale.shipping')) {
@@ -262,12 +259,11 @@ class UserController extends Controller
             $res->phone = $shopifyCustomer->phone;
             $res->addresses = $shopifyCustomer->addresses;
 
-            $userGroups = $cognito->getGroupsForUser($id);
 
-            if($userGroups->isNotEmpty()) {
-                $res->affiliate = UserGroup::with(['commission', 'location'])
-                    ->where('group_name', $userGroups->first()['GroupName'])
-                    ->first();
+            $user = new CognitoUser($id);
+            $userGroup = $user->group();
+            if(!is_null($userGroup)) {
+                $res->affiliate = $userGroup;
             }
 
             $permissions = collect($cognitoUser['UserAttributes'])->where('Name', 'custom:permissions')->first();
@@ -315,14 +311,8 @@ class UserController extends Controller
             $cognito = new CognitoHelper();
 
             if(isset($validatedData['group'])) {
-                //Remove user from existing groups
-                $userGroups = $cognito->getGroupsForUser($request->id);
-                foreach ($userGroups as $group) {
-                    $cognito->removeUserFromGroup($request->id, $group['GroupName']);
-                }
-
-                //add user to new group
-                $cognito->addUserToGroup($request->id, $validatedData['group']);
+                $user = new CognitoUser($request->id);
+                $user->updateGroup($validatedData['group']);
             }
 
             //update permissions
@@ -365,20 +355,9 @@ class UserController extends Controller
 
     public function affiliate($id)
     {
-        $cognito = new CognitoHelper();
-
         try {
-
-            $userGroups = $cognito->getGroupsForUser($id);
-
-            $affiliate = null;
-            if($userGroups->isNotEmpty()) {
-                $affiliate = UserGroup::with('location')
-                    ->where('group_name', $userGroups->first()['GroupName'])
-                    ->first();
-            }
-
-            return response()->json($affiliate);
+            $user = new CognitoUser($id);
+            return response()->json($user->group());
         }
         catch(AwsException $e) {
             return response()->json([$e->getAwsErrorMessage()], 500);
