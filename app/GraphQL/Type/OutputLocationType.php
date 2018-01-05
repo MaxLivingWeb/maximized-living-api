@@ -30,7 +30,7 @@ class OutputLocationType extends LocationType
         ];
 
         $fields['address_2'] = [
-            'name' => 'address_1',
+            'name' => 'address_2',
             'type' => Type::string()
         ];
 
