@@ -85,6 +85,7 @@ class Location extends Model
                                 sin( radians( latitude ) )
                                 ) ), 2) as distance,
                                   address_1,
+                                  address_2,
                                   latitude,
                                   longitude,
                                   zip_postal_code,

@@ -94,11 +94,13 @@ class LocationQuery extends Query
 
     public function resolve ($root, $args)
     {
-        if (isset($args['slug']) && isset($args['citySlug']) && isset($args['regionCode']) ) {
+        if (isset($args['slug']) && isset($args['citySlug']) && isset($args['regionCode']) && isset($args['countryCode']) ) {
 
             $location = Location::with('addresses.city.region')
                 ->whereHas('addresses.city.region', function ($q) use ($args) {
                     return $q->where('abbreviation', filter_var($args['regionCode'], FILTER_SANITIZE_STRING));
+                })->whereHas('addresses.city.region.country', function ($q) use ($args) {
+                    return $q->where('abbreviation', filter_var($args['countryCode'], FILTER_SANITIZE_STRING));
                 })->whereHas('addresses.city', function ($q) use ($args) {
                     return $q->where('slug', filter_var($args['citySlug'], FILTER_SANITIZE_STRING));
                 })->where("slug", $args['slug'])
@@ -165,13 +167,17 @@ class LocationQuery extends Query
                 ->get();
         }
 
-        $cityFilters = [ 'city', 'cityID' ];
+        $cityFilters = [ 'city', 'cityID', 'citySlug' ];
         $hasCityFilter = !empty(array_intersect(array_keys($args), $cityFilters));
         if ($hasCityFilter) {
             return Location::with('addresses.city')
                 ->whereHas('addresses.city', function ($q) use ($args) {
                     if (isset($args['cityID'])) {
                         return $q->where('id', filter_var($args['cityID'], FILTER_SANITIZE_STRING));
+                    }
+
+                    if (isset($args['citySlug'])) {
+                        return $q->where('slug', filter_var($args['citySlug'], FILTER_SANITIZE_STRING));
                     }
 
                     return $q->where('name', filter_var($args['city'], FILTER_SANITIZE_STRING));
