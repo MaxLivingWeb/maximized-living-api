@@ -28,7 +28,7 @@ fi
 if [ -f artisan ]; then
     echo "APP_KEY=" >> .env
     php artisan key:generate
-    php artisan migrate
+    php artisan migrate --force
 fi
 
 rm -f ./.htaccess
