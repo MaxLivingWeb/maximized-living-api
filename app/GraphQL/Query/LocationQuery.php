@@ -95,7 +95,6 @@ class LocationQuery extends Query
     public function resolve ($root, $args)
     {
         if (isset($args['slug']) && isset($args['citySlug']) && isset($args['regionCode']) && isset($args['countryCode']) ) {
-
             $location = Location::with('addresses.city.region')
                 ->whereHas('addresses.city.region', function ($q) use ($args) {
                     return $q->where('abbreviation', filter_var($args['regionCode'], FILTER_SANITIZE_STRING));
@@ -104,6 +103,32 @@ class LocationQuery extends Query
                 })->whereHas('addresses.city', function ($q) use ($args) {
                     return $q->where('slug', filter_var($args['citySlug'], FILTER_SANITIZE_STRING));
                 })->where("slug", $args['slug'])
+                ->get();
+
+            return $location;
+        }
+
+        if (isset($args['regionCode']) && isset($args['countryCode']) && isset($args['citySlug']) ) {
+            $location = Location::with('addresses.city.region')
+                ->whereHas('addresses.city.region', function ($q) use ($args) {
+                    return $q->where('abbreviation', filter_var($args['regionCode'], FILTER_SANITIZE_STRING));
+                })->whereHas('addresses.city.region.country', function ($q) use ($args) {
+                    return $q->where('abbreviation', filter_var($args['countryCode'], FILTER_SANITIZE_STRING));
+                })->whereHas('addresses.city', function ($q) use ($args) {
+                    return $q->where('slug', filter_var($args['citySlug'], FILTER_SANITIZE_STRING));
+                })
+                ->get();
+
+            return $location;
+        }
+
+        if (isset($args['regionCode']) && isset($args['countryCode']) ) {
+            $location = Location::with('addresses.city.region')
+                ->whereHas('addresses.city.region', function ($q) use ($args) {
+                    return $q->where('abbreviation', filter_var($args['regionCode'], FILTER_SANITIZE_STRING));
+                })->whereHas('addresses.city.region.country', function ($q) use ($args) {
+                    return $q->where('abbreviation', filter_var($args['countryCode'], FILTER_SANITIZE_STRING));
+                })
                 ->get();
 
             return $location;
@@ -159,7 +184,7 @@ class LocationQuery extends Query
                     }
 
                     if (isset($args['regionCode'])) {
-                        return $q->where('abbreviation', filter_var($args['regionCode'], FILTER_SANITIZE_STRING));
+                        return $q->where('abbreviation', filter_var($args['regionCode'], FILTER_SANITIZE_STRING) );
                     }
 
                     return $q->where('name', filter_var($args['region'], FILTER_SANITIZE_STRING));
