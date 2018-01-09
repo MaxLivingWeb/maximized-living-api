@@ -114,6 +114,20 @@ class OutputLocationType extends LocationType
             'type' => Type::string()
         ];
 
+        $fields['user_group']  = [
+            'args' => [
+                'id' => [
+                    'type' => Type::int(),
+                    'name' => 'id'
+                ]
+            ],
+            'type' => Type::listOf(GraphQL::type('UserGroup')),
+            'description' => 'user group',
+            'resolve' => function ($root, $args) {
+                return  [ $root->userGroup ];
+            }
+        ];
+
         return $fields;
     }
 }
