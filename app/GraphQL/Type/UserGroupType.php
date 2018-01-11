@@ -18,6 +18,14 @@ class UserGroupType extends GraphQLType
             'id' => [
                 'type' => Type::nonNull(Type::int()),
                 'description' => 'User group ID'
+            ],
+            'premium' => [
+                'type' => Type::nonNull(Type::int()),
+                'description' => "User group's premium status"
+            ],
+            'event_promoter' => [
+                'type' => Type::nonNull(Type::int()),
+                'description' => "User group's event promoter status"
             ]
         ];
     }
