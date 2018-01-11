@@ -26,7 +26,7 @@ class AddUniqueConstraintToUserGroups extends Migration
     public function down()
     {
         Schema::table('user_groups', function (Blueprint $table) {
-            $table->index('location_id', 'user_groups_location_id_index');
+            $table->index(['location_id']);
             $table->dropUnique(['location_id']);
         });
     }
