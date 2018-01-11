@@ -114,6 +114,21 @@ class OutputLocationType extends LocationType
             'type' => Type::string()
         ];
 
+        $fields['user_group_id'] = [
+            'name' => 'user_group_id',
+            'type' => Type::int()
+        ];
+
+        $fields['user_group_premium'] = [
+            'name' => 'user_group_premium',
+            'type' => Type::int()
+        ];
+
+        $fields['user_group_event_promoter'] = [
+            'name' => 'user_group_event_promoter',
+            'type' => Type::int()
+        ];
+
         $fields['user_group']  = [
             'args' => [
                 'id' => [
