@@ -64,6 +64,10 @@ class Location extends Model
         return $this->addresses->first();
     }
 
+    public function userGroup() {
+        return $this->hasOne('App\UserGroup', 'location_id', 'id');
+    }
+
     public static function filterByRadius($lat, $long, $distance) {
 
         //default of 50 sounds about right

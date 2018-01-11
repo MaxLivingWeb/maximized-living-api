@@ -115,7 +115,8 @@ return [
         'OutputLocation' => 'App\GraphQL\Type\OutputLocationType',
         'Address' => 'App\GraphQL\Type\AddressType',
         'OutputAddress' => 'App\GraphQL\Type\OutputAddressType',
-        'AddressType' => 'App\GraphQL\Type\AddressTypeType'
+        'AddressType' => 'App\GraphQL\Type\AddressTypeType',
+        'UserGroup' => 'App\GraphQL\Type\UserGroupType'
     ],
 
     // This callable will be passed the Error object for each errors GraphQL catch.
