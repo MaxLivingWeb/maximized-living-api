@@ -173,6 +173,7 @@ Artisan::command('wholesale', function () {
             }
 
             $this->info('complete: ' . $email);
+            sleep(1);
         }
     }
     catch (\Exception $e) {
