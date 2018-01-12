@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Address;
 use App\AddressType;
+use App\CognitoUser;
 use App\UserGroup;
 use App\Helpers\CognitoHelper;
 use App\Helpers\ShopifyHelper;
@@ -92,20 +93,14 @@ class UserController extends Controller
 
             //user is associated to a location
             if(isset($validatedData['groupName'])) {
-                $cognito->addUserToGroup(
-                    $cognitoUser->get('User')['Username'],
-                    $validatedData['groupName']
-                );
+                $userGroup = UserGroup::where('group_name', $validatedData['groupName'])->first();
+
+                $userGroup->addUser($cognitoUser->get('User')['Username']);
             }
             //user is not associated to a location
             else {
-                //Create a group for just this associate
-                $tempGroup = $cognito->createGroup(
-                    'user.' . $validatedData['email'],
-                    'group for ' . $validatedData['email']
-                );
                 $params = [
-                    'group_name' => $tempGroup['GroupName'],
+                    'group_name' => 'user.' . $validatedData['email'],
                     'group_name_display' => $validatedData['firstName'].' '.$validatedData['lastName']
                 ];
 
@@ -123,17 +118,17 @@ class UserController extends Controller
 
                 $userGroup = UserGroup::create($params);
 
-                $cognito->addUserToGroup(
-                    $cognitoUser->get('User')['Username'],
-                    $tempGroup['GroupName']
-                );
+                $userGroup->addUser($cognitoUser->get('User')['Username']);
 
                 //request includes a wholesale shipping address, attach the address to the associate group
                 if($request->has('wholesale.shipping')) {
                     $shippingAddress = Address::create([
                         'address_1' => $request->input('wholesale.shipping.address_1'),
                         'address_2' => $request->input('wholesale.shipping.address_2'),
-                        'city_id'   => intval($request->input('wholesale.shipping.city_id'))
+                        'zip_postal_code' => $request->input('wholesale.shipping.zip_postal_code') ?? '',
+                        'city_id'   => intval($request->input('wholesale.shipping.city_id')),
+                        'latitude' => 0,
+                        'longitude' => 0
                     ]);
 
                     $shippingAddress->groups()->attach(
@@ -147,7 +142,10 @@ class UserController extends Controller
                     $billingAddress = Address::create([
                         'address_1' => $request->input('wholesale.billing.address_1'),
                         'address_2' => $request->input('wholesale.billing.address_2'),
-                        'city_id'   => intval($request->input('wholesale.billing.city_id'))
+                        'zip_postal_code' => $request->input('wholesale.billing.zip_postal_code') ?? '',
+                        'city_id'   => intval($request->input('wholesale.billing.city_id')),
+                        'latitude' => 0,
+                        'longitude' => 0
                     ]);
 
                     $billingAddress->groups()->attach(
@@ -161,7 +159,10 @@ class UserController extends Controller
                     $commissionBillingAddress = Address::create([
                         'address_1' => $request->input('commission.billing.address_1'),
                         'address_2' => $request->input('commission.billing.address_2'),
-                        'city_id'   => intval($request->input('commission.billing.city_id'))
+                        'zip_postal_code' => $request->input('commission.billing.zip_postal_code') ?? '',
+                        'city_id'   => intval($request->input('commission.billing.city_id')),
+                        'latitude' => 0,
+                        'longitude' => 0
                     ]);
 
                     $commissionBillingAddress->groups()->attach(
@@ -183,6 +184,15 @@ class UserController extends Controller
 
             //Add customer to Shopify
             $shopifyCustomer = $shopify->getOrCreateCustomer($customer);
+
+            //tag the Shopify customer with their discount group
+            if(!is_null($userGroup) && !is_null($userGroup->discount_id)) {
+                $discount = $shopify->getPriceRule($userGroup->discount_id);
+                if(!is_null($discount)) {
+                    //group has a valid discount, tag the user
+                    $shopify->addCustomerTag($shopifyCustomer->id, $discount->title);
+                }
+            }
 
             //Save Shopify ID to Cognito user attribute
             $cognito->updateUserAttribute(
@@ -253,12 +263,11 @@ class UserController extends Controller
             $res->phone = $shopifyCustomer->phone;
             $res->addresses = $shopifyCustomer->addresses;
 
-            $userGroups = $cognito->getGroupsForUser($id);
 
-            if($userGroups->isNotEmpty()) {
-                $res->affiliate = UserGroup::with(['commission', 'location'])
-                    ->where('group_name', $userGroups->first()['GroupName'])
-                    ->first();
+            $user = new CognitoUser($id);
+            $userGroup = $user->group();
+            if(!is_null($userGroup)) {
+                $res->affiliate = $userGroup;
             }
 
             $permissions = collect($cognitoUser['UserAttributes'])->where('Name', 'custom:permissions')->first();
@@ -306,14 +315,8 @@ class UserController extends Controller
             $cognito = new CognitoHelper();
 
             if(isset($validatedData['group'])) {
-                //Remove user from existing groups
-                $userGroups = $cognito->getGroupsForUser($request->id);
-                foreach ($userGroups as $group) {
-                    $cognito->removeUserFromGroup($request->id, $group['GroupName']);
-                }
-
-                //add user to new group
-                $cognito->addUserToGroup($request->id, $validatedData['group']);
+                $user = new CognitoUser($request->id);
+                $user->updateGroup($validatedData['group']);
             }
 
             //update permissions
@@ -356,20 +359,9 @@ class UserController extends Controller
 
     public function affiliate($id)
     {
-        $cognito = new CognitoHelper();
-
         try {
-
-            $userGroups = $cognito->getGroupsForUser($id);
-
-            $affiliate = null;
-            if($userGroups->isNotEmpty()) {
-                $affiliate = UserGroup::with('location')
-                    ->where('group_name', $userGroups->first()['GroupName'])
-                    ->first();
-            }
-
-            return response()->json($affiliate);
+            $user = new CognitoUser($id);
+            return response()->json($user->group());
         }
         catch(AwsException $e) {
             return response()->json([$e->getAwsErrorMessage()], 500);

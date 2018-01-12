@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # set the folder in which to run the installs
 cd /var/www/html/
 
@@ -26,7 +28,7 @@ fi
 if [ -f artisan ]; then
     echo "APP_KEY=" >> .env
     php artisan key:generate
-    php artisan migrate
+    php artisan migrate --force
 fi
 
 rm -f ./.htaccess

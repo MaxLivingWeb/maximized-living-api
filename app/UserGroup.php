@@ -15,7 +15,8 @@ class UserGroup extends Model
         'commission_id',
         'location_id',
         'premium',
-        'event_promoter'
+        'event_promoter',
+        'maxtv_token'
     ];
 
     protected $hidden = [
@@ -37,5 +38,14 @@ class UserGroup extends Model
 
     public function location() {
         return $this->hasOne('App\Location', 'id', 'location_id');
+    }
+
+    public function addUser($id) {
+        DB::table('usergroup_users')->insert(
+            [
+                'user_group_id' => $this->id,
+                'user_id' => $id
+            ]
+        );
     }
 }

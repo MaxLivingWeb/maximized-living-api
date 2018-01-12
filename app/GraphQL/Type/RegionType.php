@@ -39,6 +39,19 @@ class RegionType extends GraphQLType
                 'resolve' => function ($root, $args) {
                     return  $root->cities ;
                 }
+            ],
+            'country' => [
+                'args' => [
+                    'id' => [
+                        'type' => Type::int(),
+                        'name' => 'id'
+                    ]
+                ],
+                'type' => Type::listOf(GraphQL::type('Country')),
+                'description' => 'countries',
+                'resolve' => function ($root, $args) {
+                    return  [ $root->country ] ;
+                }
             ]
         ];
     }
