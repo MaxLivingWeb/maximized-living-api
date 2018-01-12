@@ -76,6 +76,26 @@ class CommissionGroupsSeeder extends Seeder
             [
                 'percentage' => 40.0,
                 'description' => 'Marketing Affiliate - 40%'
+            ],
+            [
+                'percentage' => 0.0,
+                'description' => 'Client - Partner - 0%'
+            ],
+            [
+                'percentage' => 0.0,
+                'description' => 'Client - MLHC - 0%'
+            ],
+            [
+                'percentage' => 0.0,
+                'description' => 'Client - Student - 0%'
+            ],
+            [
+                'percentage' => 0.0,
+                'description' => 'Wholesaler - Partner - 0%'
+            ],
+            [
+                'percentage' => 0.0,
+                'description' => 'Marketing Affiliate - 0%'
             ]
         ];
 

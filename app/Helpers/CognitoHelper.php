@@ -30,13 +30,24 @@ class CognitoHelper
 
     public function listUsers()
     {
-        $result = $this->client->listUsers([
-            'UserPoolId' => env('AWS_COGNITO_USER_POOL_ID'),
-        ]);
+        $users = collect();
 
-        return collect($result->get('Users'))->transform(function($user) {
-            return self::formatUserData($user);
-        });
+        while(!isset($result) || $result->hasKey('PaginationToken')) {
+            $params = [
+                'UserPoolId' => env('AWS_COGNITO_USER_POOL_ID')
+            ];
+
+            if(isset($result)) {
+                $params['PaginationToken'] =  $result->get('PaginationToken');
+            }
+            $result = $this->client->listUsers($params);
+
+            $users = $users->merge(collect($result->get('Users'))->transform(function($user) {
+                return self::formatUserData($user);
+            }));
+        }
+
+        return $users;
     }
 
     public function createUser($username, $password)
