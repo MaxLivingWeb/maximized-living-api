@@ -56,16 +56,9 @@ class ShopifyHelper
 
     public function getPriceRules()
     {
-        try
-        {
-            $result = $this->client->get('price_rules.json');
+        $result = $this->client->get('price_rules.json');
 
-            return json_decode($result->getBody()->getContents())->price_rules;
-        }
-        catch (ClientException $e)
-        {
-            return null;
-        }
+        return json_decode($result->getBody()->getContents())->price_rules;
     }
 
     public function getPriceRule($id)

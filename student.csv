@@ -1,0 +1,231 @@
+idFranchise,idCust,commPerc,Discount group Name,lastName,locState,address,phone,email,locCountry,name,city,customerCompany,shippingPhone,password,zip,shippingZip,shippingLocCountry,shippingLocState,shippingCity,paymentType,shippingName,shippingAddress,shippingLastName
+9,8021,40,Client - Student - 40%,Brown,TX,15720 Artist Way #2910,6303014489,Phobbs@parker.edu,US,Stephanie,Addison,,6303014489,A5FFF90C438C71A9,75001,80503,US,CO,Longmont,50_Authorize,Stephanie,5310 Clover Basin Dr.,Brown
+9,9942,0,Client - Student - 0%,Smith,TX,1721 East Beltline Road Apt. #427,9182314649,KSmith4@parker.edu,US,Kristen,Coppell,,,AFE9FE13458B29A4AAA7,75019,,,,,50_Authorize,,,
+9,13617,0,Client - Student - 0%,Maylath,GA,2167 Lake Park Dr. SE Apt. J,6303472075,cmaylath@student.life.edu,US,Caitlyn,Smyrna,,,A9EDF51741963BF5FB,30080,,,,,50_Authorize,,,
+9,15593,40,Client - Student - 40%,Vanden Broek,GA,1555 Brandon Dr SW,7124703949,shannon_rozeboom@yahoo.com,US,Shannon,Marietta,,,B7E4EC1042902FA1A7,30008,,,,,50_Authorize,,,
+9,16885,40,Client - Student - 40%,Milljour,ON,118 James Gray,6474673577,bmilljour@hotmail.com,CA,Brent,Toronto,CMCC student,,ADFFB41D5D8B38F2,M2J1P1,,,,,50_Authorize,,,
+9,17118,40,Client - Student - 40%,Schulz,CA,1882 Egret Lane,5098502243,Drryanschulz@gmail.com,US,Ryan,Hayward,Life West,,A9EDF51741963BF5FB,94545,,,,,50_Authorize,,,
+9,17135,40,Client - Student - 40%,Tansor,IA,707 N Brady St,6309408830,dougtansor@gmail.com,US,Doug,Davenport,Palmer IA,6309408830,A9EDF51741963BF5FB,52803,60188,US,IL,Carol Stream,50_Authorize,Doug,857 Papoose Ct,Tansor
+9,17138,40,Client - Student - 40%,Pierce,CA,1750 Aprilsong Ct,4088893862,mikekp32@aol.com,US,Michael,San Jose,Life West,,A9EDF51741963BF5FB,95131,,,,,50_Authorize,,,
+9,17288,40,Client - Student - 40%,Pittman,FL,421 Seaview Ave,9194064665,hillary.pittman@palmer.edu,US,Hillary,Daytona Beach,,,A9EDF51741963BF5FB,32118,32118,,,Daytona Beach,50_Authorize,Hillary,421 Seaview Ave,Pittman
+9,17312,20,Client - Student - 20%,McLemore,GA,920 Chappell Mill Rd,7707892019,russettmclemore@yahoo.com,US,Russett,Milner,,770-789-2019,A9EDF51741963BF5FB,30257,30257,US,GA,Milner,50_Authorize,Russett,920 Chappell Mill Rd,McLemore
+9,17329,40,Client - Student - 40%,Korten,GA,470 Williamson St SE,7707448568,jkorten92@gmail.com,US,Joshua,Marietta,,7707448568,A9EDF51741963BF5FB,30060,29072,US,SC,Lexington,50_Authorize,Joshua,230 Nautical Road,Korten
+9,17353,40,Client - Student - 40%,Rojas,TX,10006 Kirkdale Drive,7138060205,rojasjay@hotmail.com,US,Jay,Houston,Potential Lifestyle,7138060205,F3EFE20C459135FF,77089,77584,US,TX,Pearland,50_Authorize,Dr. Jay,11041 Shadow Creek Pkwy Suite 121-47,Rojas
+9,17362,0,Client - Student - 0%,Iacovone,GA,935 Marietta St NW,,domeniciacovone@gmail.com,US,Domenic,Atlanta,,,A9EDF51741963BF5FB,30318,30318,,GA,Atlanta,50_Authorize,Domenic,935 Marietta St NW,Iacovone
+9,17388,0,Client - Student - 0%,Vukovic,GA,901 Lake Hollow Blvd,9375811220,dustin.vukovic@gmail.com,US,Dustin,Marietta,,,A9EDF51741963BF5FB,30064,,,,,50_Authorize,,,
+9,17389,40,Client - Student - 40%,Strauss,GA,2933 Torreya Way,6784579086,straussdc@gmail.com,US,Seth,Marietta,,,A9EDF51741963BF5FB,30067,,,,,50_Authorize,,,
+9,17392,0,Client - Student - 0%,Masica,CA,838 Hancock street Apt #33,6123957078,camille.masica@gmail.com,US,Camille,Hayward,,,A9EDF51741963BF5FB,94544,,,,,50_Authorize,,,
+9,17400,40,Client - Student - 40%,Fuller,AZ,5420 E Painted Rock Rd,9185214834,tdfhawaiiwed07@yahoo.com,US,Tecla,Apache Junction,,9185214834,A9EDF51741963BF5FB,85119,33967,US,FL,Fort Myers,50_Authorize,Tecla,18504 Sebring Rd.,Fuller
+9,17405,40,Client - Student - 40%,Jernigan,IL,3 Crestview Drive,3096441913,jim.jernigan13@yahoo.com,US,James,Coal Valley,,3096441913,A9EDF51741963BF5FB,61240,61240,US,IL,Coal Valley,50_Authorize,James,3 Crestview Drive,Jernigan
+9,17410,40,Client - Student - 40%,Ferris,IL,4906 Eagle Crest Ct,2176521952,stephanie.ferris@gmail.com,US,Stephanie,Springfield,,2174153312,A5E5EC1D41CE78A8AC,62711,49612,US,MI,Alden,50_Authorize,Terry,P.O. Box 132,Ferris
+9,17411,40,Client - Student - 40%,Julia - Pagan,GA,1438 Penny Ln SE,7876757876,andres.julia1@upr.edu,US,Andres,Marietta,,7876757876,B4E5F9071CCD70A5,30067,969,PR,,Guaynabo,50_Authorize,Andres,#36 Alameda Urb. Munoz Rivera,Julia-Pagan
+9,17427,40,Client - Student - 40%,Pickell,CO,4400 S Quebec St Apt Y103,970-946-7216,kellen.pickell@yahoo.com,US,Kellen,Denver,,573-291-4781,A9EDF51741963BF5FB,80237,80237,US,CO,Denver,50_Authorize,Chelsea,4400 S Quebec St Apt Y103,Verslues
+9,17499,0,Client - Student - 0%,De Los Santos,TX,3939 Briargrove Lane Apt. 4109,2146203232,jeremydls@hotmail.com,US,Jeremy,Dallas,,2146203232,A9EDF51741963BF5FB,75287,75287,,TX,Dallas,50_Authorize,Jeremy,3939 Briargrove Lane Apt. 4109,De Los Santos
+9,17519,0,Client - Student - 0%,Frey,IA,5001 Sheridan St,2193086577,clayton_frey@yahoo.com,US,Clayton,Davenport,,2193086577,A9EDF51741963BF5FB,52806,52806,,IA,Davenport,50_Authorize,Clayton,5001 Sheridan St,Frey
+9,17521,0,Client - Student - 0%,Fuller,GA,2010 Roswell Rd,8156519012,jt_gal_2007@yahoo.com,US,Bonnie,Marietta,,8156519012,A9EDF51741963BF5FB,30068,30068,,GA,Marietta,50_Authorize,Bonnie,2010 Roswell Rd,Fuller
+9,17622,40,Client - Student - 40%,Rodriguez,CA,425 Thornally dr.,6195591014,vrod44@gmail.com,US,Vanessa,san leandro,,6195591014,A9EDF51741963BF5FB,94578,94578,,,san leandro,50_Authorize,Vanessa,425 Thornally dr.,Rodriguez
+9,17623,40,Client - Student - 40%,Rose,FL,6797 Calistoga Cir,3194298851,chadmrose@hotmail.com,US,Chad,Port Orange,,3194298851,A9EDF51741963BF5FB,32128,32128,,,Port Orange,50_Authorize,Chad,6797 Calistoga Cir,Rose
+9,17629,40,Client - Student - 40%,Sanford,CA,3827 E Redwoord Rd,2095417802,csanford360@gmail.com,US,Clayton,Ceres,,2095417802,A9EDF51741963BF5FB,95307,95307,,,Ceres,50_Authorize,Clayton,3827 E Redwoord Rd,Sanford
+9,17633,0,Client - Student - 0%,Hillmer,MN,950 Liberty Lane,5072367277,schulze.colin@gmail.com,US,Stacy,Fairmont,,5072300919,A3EDF91B5B9E38A2AFAF,56031,56031,US,MN,Fairmont,50_Authorize,Stacy,950 Liberty Lane,Hillmer
+9,17636,40,Client - Student - 40%,Segall,FL,815 Long Meadow Court,3868530251,kevinbsegall@gmail.com,US,Kevin,Port Orange,,3868530251,A9EDF51741963BF5FB,32127,32127,,,Port Orange,50_Authorize,Kevin,815 Long Meadow Court,Segall
+9,17642,40,Client - Student - 40%,Sisk,GA,41 Powers Ferry Manor,7047762347,stevesisk87@gmail.com,US,Steve,Marietta,,7047762347,A9EDF51741963BF5FB,30067,30067,,,Marietta,50_Authorize,Steve,41 Powers Ferry Manor,Sisk
+9,17645,40,Client - Student - 40%,Spangler,IA,1101 Pershing,3642672627,kds5629@1897.palmer.edu,US,Kevin,Davenport,,,A9EDF51741963BF5FB,52803,,,,,50_Authorize,,,
+9,17662,40,Client - Student - 40%,Vazquez,IL,1008 Ridgewood Ave,8157911481,offthegrind@live.com,US,Josue,Joliet,,8157911481,A6E9E30A409A38,60432,60432,US,IL,Joliet,50_Authorize,Josue,1008 Ridgewood Ave,Vazquez
+9,17670,40,Client - Student - 40%,Williams,GA,807 Mountainview Terrace,5619516505,twilliams12@gmail.com,US,Tony,Marietta,,,A9EDF51741963BF5FB,30064,,,,,50_Authorize,,,
+9,17673,40,Client - Student - 40%,Wurdemann,GA,2292 Old Spring Road SE,651-587-6159,josh.wurd@gmail.com,US,Josh,Smyrna,,,B2E3FF0A498778A1,30080,,,,,50_Authorize,,,
+9,18413,40,Client - Student - 40%,Hagman,GA,4044 George Busbee Pkwy 2203,2396012476,chelseacollette223@gmail.com,US,Chelsea,Kennesaw,,,A9EDF51741963BF5FB,30144,,,,,50_Authorize,,,
+9,18571,40,Client - Student - 40%,Mayes,GA,1049 Powers Ferry RD 2108,4043982492,cayenne2595@yahoo.com,US,Cayenne,Marietta,,,A9EDF51741963BF5FB,30067,,,,,50_Authorize,,,
+9,18573,40,Client - Student - 40%,Byxbe,GA,309 Beachwood Drive,4789980470,bekah.byxbe@gmail.com,US,Rebekah,Dublin,,478-998-0255,A9EDF51741963BF5FB,31021,31021,US,GA,Dublin,50_Authorize,Betty Ann,309 Beachwood,Byxbe
+9,19040,40,Client - Student - 40%,Lee,MN,5610 zumbra dr,6127167669,justin.lee2@student.life.edu,US,Justin,excelsior,,6127167669,A9EDF51741963BF5FB,55331,55347,US,MN,Eden Prairie,50_Authorize,Theresa,16741 mayfield Dr,Pekarek
+9,19041,40,Client - Student - 40%,Alsheskie,GA,1625 Roswell Rd,9202543614,ealsheskie@gmail.com,US,Emily,Marietta,,7158644530,B0FEF81A55C671AF,30062,54742,US,WI,Fall Creek,50_Authorize,Matt,1680 Partridge Road,Cyran
+9,19044,40,Client - Student - 40%,Van Landghen,GA,755 Barnes Mill Trace,9208511688,jill.vanlandghen@student.life.edu,US,Jill,Marietta,,,A9EDF51741963BF5FB,30062,,,,,50_Authorize,,,
+9,19045,30,Client - Student - 30%,Hopkins,FL,1010 N Swallowtail drive. Apt 108,4434336260,chris.hopkins@palmer.edu,US,Chris,Port Orange,,,A9EDF51741963BF5FB,32129,,,,,50_Authorize,,,
+9,19050,40,Client - Student - 40%,Erdmier,IL,2800 Marvin Ln,8155418689,erdmier2@gmail.com,US,Brianna,Freeport,,321-939-3030,A9EDF51741963BF5FB,61032,L3M2L1,CA,ON,Grimsby,50_Authorize,Brianna,59 Lakeside Dr,Onnkj
+9,19583,40,Client - Student - 40%,Darte,MO,1572 Woodbridge Crossing Dr,6184446008,erin.darte@logan.edu,US,Erin,Chesterfield,,6184446008,A9EDF51741963BF5FB,63005,62017,US,IL,Coffeen,50_Authorize,Erin,5320 E. 18th Road,Darte
+9,19634,40,Client - Student - 40%,Del Vicario,GA,1135 Barclay Circle 406A,8153517840,jonathan.delvicario@student.life.edu,US,Jonathan,Marietta,,,AEE8BC4B1ACE60B1,30060,,,,,,,,
+9,19913,40,Client - Student - 40%,Carpenter,GA,1887 Merry Oak Ct SW,7347183595,mrcarp6@gmail.com,US,Mitchell,Marietta,,,A9EDF51741963BF5FB,30008,,,,,50_Authorize,,,
+9,20006,40,Client - Student - 40%,Klitsch,PA,1343 Kingston Ct,6102168793,m.j.klitsch@gmail.com,US,Matthew,NorthHampton,,,A9EDF51741963BF5FB,18067,,,,,50_Authorize,,,
+9,20167,40,Client - Student - 40%,Bohemier,GA,1557 Terrell Mill Rd SE Apt 2700G,8188070757,stephanbohemier@gmail.com,US,Stephan,Marietta,,,A9EDF51741963BF5FB,30067,,,,,50_Authorize,,,
+9,20168,40,Client - Student - 40%,Marrero Sanchez,GA,1135 Barclay Cirlce 309,7874498263,miche012@gmail.com,US,Carla,Marietta,,,A9EDF51741963BF5FB,30060,,,,,50_Authorize,,,
+9,20170,40,Client - Student - 40%,Fehrman,GA,2053 Powers Ferry Rd SE G,7406304350,cody.fehrman@student.life.edu,US,Cody,Marietta,,,F6EFBD121C9979F2,30067,,,,,,,,
+9,20178,40,Client - Student - 40%,Habanek,GA,2085 Powers Ferry Rd SE Apt H,2624089201,katehabanek@gmail.com,US,Katherine,Marietta,,,A9EDF51741963BF5FB,30067,,,,,50_Authorize,,,
+9,20179,40,Client - Student - 40%,Strasko,GA,1145 Oregon Trail Rd,2314925222,nstrasko14@gmail.com,US,Nicole,Marietta,,,A9EDF51741963BF5FB,30008,,,,,,,,
+9,20180,40,Client - Student - 40%,Franceschi Santiago,GA,6640 Akers Mill Road SE Apt 5617,7876623062,eldyfranceschi@gmail.com,US,Eldy,Atlanta,,7876623062,A9EDF51741963BF5FB,30339,30339,US,GA,Atlanta,50_Authorize,Eldy,6640 Akers Mill Road SEApt 5617,Franceschi
+9,20182,30,Client - Student - 30%,Sandoval,CA,25 Amador Village Circle 21,5056034467,csandoval106@gmail.com,US,Carlos,Hayward,,,A9EDF51741963BF5FB,94544,,,,,50_Authorize,,,
+9,20184,0,Client - Student - 0%,Fonseka,CA,32663 Kenita Way,4156900006,sohanfonseka@msn.com,US,Sohan,Union City,,,A9EDF51741963BF5FB,94587,,,,,50_Authorize,,,
+9,20221,40,Client - Student - 40%,Johnston,CA,24041 Edloe Drive,5107368823,keegan_j23@hotmail.com,US,Keegan,Hayward,,,A9EDF51741963BF5FB,94541,,,,,50_Authorize,,,
+9,20321,40,Client - Student - 40%,Alme,CO,4024 Da Vinci Dr,7203233816,codyalme@gmail.com,US,Cody,Longmont,Life Chiropractic College West,7203233816,A9EDF51741963BF5FB,80503,94541,US,CA,Hayward,50_Authorize,Cody,2236 Morrow St,Alme
+9,20323,40,Client - Student - 40%,Snellenberger,GA,361 Pleasant Oak Ct SW,3178505583,joshuasnellenberger@yahoo.com,US,Joshua,Marietta,,,B7EDE91B559520E9F1FAC5A6B0,30008,,,,,50_Authorize,,,
+9,20674,40,Client - Student - 40%,schmierer,NY,28 Dale Road,8457021738,kschmierer@student.life.edu,US,kristine,Hopewell Junction,,8457021738,A9EDF51741963BF5FB,12533,34108,US,FL,naples,50_Authorize,kristine,644 92nd Ave. North,schmierer
+9,20986,40,Client - Student - 40%,Boggess,CA,4367 Pickerel Drive,5099419799,caldonb88@gmail.com,US,Christopher,Union City,,,A9EDF51741963BF5FB,94587,,,,,50_Authorize,,,
+9,21115,40,Client - Student - 40%,Slattery,GA,817 huntington rd apt 7,6787930522,kirstinslattery@hotmail.com,US,Kirstin,Marietta,,519-688-2442,F7FFF90C498C32F5EC,30060,N4G 4E3,CA,ON,tillsonburg,50_Authorize,Michele,205 Quarterline Rd,Slattery
+9,21116,40,Client - Student - 40%,Polk,GA,1818 Highland Parc Place,6016657028,cpolk2955@student.life.edu,US,Candice,Marietta,,,A9EDF51741963BF5FB,30067,,,,,50_Authorize,,,
+9,21119,40,Client - Student - 40%,Smith,GA,4470 Myrtle Hill Rd,6783139671,avery.smith@student.life.edu,US,Avery,Kennesaw,,,A9EDF51741963BF5FB,30144,,,,,50_Authorize,,,
+9,21124,40,Client - Student - 40%,Peters,GA,171 Brownstone Place,8436023326,Dpeters@student.life.edu,US,Dean,Marietta,,,A9EDF51741963BF5FB,30008,,,,,50_Authorize,,,
+9,21131,40,Client - Student - 40%,Wurdemann,GA,1749 Dean Circle SE,6517247094,rachel.wurd@gmail.com,US,Rachel,Marietta,,,A9EDF51741963BF5FB,30067,,,,,50_Authorize,,,
+9,21136,40,Client - Student - 40%,Raedeke,MN,32486 north center lane,6513674173,raedeke.simone@gmail.com,US,Simone,CENTER CITY,,6513674173,A9EDF51741963BF5FB,55012,55012,US,MN,Center City,50_Authorize,Simone,32486 north center lane,Raedeke
+9,21140,40,Client - Student - 40%,Robertson,CA,620 Frederick Street,8314211458,ajrobertson21@gmail.com,US,Alanna,Santa Cruz,,831 246-2693,A9EDF51741963BF5FB,95062,95005,US,CA,Ben Lomond,50_Authorize,Guy,8216 Ridgeview Dr.,Peabody
+9,21275,40,Client - Student - 40%,Haratizadeh,TX,1528 Hindsdale Drive,2142444935,mehrsa.haratizadeh@gmail.com,US,Mehrsa,Richardson,,,A9EDF51741963BF5FB,75081,,,,,50_Authorize,,,
+9,21277,40,Client - Student - 40%,Sibila,TX,3601 Grapevine Mills Pkwy #938,8172017318,jms1989@yahoo.com,US,Jordan,Grapevine,,,ADE0E0121ECF70A3,76051,,,,,,,,
+9,21280,40,Client - Student - 40%,Vasquez,TX,6721 Summers Drive E Apt 367,3167348500,lvasquez@parker.edu,US,Larrissa,Fort Worth,,,A9EDF51741963BF5FB,76137,,,,,50_Authorize,,,
+9,21373,40,Client - Student - 40%,Knapp,CA,25200 Carlos Bee Blvd Apt #18,7608226577,anna.knapp439@gmail.com,US,Anna,Hayward,,,A9EDF51741963BF5FB,94542,,,,,50_Authorize,,,
+9,21374,40,Client - Student - 40%,Golden,CA,21019 Baker Rd #5,4802060348,ctgolden@asu.edu,US,Courtney,Castro Valley,,480-206-0348,B7F9FD1B5E8C35F1ED,94546,94541,US,CA,Hayward,50_Authorize,Courtney,2236 Morrow St,Golden
+9,21375,40,Client - Student - 40%,Melendez,CA,25200 Carlos Bee Blvd Apt #96,7604151632,jacobvimelendez@gmail.com,US,Jacob,Hayward,,,A9EDF51741963BF5FB,92542,,,,,50_Authorize,,,
+9,21532,40,Client - Student - 40%,Porter,TX,5801 Preston Oaks Rd #2203,2105858149,aporter@parker.edu,US,Alexis,Dallas,,,A9EDF51741963BF5FB,75254,,,,,50_Authorize,,,
+9,21533,40,Client - Student - 40%,Clarke,TX,PO Box 142,2149060439,cclarke@parker.edu,US,Celeste,Little Elm,,2149060439,A9EDF51741963BF5FB,75068,75068,US,TX,Little Elm,50_Authorize,Celeste,2301 White Pine Dr,Clarke
+9,21535,40,Client - Student - 40%,Hamilton,TX,3108 Commonwealth Street,2146945631,jrhamilton@parker.edu,US,James,Irving,,,A9EDF51741963BF5FB,75062,,,,,50_Authorize,,,
+9,21595,40,Client - Student - 40%,Neuenschwander,TX,18 Raindream Place,9365201999,dynamo28@hotmail.com,US,Rob,The Woodlands,,,B6E3EF1C5E9620FEAEAD,77381,,,,,50_Authorize,,,
+9,21724,40,Client - Student - 40%,Nickens,FL,280 Normandy Drive,321-355-1250,nickensjm@gmail.com,US,Marc,Melbourne,,3216769754,A5EEEE1A1DCD72A4,32903,32903,US,FL,Melbourne,50_Authorize,Kelly,280 Normandy Drive,Shave
+9,21725,40,Client - Student - 40%,Tong,CA,"25800 Industrial Blvd, Apt M 409",9257873729,brandan_tong@gmail.com,US,Brandan,Hayward,,,A9EDF51741963BF5FB,94545,,,,,50_Authorize,,,
+9,21790,0,Client - Student - 0%,Foster,GA,465 Windol ct,4048895050,timsmith48@yahoo.com,US,Whitney,Marietta,,4048895050,A9EDF51741963BF5FB,30066,34135,US,FL,Bonita Springs,50_Authorize,Tim,9143 Carolina St,Smith
+9,22029,40,Client - Student - 40%,Mauerman,WI,406 4th Street,6085580494,jordan.mauerman@student.life.edu,US,Jordan,Albany,,6085580494,A5EEE208499B2EE7F1F6,53502,61201,US,IL,Rock Island,50_Authorize,Alyssa,2925 30th St,Raya
+9,22030,40,Client - Student - 40%,Lewis,GA,108 Parkway Ave SE,2565318302,nathan.lewis@student.life.edu,US,Nathan,Smyrna,,,A9EDF51741963BF5FB,30080,,,,,50_Authorize,,,
+9,22031,40,Client - Student - 40%,Mayberry,GA,"1983 Powers Ferry Rd, Apt L",6084089539,savannah.mayberry@student.life.edu,US,Savannah,Marietta,,,A9EDF51741963BF5FB,30067,,,,,50_Authorize,,,
+9,22089,40,Client - Student - 40%,Trulen,WI,1151 W. Acacia Rd,4147912407,carrie.trulen@gmail.com,US,Carrie,Glendale,,414-791-2407,A9EDF51741963BF5FB,53217,30062,US,GA,Marietta,50_Authorize,Carrie,753 Barnes Mill Trace,Trulen
+9,22090,40,Client - Student - 40%,Liles,GA,171 Brownstone Pl,9199615995,matthew.liles@student.life.edu,US,Matthew,Marietta,,,A8E5EB1B1DCA22F8F6ED,30008,,,,,,,,
+9,22091,40,Client - Student - 40%,Nguyen,MN,11751 W River Hills Drive Apt 118D,6518957809,tonynguyen@nwhealth.edu,US,Tony,Burnsville,,,A9EDF51741963BF5FB,55337,,,,,50_Authorize,,,
+9,22114,0,Client - Student - 0%,Ortega Negron,PR,"Bairoa Golden Gate 2 Calle H, E-14",787 469 7979,ortege02@me.com,US,Kevin,Caguas,,7874697979,F5BEBE4A19C929,727,30067,US,GA,Maretta,50_Authorize,Kevin,1927 Penny Lane,Ortega
+9,22283,40,Client - Student - 40%,Day,GA,1135 Barclay Circle,6106205253,anday41@gmail.com,US,Alison,Marietta,,6106205253,A9EDF51741963BF5FB,30060,30080,US,GA,Smyrna,50_Authorize,Alison,2101J Lake Park Drive,Day
+9,22308,40,Client - Student - 40%,Keadle,NC,2209 Tomotley Ct,9196091117,dhkeadle@gmail.com,US,Daniel,Raleigh,,,A9EDF51741963BF5FB,27606,,,,,50_Authorize,,,
+9,22309,40,Client - Student - 40%,Van Buren,TN,3043 Argyle Avenue,6155422005,zachary.buren@student.life.edu,US,Randy,Murfreesboro,,6155422005,B6BDE64C46CC20A4F4AA,37127,37127,US,TN,Murfreesboro,50_Authorize,Randy,3043 Argyle Avenue,Van Buren
+9,22418,40,Client - Student - 40%,Glanzer,GA,3986 Covey Flush Court,4047800681,jenna.glanzer@student.life.edu,US,Jenna,Smyrna,,4047800681,A9EDF51741963BF5FB,30082,30082,US,GA,Smyrna,50_Authorize,Jenna,3986 Covey Flush Court,Glanzer
+9,22532,0,Client - Student - 0%,Claggett,TX,600 South MacArthur Blvd,9729511507,mattclaggett5265@gmail.com,US,Matthew,Coppell,,,A9EDF51741963BF5FB,75019,,,,,50_Authorize,,,
+9,22659,40,Client - Student - 40%,Romnosky,GA,"1135 Barclay Circle, Apt 206B",5617904012,ashley.romnosky@student.life.edu,US,Ashley,Marietta,,,A9EDF51741963BF5FB,30060,,,,,50_Authorize,,,
+9,22662,40,Client - Student - 40%,Skog,GA,324 Penny Lane SE,7634967871,ethan.skog@student.life.edu,US,Ethan,Marietta,,7634967871,A9EDF51741963BF5FB,30067,92653,US,CA,Laguna Hills,50_Authorize,Ethan,22176 Caminito Zaragoza,Skog
+9,22665,40,Client - Student - 40%,Hellenbrand,WI,W14198 Selwood Dr.,6082197298,andrea.hellenbrand@gmail.com,US,Andrea,Prairie du Sac WI,,6086692173,A9EDF51741963BF5FB,53578,53578,US,WI,Prairie du Sac,50_Authorize,Ruth,W14198 Selwood Dr.,Hellenbrand
+9,22701,0,Client - Student - 0%,Woon,CA,2427 Whitman Way,6507379468,browncab57@aol.com,US,Chester,San Bruno,,,A9EDF51741963BF5FB,94066,,,,,50_Authorize,,,
+9,22741,0,Client - Student - 0%,Mackichan,IL,3404 Pebble Creek Place,2173559646,chmackichan@gmail.com,US,Robert,Champaign,,,A9EDF51741963BF5FB,61822,,,,,50_Authorize,,,
+9,22797,40,Client - Student - 40%,Northcutt,MO,1251 Orchard Village Ln Apt F,7044183649,mandy.northcutt1@gmail.com,US,Mandy,Ballwin,,,A9EDF51741963BF5FB,63021,,,,,50_Authorize,,,
+9,22988,40,Client - Student - 40%,Okus,CA,528 Almanza Drive,7204127554,janaokus@gmail.com,US,Jana,Oakland,,,A9EDF51741963BF5FB,94603,,,,,50_Authorize,,,
+9,23058,40,Client - Student - 40%,Merriwether,FL,18504 Sebring Road,4077565944,brieanna.merriwether@student.life.edu,US,Brieanna,Fort Myers,,407-756-5944,A9EDF51741963BF5FB,33967,20814,,MD,Bethesda,50_Authorize,Brieanna,7620 Old Georgetown Road Apartment #515,Merriwether
+9,23095,40,Client - Student - 40%,Farrar,NY,231 Hampton Green,3474662360,Vincent.farrar@logan.edu,US,Vincent,Staten Island,,,ACE3F80D58902FF1ECEB,10312,,,,,50_Authorize,,,
+9,23105,40,Client - Student - 40%,Nickens,FL,280 Normandy Drive,3213551250,laurennickens816@yahoo.com,US,Lauren,Indialantic,,,A9EDF51741963BF5FB,32903,,,,,50_Authorize,,,
+9,23216,40,Client - Student - 40%,Lopez,MS,117 West Oak Street,6018700732,anthony.lopez4@student.life.edu,US,Anthony,Crosby,,,A9EDF51741963BF5FB,39633,,,,,50_Authorize,,,
+9,23235,40,Client - Student - 40%,Frobose,GA,1138 Penny Lane,5708078908,justin.frobose@student.life.edu,US,Justin,Marietta,,,A9EDF51741963BF5FB,30067,,,,,50_Authorize,,,
+9,23309,40,Client - Student - 40%,Chowansky,NJ,PO Box 855,9085077719,bchowansky@gmail.com,US,Blair,Whitehouse Station,,9085077719,A9EDF51741963BF5FB,8889,34145,US,FL,Marco Island,50_Authorize,Blair,870 Robin Ct,Chowansky
+9,23340,40,Client - Student - 40%,Villa,CA,1637 welford circle,7604578727,jvilla@college.lifewest.edu,US,Juan,Hayward,,7604578727,AEE6BC4C1ECB79A9,94544,94544,US,CA,Hayward,50_Authorize,Juan J,1637 Welford Cir,Villa
+9,23366,40,Client - Student - 40%,Escobedo,CA,1637 Welford Circle,7602222277,gescobedo@college.lifewest.edu,US,Georgina,Hayward,,7602222283,A3E9BC4E1ECC78A0,94544,92243,US,CA,El Centro,50_Authorize,Lupita,1724 Driftwood Dr.,Escobedo
+9,23499,40,Client - Student - 40%,Rivera,MO,127 Steamboat Lane,3184532963,antonio.rivera@logan.edu,US,Antonio,Ballwin,,,A9EDF51741963BF5FB,63011,,,,,50_Authorize,,,
+9,23501,40,Client - Student - 40%,Daniels,CA,29735 Holiday St,7752509195,rdaniels@college.lifewest.edu,US,Raymond,Hayward,,7752509195,A5F8E512498B24A1AF,94544,94587,US,CA,Union City,50_Authorize,Raymond,3040 San Mateo Way,Daniels
+9,23760,40,Client - Student - 40%,Rempel,GA,317-1135 Barclay Circle,4702266307,samuel.rempel@student.life.edu,US,Sam,Marietta,,,A9EDF51741963BF5FB,30060,,,,,50_Authorize,,,
+9,23761,40,Client - Student - 40%,Benitez,TX,1476 Foster Street,8176370834,christopherlbenites@gmail.com,US,Christopher,Lantana,,,ADE2EB17429635F9,76226,,,,,50_Authorize,,,
+9,23762,40,Client - Student - 40%,Benites,TX,1476 Foster Street,817-992-9788,abenites@parker.edu,US,Elizabeth,Lantana,,,BCEDE74C15CD73A0FDE7,76226,,,,,50_Authorize,,,
+9,24006,0,Client - Student - 0%,Lagasca,FL,3900 Yorktowne Blvd,6513430338,lagasca02@gmail.com,US,James,Port Orange,,,A9EDF51741963BF5FB,32129,,,,,50_Authorize,,,
+9,24028,0,Client - Student - 0%,Taylor,BC,236,5103319226,zrowantaylor@gmail.com,CA,Zachary,Kel,,6045753005,A9EDF51741963BF5FB,V,V3S7A4,CA,BC,Surrey,50_Authorize,Lydia,5-5250-185a Street,Pulko
+9,24051,40,Client - Student - 40%,Squibb,CA,22618 3rd St. Unit A,7205875599,lindsey@essentiallythriving.com,US,Lindsey,Hayward,,7205875599,A9EDF51741963BF5FB,94541,94545,US,CA,Hayward,50_Authorize,Lindsey,25001 Industrial Blvd.,Squibb
+9,24066,0,Client - Student - 0%,Chiapetto,MO,15471 Elk Ridge,2177258418,michael.chiapetto@logan.edu,US,Michael,Chesterfield,,,A9EDF51741963BF5FB,63107,,,,,50_Authorize,,,
+9,24068,0,Client - Student - 0%,Lefton,MO,123 Steamboat Lane #304,5134705076,nicole.lefton@logan.edu,US,Nicole,Ballwin,,,A0EDFB154D8D74A2AAAC,63011,,,,,,,,
+9,24069,0,Client - Student - 0%,Cline,MO,16500 Westknoll Cove,3308317920,kate.cline@logan.edu,US,Kate,Chesterfiel,,,A9EDF51741963BF5FB,63017,,,,,50_Authorize,,,
+9,24284,40,Client - Student - 40%,Martinez,FL,3919 Sunset Cove Drive,2522560475,adayneverseen@gmail.com,US,Peter,Port Orange,,,B7EDE412459126A2AD,32129,,,,,50_Authorize,,,
+9,24350,0,Client - Student - 0%,Long,GA,2121 Windy Hill Rd #1348,2053820084,erinmelissalong@hotmail.com,US,Erin,Marietta,,,A9EDF51741963BF5FB,30060,,,,,50_Authorize,,,
+9,24351,0,Client - Student - 0%,Bence,GA,2100 Shiloh Valley Drive,2484621598,beth.bence@student.life.edu,US,Beth,Kennesaw,,,A9EDF51741963BF5FB,30144,,,,,50_Authorize,,,
+9,24353,0,Client - Student - 0%,Jackson,TX,6318 North MacArthur Blvd,8708975695,ajackson@parker.edu,US,Aaron,Irving,,,A9EDF51741963BF5FB,75039,,,,,50_Authorize,,,
+9,24354,0,Client - Student - 0%,Capeloto,FL,1611 Woodacres Court,352-359-8261,jccapeloto@gmail.com,US,Cody,Port Orange,1989,352-359-8261,A9EDF51741963BF5FB,32128,32128,US,FL,Port Orange,50_Authorize,Cody,1611 Woodacres Court,Capeloto
+9,24355,0,Client - Student - 0%,Tellex,GA,1112 Brownstone Drive,7047800165,tellex4@gmail.com,US,Anthony,Marietta,,,A9EDF51741963BF5FB,30008,,,,,50_Authorize,,,
+9,24356,0,Client - Student - 0%,Mowel,CT,319 Pine Street,8609787661,Kylee.mowel@student.life.edu,US,Kylee,Middletown,,8609787661,A9EDF51741963BF5FB,6457,6457,US,CT,Middletown,50_Authorize,Kylee,319 Pine Street,Mowel
+9,24358,0,Client - Student - 0%,Torralba,GA,470 Williamson Street SE,6783435565,jtorralba@rogers.com,US,Jose,Marietta,,,A9EDF51741963BF5FB,30060,,,,,50_Authorize,,,
+9,24504,40,Client - Student - 40%,Firouz,CA,157 Burbank Street,5105896268,katie.firouz@gmail.com,US,Katie,Hayward,,,B7EDE11F418C20FCFEF2,94541,,,,,50_Authorize,,,
+9,24515,40,Client - Student - 40%,Hux,CA,"26100 Gading Rd, Apt 209",3524466487,huxmatt@gmail.com,US,Matthew,Hayward,,,A9EDF51741963BF5FB,94544,,,,,50_Authorize,,,
+9,24621,40,Client - Student - 40%,Oliver,MO,1657 Wishwood Ct,6159434889,cory.oliver@logan.edu,US,Cory,Chesterfield,,,A9EDF51741963BF5FB,63017,,,,,50_Authorize,,,
+9,24624,40,Client - Student - 40%,Powers,GA,2850 Delk Rd SE Apt 31F,9312496767,ericnpwrs@aol.com,US,Eric,Marietta,,,A9EDF51741963BF5FB,30067,,,,,50_Authorize,,,
+9,24677,40,Client - Student - 40%,Liska,TX,105 Deer Run Street,8305707692,cjlstar10@yahoo.com,US,Carrie,Pleasanton,,,A9EDF51741963BF5FB,78064,,,,,50_Authorize,,,
+9,24870,40,Client - Student - 40%,Mercado,GA,875 Franklin Road Apt. 125,7873933310,louie.05@live.com,US,Louie,Marietta,,7875792217,A9EDF51741963BF5FB,30067,33155,US,FL,Miami,50_Authorize,Alejandro,6850 SW 44th ST Apt 112,Velez
+9,25032,40,Client - Student - 40%,Montgomery,TX,2522 Gladiolus Lane,2149268851,theodore_montgomery2000@yahoo.com,US,Theodore,Dallas,,,A9EDF51741963BF5FB,75233,,,,,50_Authorize,,,
+9,25102,40,Client - Student - 40%,Chang,NC,6625 Pawnee Drive,7703095746,kabao.chang@student.life.edu,US,KaBao,Charlotte,,,A9EDF51741963BF5FB,28214,,,,,50_Authorize,,,
+9,25214,40,Client - Student - 40%,Matias,GA,1716 Terrell Mill Rd Apt F6,7872958292,vmatiastorres@student.life.edu,US,Victor L,Marietta,,,A7EDF91D449A33A2AFA7,30067,,,,,50_Authorize,,,
+9,25218,40,Client - Student - 40%,Koehler-Roennberg,GA,703 Hanover Lane SE,4707283670,miriam.koehler-roenn@student.life.edu,US,Miriam,Marietta,,,AEE9FF0C55CE,30067,,,,,,,,
+9,25436,40,Client - Student - 40%,Gorman,TX,2601 Repsdorph Rd # 902,8323855437,mgorman64@yahoo.com,US,Michelle,Seabrook,,,ACEDE00D589A33A1,77586,,,,,,,,
+9,25438,40,Client - Student - 40%,O'Moore,CA,4892 Muirwood Drive,8083599500,omoorehr@gmail.com,US,Heather,Pleasanton,,,A9EDF51741963BF5FB,94588,,,,,50_Authorize,,,
+9,25445,40,Client - Student - 40%,Pacheco,GA,Barclay Circle Apt 410,7874638707,jfpa23@gmail.com,US,Jose,Marietta,,,A9EDF51741963BF5FB,30060,,,,,50_Authorize,,,
+9,25451,40,Client - Student - 40%,Walker,TX,1315 Riverchase Drive Apt 1424,9494333671,jeniferwalker@ymail.com,US,Jenifer,Coppell,,,A9EDF51741963BF5FB,75019,,,,,50_Authorize,,,
+9,25501,40,Client - Student - 40%,Adams,CA,425 Thornally Dr.,8019605860,alm.adams11@gmail.com,US,Joshua,San Leandro,,,A3E9FF134D9170A1,94578,,,,,50_Authorize,,,
+9,25747,40,Client - Student - 40%,Whiteside,TX,12934 Reagal Oaks Bend Ln,5124290545,candace.whiteside@gmail.com,US,Candace,Houston,,,A9EDF51741963BF5FB,77047,,,,,50_Authorize,,,
+9,25962,40,Client - Student - 40%,Lee,TX,709 Water Oak Drive,2146634621,lauren_lee_11@hotmail.com,US,Lauren,Garland,,,A9EDF51741963BF5FB,75044,,,,,50_Authorize,,,
+9,26042,40,Client - Student - 40%,Towles,FL,5609 Victoria Gardens Blvd Apt 1611,5135500830,towlesme@miamioh.edu,US,Morgan,Port Orange,,,A9EDF51741963BF5FB,32127,,,,,50_Authorize,,,
+9,26070,40,Client - Student - 40%,Brutus,FL,958 Village Trail Apt. 801,9542574701,angeline.brutus@palmer.edu,US,Angeline,Port Orange,,,A9EDF51741963BF5FB,32127,,,,,50_Authorize,,,
+9,26151,40,Client - Student - 40%,Borgert,FL,6337 Paria Ct,3039018169,Borgertc@gmail.com,US,Charles,Port Orange,,,A9E0E80C588673A2,32128,,,,,50_Authorize,,,
+9,26154,40,Client - Student - 40%,Vandoros,FL,938 Bentwood Lane,5082509149,gigi_vandorou@hotmail.com,US,Gigi,Port Orange,,,A9EDF51741963BF5FB,32127,,,,,50_Authorize,,,
+9,26155,40,Client - Student - 40%,Decima,FL,676 Sand Isles Circle,3863163252,erindecima@gmail.com,US,Erin,Ponte Vedra Beach,,,A9EDF51741963BF5FB,32082,,,,,50_Authorize,,,
+9,26160,40,Client - Student - 40%,Glover,MO,2004 Cannon Heights Dr Apt 4,6362337209,emmalene.glover@logan.edu,US,Emmalene,Chesterfield,,6362337209,A9EDF51741963BF5FB,63017,63017,US,MO,Chesterfield,50_Authorize,Emmalene,2004 Cannon Heights Dr Apt 4,Glover
+9,26161,40,Client - Student - 40%,Holland,PA,125 Cupps Road,4126030043,jessholland22@gmail.com,US,Jessica,Renfrew,,412-603-0043,B3FEBE1D479B72F6E6,16053,63021,US,MO,Ballwin,50_Authorize,Jessica,331 Parma Drive,Holland
+9,26162,40,Client - Student - 40%,Peterson,MI,06897 Behling Rd,2316750733,martina.peterson@logan.edu,US,Beth,East Jordan,,2316750733,A9EDF51741963BF5FB,49727,49727,US,MI,East Jordan,50_Authorize,Martina,06897 Behling rd,Peterson
+9,26245,40,Client - Student - 40%,Feliciano,GA,1135 Barclay Circle Apt 212,9392869926,geyshla.feliciano@student.life.edu,US,Geyshla,Marietta,,,A9EDF51741963BF5FB,30060,,,,,50_Authorize,,,
+9,26319,30,Client - Student - 30%,Stroh,CA,711 Berry Ave #220,5098507867,rrstroh@outlook.com,US,Ryan,Hayward,,,A9EDF51741963BF5FB,94544,,,,,50_Authorize,,,
+9,26337,30,Client - Student - 30%,Salas,GA,2090 Hidden Glen Drive,7873422576,edgardoj84@hotmail.com,US,Edgardo,Marietta,,,A9EDF51741963BF5FB,30067,,,,,50_Authorize,,,
+9,26553,40,Client - Student - 40%,Martin,FL,1641 Arash Circle,8438164272,Ashtmartin12@gmail.com,US,Ashley,Port orange,,,BDE9E1165FCE73,32128,,,,,50_Authorize,,,
+9,26655,40,Client - Student - 40%,Doney,FL,1010 N. Swallow Tail Dr. Apt. 501,5615069400,kimdoney@aol.com,US,Kimberly,Port Orange,,,A9EDF51741963BF5FB,32129,,,,,50_Authorize,,,
+9,26702,40,Client - Student - 40%,Russell,GA,1368 Marston St SE,6156177630,aaronrussell0508@gmail.com,US,Aaron,Smyrna,,,A9EDF51741963BF5FB,30080,,,,,50_Authorize,,,
+9,26706,40,Client - Student - 40%,Reyes,GA,1874 Hidden Glen Drive,9392760219,ramon.reyesgenao@student.life.edu,US,Ramon,Marietta,,,A9EDF51741963BF5FB,30067,,,,,50_Authorize,,,
+9,26713,40,Client - Student - 40%,O'Bleness,GA,2875 Crescent Pkwy. Apt. 1454,3197951253,andrewobleness@gmail.com,US,Drew,Atlanta,,3197951253,AFE9E10D498670A0ADA7,30339,30339,US,GA,Atlanta,50_Authorize,Andrew,2875 Crescent Pkwy. Apt. 1454,O'Bleness
+9,26833,0,Client - Student - 0%,Zurawski,TN,7901 Stallion Dr.,6154283736,littlezurawski@gmail.com,US,Melody,Nashville,,,A9EDF51741963BF5FB,37221,,,,,50_Authorize,,,
+9,26839,40,Client - Student - 40%,McConkey,MI,3157 Mistwood Ct,2485358865,tmcconkey@student.life.edu,US,Thaddeus,White Lake,,,A9EDF51741963BF5FB,48383,,,,,50_Authorize,,,
+9,26841,40,Client - Student - 40%,Pardave,FL,5400 S. Williamson Blvd Apt. 3-107,7862472538,cpardave@gmail.com,US,Cecil,Port Orange,,,A9EDF51741963BF5FB,32128,,,,,50_Authorize,,,
+9,26842,40,Client - Student - 40%,Wittwer,CA,673 Oak Park Way,6503390848,mwittwer@sbcglobal.net,US,Matthew,Emerald Hills,,,A9EDF51741963BF5FB,94062,,,,,50_Authorize,,,
+9,26858,40,Client - Student - 40%,Fisher,TX,8826 Saddlehorn Drive Apt 267,3098387487,fish9005@yahoo.com,US,Eric,Irving,,,A9EDF51741963BF5FB,75063,,,,,50_Authorize,,,
+9,26963,40,Client - Student - 40%,Williams,MO,1956 Schoettler Valley Drive,6362901783,amyw0062@gmail.com,US,Amy,Chesterfield,,,A9EDF51741963BF5FB,63017,,,,,50_Authorize,,,
+9,27460,40,Client - Student - 40%,Ericson,FL,1010 N Swallowtail Dr #306,3177507756,dane.ericson@gmail.com,US,Dane,Port Orange,,,A9EDF51741963BF5FB,32129,,,,,50_Authorize,,,
+9,27466,40,Client - Student - 40%,Ocon III,CA,1976 San Carlos Ave,6509210166,ongleyocon@yahoo.com,US,Ongley R.,San Carlos,,,A9EDF51741963BF5FB,94070,,,,,,,,
+9,27467,40,Client - Student - 40%,Chick,MT,220B Seven Trails Drive,5059272309,kevin.chick@logan.edu,US,Kevin,Ballwin,,,A9EDF51741963BF5FB,63011,,,,,50_Authorize,,,
+9,27794,40,Client - Student - 40%,Shaw,FL,940 Village Trail Unit #6-310,9544615645,g.shaw1892@gmail.com,US,Gabrielle,Port Orange,,,A3EDFE1D1CCF2AA1A7A6C4,32127,,US,,,50_Authorize,,,
+9,27795,40,Client - Student - 40%,Brieden,FL,1010 North Swallowtail Drive #1907,6164602468,kyleebrieden@gmail.com,US,Kylee,Port Orange,,,A9EDF51741963BF5FB,32129,,,,,50_Authorize,,,
+9,27848,40,Client - Student - 40%,Fish,MO,25 Cedarbrook Drive Apt 2W,4178725946,zfish131@gmail.com,US,Zach,Saint Charles,,,A0E9E81A498D70A2AC,63301,,,,,50_Authorize,,,
+9,27849,40,Client - Student - 40%,Riner,MO,315 Forest Parkway Dr. Apt 101,5098551499,daner1874@gmail.com,US,Dane,Manchester,,,A9EDF51741963BF5FB,63021,,,,,50_Authorize,,,
+9,27892,40,Client - Student - 40%,Warren,MO,204 Gilla Drive,3144432269,michael.warren@logan.edu,US,Michael,Ballwin,,3144432269,A9EDF51741963BF5FB,63011,72654,US,AR,Mountain Home,50_Authorize,Sheri,P.O. Box 2492,Groesbeck
+9,27920,40,Client - Student - 40%,Brilmyer,FL,1611 Woodacres Court,4125924151,nickolas.brilmyer@palmer.edu,US,Nickolas,Port Orange,,,A9EDF51741963BF5FB,32128,,,,,50_Authorize,,,
+9,27983,40,Client - Student - 40%,James,MO,16546 Blenham Way,3307158052,bj.3420@hotmail.com,US,Brandon,Chesterfield,,3307158052,A6EDF9134D9173A0,63005,63005,US,MO,Chesterfield,50_Authorize,Brandon,16546 Blenham Way,James
+9,28017,40,Client - Student - 40%,Panno,MO,14355 Rohy Lake Drive,6305424171,garrett.panno@logan.edu,US,Garrett,Chesterfield,,,A9EDF51741963BF5FB,63017,,,,,50_Authorize,,,
+9,28018,40,Client - Student - 40%,Anderson,FL,2132 BROAD WATER DR,9045352178,stephiemarie2002@gmail.com,US,Stephanie,JACKSONVILLE,,9045352178,A9EDF51741963BF5FB,32225,32225,US,FL,Jacksonville,50_Authorize,Stephanie,2132 Broad Water Drive,Anderson
+9,28019,40,Client - Student - 40%,Baranski,FL,226 Pinerock Place,4434666289,andrew.baranski@palmer.edu,US,Andrew,Port Orange,,,A9EDF51741963BF5FB,32127,,,,,50_Authorize,,,
+9,28023,40,Client - Student - 40%,Jalbert-Caputo,FL,940 Village Trail,3868466179,vanessa.jc@live.ca,US,Vanessa,Port Orange,,,A9EDF51741963BF5FB,32127,,,,,50_Authorize,,,
+9,28654,40,Client - Student - 40%,Morris,GA,825 Powder Springs St. Apt. 1503,2394865038,Kaitylynn15@gmail.com,US,Kaitlyn,Marieta,,2394865038,A9EDF51741963BF5FB,30064,30064,US,GA,Marietta,50_Authorize,Kaitlyn,825 Powder Springs St. Apt. 1503,Morris
+9,28839,40,Client - Student - 40%,Xaysavat,FL,1010 N Swallowtail Dr Apt 1606,6168488597,xaysavat1@gmail.com,US,Bonnie,Port Orange,,,A9EDF51741963BF5FB,32129,,,,,50_Authorize,,,
+9,28841,40,Client - Student - 40%,Black,OH,2424 W Twp Rd 18,5672304156,adam.black@logan.edu,US,Adam,Tiffin,,5672304156,A9EDF51741963BF5FB,44883,63011,US,MO,Ballwin,50_Authorize,Adam,145 Steamboat Ln Apt# 302,Black
+9,29332,40,Client - Student - 40%,Walters,FL,3933 S. Atlantic Avenue #2,6304320485,scott_walters@outlook.com,US,Scott,Port Orange,,6304320485,A9EDF51741963BF5FB,32127,32127,US,FL,Port Orange,50_Authorize,Scott,3933 S. Atlantic Avenue #2,Walters
+9,29340,40,Client - Student - 40%,Rasik,FL,1967 Town Park Drive,3214608000,justin.rasik@palmer.edu,US,Justin,Port Orange,,3214608000,A9EDF51741963BF5FB,32129,32129,US,FL,Port Orange,50_Authorize,Justin,1967 Town Park Drive,Rasik
+9,29341,40,Client - Student - 40%,Murphree,FL,3900 Yorktowne Blvd #1706,9417796036,steph.murphree@gmail.com,US,Stephanie,Port Orange,,9417796036,A9EDF51741963BF5FB,32129,32129,US,FL,Port Orange,50_Authorize,Stephanie,3900 Yorktowne Blvd #1706,Murphree
+9,29490,40,Client - Student - 40%,Gross,GA,1020 Woodlands Dr. SE,3173856409,traci.gross@student.life.edu,US,Traci,Smyrna,,3173856409,A9EDF51741963BF5FB,30080,30080,US,GA,Smyrna,50_Authorize,Traci,1020 Woodlands Dr. SE,Gross
+9,29886,40,Client - Student - 40%,Middleton,GA,404 Summit Forest Drive Apt #4,7085097884,william.middleton@student.life.edu,US,William,Marietta,,,A9EDF51741963BF5FB,30068,,,,,50_Authorize,,,
+9,29925,40,Client - Student - 40%,Mitchell,CA,34495 Skylark Dr.,7817525248,smitchell@college.lifewest.edu,US,Scott,Union City,,,B7E3EE1D498D70A4ADAC,94587,,,,,,,,
+9,29926,40,Client - Student - 40%,Giuttari,GA,1135 Barclay Circle,4015565195,ian.giuttari@student.life.edu,US,Ian,Marietta,,4015565195,A9EDF51741963BF5FB,30060,30060,US,GA,Marietta,50_Authorize,Ian,1135 Barclay Circle,Giuttari
+9,29927,40,Client - Student - 40%,Mendez Torres,MO,956 Westmeade Dr.,7875983332,michelle.mendez@logan.edu,US,Michelle,Chesterfield,,,A9EDF51741963BF5FB,63005,,,,,50_Authorize,,,
+9,29928,40,Client - Student - 40%,Shepherd,MO,16609 Marcross Ct.,6602154406,nakea.shepherd@logan.edu,US,Na'Kea,Chesterfield,,,A9EDF51741963BF5FB,63005,,,,,50_Authorize,,,
+9,29929,40,Client - Student - 40%,Lauer,GA,1135 Barclay Circle,6164607393,madison.lauer@student.life.edu,US,Madison,Marietta,,6164607393,A9EDF51741963BF5FB,30060,30060,US,GA,Marietta,50_Authorize,Madison,1135 Barclay Circle,Lauer
+9,29930,40,Client - Student - 40%,Wilgus,MO,304 Spring Meadows Dr.,8126313364,wilguskyle@gmail.com,US,Kyle,Ballwin,,,A9EDF51741963BF5FB,63011,,,,,50_Authorize,,,
+9,29931,40,Client - Student - 40%,List,GA,1192 Ashborough Dr. SE Apt. # B,7408165456,stephen.list7@gmail.com,US,Stephen,Marietta,,7408165456,A9EDF51741963BF5FB,30067,30067,US,GA,Marietta,50_Authorize,Stephen,1192 Ashborough Dr. SE Apt. #B,List
+9,29932,40,Client - Student - 40%,Padia Ocasio,FL,404 Enclave Pl.,7876673398,padial_carlos@yahoo.com,US,Carlos,Lakeland,,,A9EDF51741963BF5FB,33803,,,,,50_Authorize,,,
+9,29933,40,Client - Student - 40%,Rodriguez,FL,12 kontiki terrace,3216090655,jessica.rodriguez34@upr.edu,US,Jessica,Port Orange,,,A9EDF51741963BF5FB,32129,,,,,50_Authorize,,,
+9,29934,40,Client - Student - 40%,Sellers,FL,"1010 North Swallowtail Dr., Apt. 2707",4077565550,corysellers123@yahoo.com,US,Cory,Port Orange,,,A9EDF51741963BF5FB,32129,,,,,50_Authorize,,,
+9,29935,40,Client - Student - 40%,Storie,FL,"1010 North Swallowtail Dr., Apt. 2707",4078402062,a.storie@hotmail.com,US,Amanda,Port Orange,,,A9EDF51741963BF5FB,32129,,,,,50_Authorize,,,
+9,29936,40,Client - Student - 40%,Summers,MS,15 Twelve Oaks Place,6019554198,brsummers8@aol.com,US,Brett,Madison,,,A9EDF51741963BF5FB,39110,,,,,50_Authorize,,,
+9,29938,40,Client - Student - 40%,Rivera Cintron,GA,913 Adams Lake Blvd. SE,7873665849,eerivera2324@gmail.com,US,Eduardo,Atlanta,,7873665849,A9EDF51741963BF5FB,30339,30339,US,GA,Atlanta,50_Authorize,Eduardo,913 Adams Lake Blvd. SE,Rivera Cintron
+9,29939,40,Client - Student - 40%,Farner Thomas,GA,1356 Amy Lane SW,3522509741,megan.farner@student.life.edu,US,Megan,Marietta,,3522509741,A9EDF51741963BF5FB,30008,30008,US,GA,Marietta,50_Authorize,Megan,1356 Amy Lane SW,Farner Thomas
+9,29940,40,Client - Student - 40%,Wright,GA,1135 Barclay Circle,9049937517,jassmine.wright@student.life.edu,US,Jassmine,Marietta,,9049937517,A9EDF51741963BF5FB,30060,30060,US,GA,Marietta,50_Authorize,Jassmine,1135 Barclay Circle,Wright
+9,29941,40,Client - Student - 40%,Hill,CA,33611 13th Stree,7202104723,bryce.hill87@gmail.com,US,Bryce,Union City,,7202104723,A9EDF51741963BF5FB,94587,94587,US,CA,Union City,50_Authorize,Bryce,33611 13th Stree,Hill
+9,29946,40,Client - Student - 40%,King,MO,795 Boca Raton Drive,5733385359,conradette.king@logan.edu,US,Conradette,St. Peters,,5733385359,A9EDF51741963BF5FB,63376,63376,US,MO,St. Peters,50_Authorize,Conradette,795 Boca Raton Drive,King
+9,29980,40,Client - Student - 40%,Wittwer,CA,4202 Cambridge Way,7025449411,jamiebueh@gmail.com,US,Jamie,Union City,,7025449411,A9EDF51741963BF5FB,94587,94587,US,CA,Union City,50_Authorize,Jamie,4202 Cambridge Way,Wittwer
+9,29981,40,Client - Student - 40%,Peters,CA,25001 Industrial Blvd,4083132042,zpeters@college.lifewest.edu,US,Zachary,Hayward,,4083132042,A9EDF51741963BF5FB,94545,94545,US,CA,Hayward,50_Authorize,Zachary,25001 Industrial Blvd,Peters
+9,29983,40,Client - Student - 40%,Bhakta,CA,27765 Klaus Court,6192506638,bhaktashivani95@gmail.com,US,Shivani,Hayward,,6192506638,A9EDF51741963BF5FB,94542,94542,US,CA,Hayward,50_Authorize,Shivani,27765 Klaus Court,Bhakta
+9,29984,40,Client - Student - 40%,Cailing,CA,25201 Belhaven St.,4158589249,gcailing@college.lifewest.edu,US,Gabrielle,Hayward,,4158589249,A9EDF51741963BF5FB,94545,94545,US,CA,Hayward,50_Authorize,Gabrielle,25201 Belhaven St.,Cailing
+9,30010,40,Client - Student - 40%,Drost,GA,328 Penny Lane SE,2316758838,drostwyatt32@gmail.com,US,Wyatt,Marietta,,2316758838,A9EDF51741963BF5FB,30067,30067,US,GA,Marietta,50_Authorize,Wyatt,328 Penny Lane SE,Drost
+9,30029,40,Client - Student - 40%,Guerrero,TX,3127 Whirlaway Rd.,2149865410,gpanch10@gmail.com,US,Francisco,Dallas,,2149865410,A9EDF51741963BF5FB,75229,75229,US,TX,Dallas,50_Authorize,Francisco,3127 Whirlaway Rd.,Guerrero
+9,30030,40,Client - Student - 40%,Cox,TX,324 Rollings Oaks,2147042529,jwcox02@parker.edu,US,James,Cedar Hill,,2147042529,A9EDF51741963BF5FB,75104,75104,US,TX,Cedar Hill,50_Authorize,James,324 Rollings Oaks,Cox
+9,30035,40,Client - Student - 40%,Bell,TX,3224 Lockmoor Ln.,9032434176,talon_bell@yahoo.com,US,Talon,Dallas,,9032434176,A9EDF51741963BF5FB,75220,75220,US,TX,Dallas,50_Authorize,Talon,3224 Lockmoor Ln.,Bell
+9,30097,35,Client - Student - 35%,Klein,GA,1629 Bridge Mill Dr. SE Apt. R,6089316354,shannon.klein@student.life.edu,US,Shannon,Marietta,,6089316354,A9EDF51741963BF5FB,30067,30067,US,GA,Marietta,50_Authorize,Shannon,1629 Bridge Mill Dr. SE Apt. R,Klein
+9,30104,40,Client - Student - 40%,Snaza,CA,52 Carrick Drive,3607904256,kadiedenae@gmail.com,US,Kadie,Hayward,,3607904256,A9EDF51741963BF5FB,94542,94542,US,CA,Hayward,50_Authorize,Kadie,52 Carrick Drive,Snaza
+9,30147,40,Client - Student - 40%,Yonushonis,GA,4009 Paloverde Drive NW,8147710931,james.yonushonis@student.life.edu,US,James,Kennesaw,,8147710931,A9EDF51741963BF5FB,30144,30144,US,GA,Kennesaw,50_Authorize,James,4009 Paloverde Drive NW,Yonushonis
+9,30664,40,Client - Student - 40%,Gratz,CA,22792 Bayview Ave,8156683086,gratzalison@yahoo.com,US,Alison,Hayward,,8156683086,A9EDF51741963BF5FB,94541,94541,US,CA,Hayward,50_Authorize,Alison,22792 Bayview Ave,Gratz
+9,30666,40,Client - Student - 40%,Beardsley,CA,1665 Welford Circle,2533812102,abeardsley@college.lifewest.edu,US,Allison,Hayward,,2533812102,A9EDF51741963BF5FB,94544,94544,US,CA,Hayward,50_Authorize,Allison,1665 Welford Circle,Beardsley
+9,30667,40,Client - Student - 40%,Anders,CA,704 Kenton Ct,9258227895,sanders@college.lifewest.edu,US,Steven,Pleasant Hill,,9258227895,A9EDF51741963BF5FB,94523,94523,US,CA,Pleasant Hill,50_Authorize,Steven,704 Kenton Ct,Anders
+9,30811,45,Client - Student - 45%,Edgcomb,GA,418 Penny Lane SE,8156858569,edge_227@icloud.com,US,Mike,Marietta,,8156858569,A9EDF51741963BF5FB,30067,60447,US,IL,Minooka,50_Authorize,Brian,849 South Ridge Road,Duff
+9,30839,45,Client - Student - 45%,Santana-Perez,GA,1415 Barclay Circle SE,7707926100,giselle.santana1@gmail.com,US,Giselle,Marietta,,7707926100,A9EDF51741963BF5FB,30060,30060,US,GA,Marietta,50_Authorize,Giselle,1415 Barclay Circle SE,Santana-Perez
+9,30842,45,Client - Student - 45%,Morgan Young,GA,2605 Bentley Road SE APT 2601,7707926100,kmyoung1991@gmail.com,US,Kelsie,Marietta,,7707926100,A9EDF51741963BF5FB,30067,30067,US,GA,Marietta,50_Authorize,Kelsie,2605 Bentley Road SE APT 2601,Morgan Young
+9,30844,45,Client - Student - 45%,Beauregard,GA,3500 Windcliff DR,7707926100,alebeauregard@gmail.com,US,Alaina,Marietta,,7707926100,ABEFF94F199928E4E5F8,30067,30067,US,GA,Marietta,,Alaina,3500 Windcliff DR SE,Beauregard
+9,30859,45,Client - Student - 45%,Bokeno,FL,133 Integra Breeze Lane Unit 207,5138843269,bokeno.dm@gmail.com,US,Daniel,Daytona Beach,,5138843269,A9EDF51741963BF5FB,32117,32117,US,FL,Daytona Beach,50_Authorize,Daniel,133 Integra Breeze Lane Unit 207,Bokeno
+9,30908,40,Client - Student - 40%,Johnson,TX,871 Lake Carolyn,9396898566,wljohnson02@parker.edu,US,Walter,Irving,,9396898566,A9EDF51741963BF5FB,75039,75039,US,TX,Irving,50_Authorize,Walter,871 Lake Carolyn,Johnson
+9,30948,40,Client - Student - 40%,Bucarello,TX,3225 Seaside St,9396898566,dpbucarello02@parker.edu,US,Dayana,Irving,,9396898566,A9EDF51741963BF5FB,75062,75062,US,TX,Irving,50_Authorize,Dayana,3225 Seaside St,Bucarello
+9,30952,40,Client - Student - 40%,Li,CA,157 Burbank Street,8004424476,sl6@ualberta.ca,US,Sarah,Hayward,,8004424476,A9EDF51741963BF5FB,94541,94541,US,CA,Hayward,50_Authorize,Sarah,157 Burbank Street,Li
+9,30960,40,Client - Student - 40%,Bleich,CA,321 Toscana Way,8004424476,cbleich11@gmail.com,US,Cassidy,Hayward,,8004424476,A9EDF51741963BF5FB,94545,94545,US,CA,Hayward,50_Authorize,Cassidy,321 Toscana Way,Bleich
+9,30962,40,Client - Student - 40%,Harn,CA,4641 Celia Ct,8004424476,sharn@college.lifewest.edu,US,Stephanie,Fremont,,8004424476,A9EDF51741963BF5FB,94555,94555,US,CA,Fremont,50_Authorize,Stephanie,4641 Celia Ct,Harn
+9,31195,0,Client - Student - 0%,Gibson,GA,119 Bells Ferry Road NE,9126141795,justin.gibson@student.life.edu,US,Justin,White,,,A9EDF51741963BF5FB,30184,,,,,50_Authorize,,,
+9,31223,40,Client - Student - 40%,Malley,FL,3333 S Ridgewood Ave Apt 19,7742722382,jonathan.malley@palmer.edu,US,Jonathan,Port Orange,,7742722382,A9EDF51741963BF5FB,32129,32129,US,FL,Port Orange,50_Authorize,Jonathan,3333 S Ridgewood Ave Apt 19,Malley
+9,31225,40,Client - Student - 40%,Strahl,FL,1394 Downtown Ave Appt 1004,6365028045,strahle@mail.gvsu.edu,US,Evan,Port Orange,,6365028045,A9EDF51741963BF5FB,32127,32127,US,FL,Port Orange,50_Authorize,Evan,1394 Downtown Ave Appt 1004,Strahl
