@@ -68,6 +68,36 @@ class ShopifyHelper
         }
     }
 
+    public function getPriceRule($id)
+    {
+        try
+        {
+            $result = $this->client->get('price_rules/' . $id . '.json');
+
+            return json_decode($result->getBody()->getContents())->price_rule;
+        }
+        catch (ClientException $e)
+        {
+            return null;
+        }
+    }
+
+    public function addCustomerTag($id, $tag)
+    {
+        $customer = $this->getCustomer($id);
+
+        $tags = $customer->tags . ',' . $tag;
+
+        $this->client->put('customers/' . $id . '.json', [
+            'json' => [
+                'customer' => [
+                    'id' => $id,
+                    'tags' => $tags
+                ]
+            ]
+        ]);
+    }
+
     public function getUserMetafields($id)
     {
         try
