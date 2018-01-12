@@ -15,7 +15,17 @@ class RemoveUniqueGroupName extends Migration
     {
         Schema::table('user_groups', function(Blueprint $table)
         {
-            $table->dropIndex('user_groups_group_name_unique');
+            $keyExists = DB::select(
+                DB::raw(
+                    'SHOW KEYS
+                     FROM user_groups
+                     WHERE Key_name=\'user_groups_group_name_unique\''
+                )
+            );
+
+            if($keyExists) {
+                $table->dropIndex('user_groups_group_name_unique');
+            }
         });
     }
 
