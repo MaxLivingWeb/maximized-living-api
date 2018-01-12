@@ -99,13 +99,8 @@ class UserController extends Controller
             }
             //user is not associated to a location
             else {
-                //Create a group for just this associate
-                $tempGroup = $cognito->createGroup(
-                    'user.' . $validatedData['email'],
-                    'group for ' . $validatedData['email']
-                );
                 $params = [
-                    'group_name' => $tempGroup['GroupName'],
+                    'group_name' => 'user.' . $validatedData['email'],
                     'group_name_display' => $validatedData['firstName'].' '.$validatedData['lastName']
                 ];
 
