@@ -24,14 +24,25 @@ class WholesaleController extends Controller
             $startDate = $dateObject->startDate;
             $endDate = $dateObject->endDate;
 
+
             $orders = $shopify->getAllOrders($startDate, $endDate, request()->input('status'));
+
             $orders = $orders->filter(function ($value) {
                 return !is_null(collect($value->note_attributes)->where('name', 'wholesaleId')->first());
             })->groupBy(function ($value) {
                 return collect($value->note_attributes)->where('name', 'wholesaleId')->first()->value;
             });
 
-            return $orders;
+            $affiliates = [];
+            foreach($orders as $groupId => $groupOrders) {
+                $affiliate = UserGroup::with(['commission', 'location'])->find($groupId);
+                if(!empty($affiliate)){
+                    $affiliate->sales = $groupOrders;
+                    $affiliates[] = $affiliate;
+                }
+            }
+
+            return $affiliates;
         }
         catch (\Exception $e) {
             return response()->json($e->getMessage(), 500);
