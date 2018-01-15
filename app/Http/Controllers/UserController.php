@@ -370,4 +370,25 @@ class UserController extends Controller
             return response()->json($e->getMessage(), 500);
         }
     }
+
+    public function delete($id)
+    {
+        $cognito = new CognitoHelper();
+        $shopify = new ShopifyHelper();
+
+        try {
+            $cognitoUser = $cognito->getUser($id);
+            $cognito->deleteUser($cognitoUser->get('Username'));
+
+            $shopify->deleteCustomer($id);
+
+            return response()->json();
+        }
+        catch(AwsException $e) {
+            return response()->json([$e->getAwsErrorMessage()], 500);
+        }
+        catch (\Exception $e) {
+            return response()->json($e->getMessage(), 500);
+        }
+    }
 }

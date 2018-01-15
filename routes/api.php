@@ -31,6 +31,7 @@ Route::group(['prefix' => 'user'], function() {
     Route::put('/{id}', 'UserController@updateUser');
     Route::get('/{id}/affiliate/{affiliateId}', 'UserController@linkToAffiliate');
     Route::get('/{id}/affiliate', 'UserController@affiliate');
+    Route::delete('/{id}', 'UserController@delete');
 });
 
 Route::get('/users', 'UserController@listUsers');
