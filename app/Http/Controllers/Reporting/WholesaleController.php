@@ -9,7 +9,36 @@ use Illuminate\Http\Request;
 
 class WholesaleController extends Controller
 {
+    /**
+     * Return all wholesaler sales, grouped by wholesaler.
+     *
+     * @param Request $request
+     * @return \Illuminate\Database\Eloquent\Collection|\Illuminate\Database\Eloquent\Model|\Illuminate\Http\JsonResponse
+     */
     public function sales(Request $request)
+    {
+        try {
+            $shopify = new ShopifyHelper();
+
+            $dateObject = $this->getDateObject($request);
+            $startDate = $dateObject->startDate;
+            $endDate = $dateObject->endDate;
+
+            $orders = $shopify->getAllOrders($startDate, $endDate, request()->input('status'));
+            $orders = $orders->filter(function ($value) {
+                return !is_null(collect($value->note_attributes)->where('name', 'wholesaleId')->first());
+            })->groupBy(function ($value) {
+                return collect($value->note_attributes)->where('name', 'wholesaleId')->first()->value;
+            });
+
+            return $orders;
+        }
+        catch (\Exception $e) {
+            return response()->json($e->getMessage(), 500);
+        }
+    }
+
+    public function salesById(Request $request)
     {
         try {
             $shopify = new ShopifyHelper();
