@@ -28,6 +28,7 @@ class UserGroup extends Model
     ];
 
     protected $casts = [
+        'wholesaler'     => 'boolean',
         'premium'        => 'boolean',
         'event_promoter' => 'boolean'
     ];
