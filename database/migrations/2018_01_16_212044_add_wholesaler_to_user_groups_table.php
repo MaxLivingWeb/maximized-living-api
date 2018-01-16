@@ -25,8 +25,6 @@ class AddWholesalerToUserGroupsTable extends Migration
         Schema::table('user_groups', function (Blueprint $table) {
             $table->dropColumn('discount_id');
         });
-
-
     }
 
     /**
