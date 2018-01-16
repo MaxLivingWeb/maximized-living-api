@@ -126,7 +126,7 @@ class UserController extends Controller
                         'address_1' => $request->input('wholesale.shipping.address_1'),
                         'address_2' => $request->input('wholesale.shipping.address_2'),
                         'zip_postal_code' => $request->input('wholesale.shipping.zip_postal_code') ?? '',
-                        'city_id'   => intval($request->input('wholesale.shipping.city_id')),
+                        'city_id'   => (int)$request->input('wholesale.shipping.city_id'),
                         'latitude' => 0,
                         'longitude' => 0
                     ]);
@@ -143,7 +143,7 @@ class UserController extends Controller
                         'address_1' => $request->input('wholesale.billing.address_1'),
                         'address_2' => $request->input('wholesale.billing.address_2'),
                         'zip_postal_code' => $request->input('wholesale.billing.zip_postal_code') ?? '',
-                        'city_id'   => intval($request->input('wholesale.billing.city_id')),
+                        'city_id'   => (int)$request->input('wholesale.billing.city_id'),
                         'latitude' => 0,
                         'longitude' => 0
                     ]);
@@ -160,7 +160,7 @@ class UserController extends Controller
                         'address_1' => $request->input('commission.billing.address_1'),
                         'address_2' => $request->input('commission.billing.address_2'),
                         'zip_postal_code' => $request->input('commission.billing.zip_postal_code') ?? '',
-                        'city_id'   => intval($request->input('commission.billing.city_id')),
+                        'city_id'   => (int)$request->input('commission.billing.city_id'),
                         'latitude' => 0,
                         'longitude' => 0
                     ]);
@@ -186,9 +186,9 @@ class UserController extends Controller
             $shopifyCustomer = $shopify->getOrCreateCustomer($customer);
 
             //tag the Shopify customer with their discount group
-            if(!is_null($userGroup) && !is_null($userGroup->discount_id)) {
+            if(NULL !== $userGroup && NULL !== $userGroup->discount_id) {
                 $discount = $shopify->getPriceRule($userGroup->discount_id);
-                if(!is_null($discount)) {
+                if(NULL !== $discount) {
                     //group has a valid discount, tag the user
                     $shopify->addCustomerTag($shopifyCustomer->id, $discount->title);
                 }
@@ -197,7 +197,7 @@ class UserController extends Controller
             //Save Shopify ID to Cognito user attribute
             $cognito->updateUserAttribute(
                 env('COGNITO_SHOPIFY_CUSTOM_ATTRIBUTE'),
-                strval($shopifyCustomer->id),
+                (string)$shopifyCustomer->id,
                 $validatedData['email']
             );
 
@@ -216,6 +216,9 @@ class UserController extends Controller
             return response()->json([$e->getAwsErrorMessage()], 500);
         }
         catch(ClientException $e) {
+            if(!empty($cognitoUser->get('User')['Username'])){
+                $cognito->deleteUser($cognitoUser->get('User')['Username']);
+            }
             $msg = $e->getMessage();
             if($e->hasResponse()) {
                 $msg = $e->getResponse()->getBody()->getContents();
@@ -223,9 +226,15 @@ class UserController extends Controller
             return response()->json([$msg], 500);
         }
         catch (ValidationException $e) {
+            if(!empty($cognitoUser->get('User')['Username'])){
+                $cognito->deleteUser($cognitoUser->get('User')['Username']);
+            }
             return response()->json($e->errors(), 400);
         }
         catch (\Exception $e) {
+            if(!empty($cognitoUser->get('User')['Username'])){
+                $cognito->deleteUser($cognitoUser->get('User')['Username']);
+            }
             return response()->json($e->getMessage(), 500);
         }
     }
@@ -266,12 +275,12 @@ class UserController extends Controller
 
             $user = new CognitoUser($id);
             $userGroup = $user->group();
-            if(!is_null($userGroup)) {
+            if(NULL !== $userGroup) {
                 $res->affiliate = $userGroup;
             }
 
             $permissions = collect($cognitoUser['UserAttributes'])->where('Name', 'custom:permissions')->first();
-            if(!is_null($permissions)) {
+            if(NULL !== $permissions) {
                 $res->permissions = explode(',', $permissions['Value']);
             }
 
@@ -306,7 +315,7 @@ class UserController extends Controller
                 'first_name' => $validatedData['first_name'],
                 'last_name'  => $validatedData['last_name']
             ];
-            if(!is_null($validatedData['phone'])) {
+            if(NULL !== $validatedData['phone']) {
                 $customer['phone'] = $validatedData['phone'];
             }
 
