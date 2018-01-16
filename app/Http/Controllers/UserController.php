@@ -50,7 +50,7 @@ class UserController extends Controller
                 'phone'         => 'nullable',
                 'legacyId'      => 'nullable|integer',
                 'commission.id' => 'nullable|integer',
-                'wholesaler'    => 'boolean',
+                'wholesaler'    => 'nullable|boolean',
                 'groupName'     => 'nullable',
                 'permissions'   => 'nullable|array|min:1',
                 'permissions.*' => 'nullable|string|distinct|exists:user_permissions,key'
