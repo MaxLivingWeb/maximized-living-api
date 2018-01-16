@@ -104,11 +104,6 @@ Artisan::command('wholesale {file}', function ($file) {
         $allUsers = collect($cognito->listUsers());
 
         $shopify = new \App\Helpers\ShopifyHelper();
-        $priceRules = collect($shopify->getPriceRules());
-
-        if(is_null($priceRules)) {
-            dd('no price groups');
-        }
 
         foreach ($csv as $user) {
             $legacy_affiliate_id = intval($user[1]);
@@ -117,7 +112,8 @@ Artisan::command('wholesale {file}', function ($file) {
             $params = [
                 'group_name' => $user[12] !== '' ? preg_replace('/\s+/', '', $user[12]) : 'user.' . $email,
                 'group_name_display' => $user[12] !== '' ? $user[12] : $user[10] . ' ' . $user[4],
-                'legacy_affiliate_id' => $legacy_affiliate_id
+                'legacy_affiliate_id' => $legacy_affiliate_id,
+                'discount_id' => true //true = wholesaler. TODO: Update this logic if we ever plan on using this artisan command again to import users from Cognito into Shopify. Since `discount_id` got replaced with `wholesaler` we don't need to map to a specific Shopify discount group any more...
             ];
 
             $cognitoUser = $allUsers->where('email', $email)->first();
@@ -130,15 +126,6 @@ Artisan::command('wholesale {file}', function ($file) {
             if (!is_null($group)) {
                 $this->info('duplicate group');
             }
-
-            //match discount group
-            $priceRule = $priceRules->where('title', $user[3])->first();
-            if (!is_null($priceRule)) {
-                $params['discount_id'] = $priceRule->id;
-            }
-
-            //tag user with discount group
-            $shopify->addCustomerTag($cognitoUser['shopifyId'], $priceRule->title);
 
             $newWholesaleGroup = \App\UserGroup::create($params);
             $newWholesaleGroup->addUser($cognitoUser['id']);
