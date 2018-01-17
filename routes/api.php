@@ -62,6 +62,7 @@ Route::group(['prefix' => 'reporting'], function() {
     });
 
     Route::group(['prefix' => 'wholesale'], function() {
-        Route::get('{id}/sales', 'Reporting\WholesaleController@sales');
+        Route::get('/sales', 'Reporting\WholesaleController@sales');
+        Route::get('{id}/sales', 'Reporting\WholesaleController@salesById');
     });
 });
