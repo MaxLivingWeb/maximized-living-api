@@ -24,14 +24,21 @@ class WholesaleController extends Controller
             $startDate = $dateObject->startDate;
             $endDate = $dateObject->endDate;
 
-
-            $orders = $shopify->getAllOrders($startDate, $endDate, request()->input('status'));
-
-            $orders = $orders->filter(function ($value) {
-                return !is_null(collect($value->note_attributes)->where('name', 'wholesaleId')->first());
-            })->groupBy(function ($value) {
-                return collect($value->note_attributes)->where('name', 'wholesaleId')->first()->value;
-            });
+            $allOrders = $shopify->getAllOrders($startDate, $endDate, request()->input('status'));
+            $orders = $allOrders
+                ->filter(function($value) {
+                    return !is_null(
+                        collect($value->note_attributes)
+                            ->where('name', 'wholesaleId')
+                            ->first()
+                    );
+                })
+                ->groupBy(function($value) {
+                    return collect($value->note_attributes)
+                        ->where('name', 'wholesaleId')
+                        ->first()
+                        ->value;
+                });
 
             $affiliates = [];
             foreach($orders as $groupId => $groupOrders) {
