@@ -191,13 +191,9 @@ class GroupController extends Controller
         }
     }
 
-    public function update($id, Request $request)
+    public function update($id)
     {
         $group = UserGroup::findOrFail($id);
-
-        // TODO: Check whether we need this update function any more, now that discount_id was removed and replaced with the 'wholesaler' field...
-        // $group->discount_id = intval($request->input('discount_id'));
-
         $group->save();
     }
 
