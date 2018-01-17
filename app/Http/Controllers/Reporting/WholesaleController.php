@@ -24,8 +24,7 @@ class WholesaleController extends Controller
             $startDate = $dateObject->startDate;
             $endDate = $dateObject->endDate;
 
-            $allOrders = $shopify->getAllOrders($startDate, $endDate, request()->input('status'));
-            $orders = $allOrders
+            $orders = $shopify->getAllOrders($startDate, $endDate, request()->input('status'))
                 ->filter(function($value) {
                     return !is_null(
                         collect($value->note_attributes)
