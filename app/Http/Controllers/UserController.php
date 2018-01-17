@@ -271,7 +271,9 @@ class UserController extends Controller
                 $res->permissions = explode(',', $permissions['Value']);
             }
 
-            $res->addresses = $userGroup->location->addresses ?? $userGroup->addresses ?? [];
+            $res->addresses = $userGroup->location->addresses
+                           ?? $userGroup->addresses
+                           ?? [];
 
             return response()->json($res);
         }

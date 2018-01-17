@@ -52,7 +52,7 @@ class Address extends Model
      */
     public function getCityAttribute()
     {
-        return $this->cityRelation->name;
+        return $this->cityRelation;
     }
 
     /**
@@ -62,7 +62,7 @@ class Address extends Model
      */
     public function getRegionAttribute()
     {
-        return $this->cityRelation->region->name;
+        return $this->cityRelation->region;
     }
 
     /**
@@ -72,7 +72,7 @@ class Address extends Model
      */
     public function getCountryAttribute()
     {
-        return $this->cityRelation->region->country->name;
+        return $this->cityRelation->region->country;
     }
 
     /**
