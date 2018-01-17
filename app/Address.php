@@ -28,11 +28,12 @@ class Address extends Model
         'city_id',
         'pivot',
         'userGroupTypes',
-        'locationTypes'
+        'locationTypes',
+        'cityRelation',
     ];
 
     protected $appends = [
-        'type'
+        'type', 'city', 'region', 'country'
     ];
 
     public function getTypeAttribute()
@@ -40,8 +41,23 @@ class Address extends Model
         return $this->getType();
     }
 
-    public function city() {
-        return $this->belongsTo('App\City');
+    public function getCityAttribute()
+    {
+        return $this->cityRelation->name;
+    }
+
+    public function getRegionAttribute()
+    {
+        return $this->cityRelation->region->name;
+    }
+
+    public function getCountryAttribute()
+    {
+        return $this->cityRelation->region->country->name;
+    }
+
+    public function cityRelation() {
+        return $this->belongsTo('App\City', 'city_id');
     }
 
     public function locations()
