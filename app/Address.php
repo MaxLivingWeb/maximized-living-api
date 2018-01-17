@@ -26,8 +26,19 @@ class Address extends Model
         'updated_at',
         'deleted_at',
         'city_id',
-        'pivot'
+        'pivot',
+        'userGroupTypes',
+        'locationTypes'
     ];
+
+    protected $appends = [
+        'type'
+    ];
+
+    public function getTypeAttribute()
+    {
+        return $this->getType();
+    }
 
     public function city() {
         return $this->belongsTo('App\City');
@@ -43,14 +54,19 @@ class Address extends Model
         return $this->belongsToMany('App\UserGroup', 'usergroup_addresses');
     }
 
-    public function types()
+    public function locationTypes()
     {
         return $this->belongsToMany('App\AddressType', 'locations_addresses');
     }
 
+    public function userGroupTypes()
+    {
+        return $this->belongsToMany('App\AddressType', 'usergroup_addresses');
+    }
+
     public function getType()
     {
-        return $this->types->first()->name;
+        return $this->locationTypes->first() ?? $this->userGroupTypes->first() ?? NULL;
     }
 
     //takes the location id of the associated location and an array of addresses

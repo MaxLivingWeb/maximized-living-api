@@ -48,4 +48,9 @@ class UserGroup extends Model
             ]
         );
     }
+
+    public function addresses()
+    {
+        return $this->belongsToMany('App\Address', 'usergroup_addresses');
+    }
 }

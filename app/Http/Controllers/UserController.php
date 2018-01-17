@@ -112,9 +112,7 @@ class UserController extends Controller
                     $params['commission_id'] = $validatedData['commission']['id'];
                 }
 
-                if(isset($validatedData['discountCode'])) {
-                    $params['discount_id'] = $validatedData['discountCode'];
-                }
+                // TODO: I believe Jess has something in a PR that will merge into this spot
 
                 $userGroup = UserGroup::create($params);
 
@@ -261,8 +259,6 @@ class UserController extends Controller
             $res->first_name = $shopifyCustomer->first_name;
             $res->last_name = $shopifyCustomer->last_name;
             $res->phone = $shopifyCustomer->phone;
-            $res->addresses = $shopifyCustomer->addresses;
-
 
             $user = new CognitoUser($id);
             $userGroup = $user->group();
@@ -274,6 +270,8 @@ class UserController extends Controller
             if(!is_null($permissions)) {
                 $res->permissions = explode(',', $permissions['Value']);
             }
+
+            $res->addresses = $userGroup->location->addresses ?? $userGroup->addresses ?? [];
 
             return response()->json($res);
         }
