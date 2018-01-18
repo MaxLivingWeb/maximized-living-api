@@ -50,7 +50,7 @@ class UserController extends Controller
                 'phone'         => 'nullable',
                 'legacyId'      => 'nullable|integer',
                 'commission.id' => 'nullable|integer',
-                'discountCode'  => 'nullable|integer',
+                'wholesaler'    => 'nullable|boolean',
                 'groupName'     => 'nullable',
                 'permissions'   => 'nullable|array|min:1',
                 'permissions.*' => 'nullable|string|distinct|exists:user_permissions,key'
@@ -112,8 +112,8 @@ class UserController extends Controller
                     $params['commission_id'] = $validatedData['commission']['id'];
                 }
 
-                if(isset($validatedData['discountCode'])) {
-                    $params['discount_id'] = $validatedData['discountCode'];
+                if(isset($validatedData['wholesaler'])) {
+                    $params['wholesaler'] = $validatedData['wholesaler'];
                 }
 
                 $userGroup = UserGroup::create($params);
