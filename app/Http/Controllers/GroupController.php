@@ -103,9 +103,9 @@ class GroupController extends Controller
                 $location_id = intval($request->input('location_id'));
             }
 
-            $discount_id = null;
-            if (!is_null($request->input('discount_id'))) {
-                $discount_id = intval($request->input('discount_id'));
+            $wholesaler = false;
+            if (!is_null($request->input('wholesaler'))) {
+                $wholesaler = boolval($request->input('wholesaler'));
             }
 
             $premium = false;
@@ -175,7 +175,7 @@ class GroupController extends Controller
             return UserGroup::create([
                 'group_name'         => $request->input('group_name'),
                 'group_name_display' => $request->input('group_name_display'),
-                'discount_id'        => $discount_id,
+                'wholesaler'         => $wholesaler,
                 'commission_id'      => $commission_id,
                 'location_id'        => $location_id,
                 'premium'            => $premium,
@@ -191,12 +191,9 @@ class GroupController extends Controller
         }
     }
 
-    public function update($id, Request $request)
+    public function update($id)
     {
         $group = UserGroup::findOrFail($id);
-
-        $group->discount_id = intval($request->input('discount_id'));
-
         $group->save();
     }
 

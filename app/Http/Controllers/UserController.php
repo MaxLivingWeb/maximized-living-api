@@ -50,7 +50,7 @@ class UserController extends Controller
                 'phone'         => 'nullable',
                 'legacyId'      => 'nullable|integer',
                 'commission.id' => 'nullable|integer',
-                'discountCode'  => 'nullable|integer',
+                'wholesaler'    => 'nullable|boolean',
                 'groupName'     => 'nullable',
                 'permissions'   => 'nullable|array|min:1',
                 'permissions.*' => 'nullable|string|distinct|exists:user_permissions,key'
@@ -112,8 +112,8 @@ class UserController extends Controller
                     $params['commission_id'] = $validatedData['commission']['id'];
                 }
 
-                if(isset($validatedData['discountCode'])) {
-                    $params['discount_id'] = $validatedData['discountCode'];
+                if(isset($validatedData['wholesaler'])) {
+                    $params['wholesaler'] = $validatedData['wholesaler'];
                 }
 
                 $userGroup = UserGroup::create($params);
@@ -184,15 +184,6 @@ class UserController extends Controller
 
             //Add customer to Shopify
             $shopifyCustomer = $shopify->getOrCreateCustomer($customer);
-
-            //tag the Shopify customer with their discount group
-            if(!is_null($userGroup) && !is_null($userGroup->discount_id)) {
-                $discount = $shopify->getPriceRule($userGroup->discount_id);
-                if(!is_null($discount)) {
-                    //group has a valid discount, tag the user
-                    $shopify->addCustomerTag($shopifyCustomer->id, $discount->title);
-                }
-            }
 
             //Save Shopify ID to Cognito user attribute
             $cognito->updateUserAttribute(

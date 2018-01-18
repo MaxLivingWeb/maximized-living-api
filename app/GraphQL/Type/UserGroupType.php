@@ -19,6 +19,10 @@ class UserGroupType extends GraphQLType
                 'type' => Type::nonNull(Type::int()),
                 'description' => 'User group ID'
             ],
+            'wholesaler' => [
+                'type' => Type::nonNull(Type::int()),
+                'description' => "User group's wholesaler status. If true, user receives wholesale discounts through the store"
+            ],
             'premium' => [
                 'type' => Type::nonNull(Type::int()),
                 'description' => "User group's premium status"
