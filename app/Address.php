@@ -32,7 +32,7 @@ class Address extends Model
     ];
 
     protected $appends = [
-        'type', 'city', 'region', 'country'
+        'type', 'region', 'country'
     ];
 
     /**
@@ -46,23 +46,13 @@ class Address extends Model
     }
 
     /**
-     * Returns and appends the city name for the address.
-     *
-     * @return string
-     */
-    public function getCityAttribute()
-    {
-        return $this->cityRelation;
-    }
-
-    /**
      * Returns and appends the region name for the address.
      *
      * @return string
      */
     public function getRegionAttribute()
     {
-        return $this->cityRelation->region;
+        return $this->city->region;
     }
 
     /**
@@ -72,7 +62,7 @@ class Address extends Model
      */
     public function getCountryAttribute()
     {
-        return $this->cityRelation->region->country;
+        return $this->city->region->country;
     }
 
     /**
@@ -80,7 +70,7 @@ class Address extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function cityRelation() {
+    public function city() {
         return $this->belongsTo('App\City', 'city_id');
     }
 
