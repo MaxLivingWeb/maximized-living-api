@@ -10,7 +10,7 @@ class UserGroup extends Model
     protected $fillable = [
         'group_name',
         'group_name_display',
-        'discount_id',
+        'wholesaler',
         'legacy_affiliate_id',
         'commission_id',
         'location_id',
@@ -28,6 +28,7 @@ class UserGroup extends Model
     ];
 
     protected $casts = [
+        'wholesaler'     => 'boolean',
         'premium'        => 'boolean',
         'event_promoter' => 'boolean'
     ];
