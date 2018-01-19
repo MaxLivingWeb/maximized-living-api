@@ -96,6 +96,18 @@ class CommissionGroupsSeeder extends Seeder
             [
                 'percentage' => 0.0,
                 'description' => 'Marketing Affiliate - 0%'
+            ],
+            [
+                'percentage' => 25.0,
+                'description' => 'Marketing Affiliate - 25%'
+            ],
+            [
+                'percentage' => 50.0,
+                'description' => 'Marketing Affiliate - 50%'
+            ],
+            [
+                'percentage' => 45.0,
+                'description' => 'Marketing Affiliate - 45%'
             ]
         ];
 
