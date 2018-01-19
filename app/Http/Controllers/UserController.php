@@ -185,15 +185,6 @@ class UserController extends Controller
             //Add customer to Shopify
             $shopifyCustomer = $shopify->getOrCreateCustomer($customer);
 
-            //tag the Shopify customer with their discount group
-            if(NULL !== $userGroup && NULL !== $userGroup->discount_id) {
-                $discount = $shopify->getPriceRule($userGroup->discount_id);
-                if(NULL !== $discount) {
-                    //group has a valid discount, tag the user
-                    $shopify->addCustomerTag($shopifyCustomer->id, $discount->title);
-                }
-            }
-
             //Save Shopify ID to Cognito user attribute
             $cognito->updateUserAttribute(
                 env('COGNITO_SHOPIFY_CUSTOM_ATTRIBUTE'),
@@ -420,13 +411,12 @@ class UserController extends Controller
             $shopify->deleteCustomer($id);
 
             return response()->json();
-        }
-        catch(AwsException $e) {
+        } catch (AwsException $e) {
             return response()->json([$e->getAwsErrorMessage()], 500);
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json($e->getMessage(), 500);
         }
+    }
 
     private function _getAddressByType(array $types = [])
     {
