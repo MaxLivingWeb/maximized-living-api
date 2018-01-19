@@ -252,8 +252,6 @@ class UserController extends Controller
             $res->first_name = $shopifyCustomer->first_name;
             $res->last_name = $shopifyCustomer->last_name;
             $res->phone = $shopifyCustomer->phone;
-            $res->addresses = $shopifyCustomer->addresses;
-
 
             $user = new CognitoUser($id);
             $userGroup = $user->group();
@@ -266,6 +264,10 @@ class UserController extends Controller
                 $res->permissions = explode(',', $permissions['Value']);
             }
 
+            $res->addresses = $userGroup->location->addresses
+                           ?? $userGroup->addresses
+                           ?? [];
+
             return response()->json($res);
         }
         catch(AwsException $e) {
@@ -276,24 +278,65 @@ class UserController extends Controller
         }
     }
 
-    public function updateUser(Request $request)
+    public function updateUser(Request $request, $id)
     {
         try {
             $validatedData = $request->validate([
-                'shopify_id' => 'required',
                 'first_name' => 'required',
                 'last_name'  => 'required',
                 'phone'      => 'nullable',
-                'group'      => 'nullable',
-                'permissions'   => 'nullable|array|min:1',
-                'permissions.*' => 'nullable|string|distinct|exists:user_permissions,key'
             ]);
 
-            //update user in Shopify
-            $shopify = new ShopifyHelper();
+            $user = new CognitoUser($id);
 
+            // update user addresses in API database
+            $userGroup = $user->group();
+            $addresses = $userGroup->location->addresses
+                ?? $userGroup->addresses
+                ?? [];
+
+            // wholesaler addresses
+            if(!empty($request->input('wholesale.shipping'))) {
+                $shippingAddress = $addresses
+                    ->filter($this->_getAddressByType([4]))
+                    ->first();
+                if(!empty($shippingAddress)){
+                    $shippingAddress->fill($request->input('wholesale.shipping'));
+                    $shippingAddress->save();
+                }
+            }
+
+            if(!empty($request->input('wholesale.billing'))) {
+                $billingAddress = $addresses
+                    ->filter($this->_getAddressByType([5]))
+                    ->first();
+                if(!empty($billingAddress)){
+                    $billingAddress->fill($request->input('wholesale.billing'));
+                    $billingAddress->save();
+                }
+            }
+
+            // commission addresses
+            if(!empty($request->input('commission.billing'))){
+                $billingAddress = $addresses
+                    ->filter($this->_getAddressByType([6]))
+                    ->first();
+                if(!empty($billingAddress)){
+                    $billingAddress->fill($request->input('commission.billing'));
+                    $billingAddress->save();
+                }
+            }
+
+            // update user in Cognito / get Shopify ID from Cognito user
+            $cognito = new CognitoHelper();
+            $cognitoUser = $cognito->getUser($id);
+            $shopifyId = collect($cognitoUser['UserAttributes'])
+                ->where('Name', env('COGNITO_SHOPIFY_CUSTOM_ATTRIBUTE'))
+                ->first()['Value'];
+
+            // update user in Shopify
             $customer = [
-                'id'         => $validatedData['shopify_id'],
+                'id'         => $shopifyId,
                 'first_name' => $validatedData['first_name'],
                 'last_name'  => $validatedData['last_name']
             ];
@@ -301,23 +344,8 @@ class UserController extends Controller
                 $customer['phone'] = $validatedData['phone'];
             }
 
+            $shopify = new ShopifyHelper();
             $shopify->updateCustomer($customer);
-
-            $cognito = new CognitoHelper();
-
-            if(isset($validatedData['group'])) {
-                $user = new CognitoUser($request->id);
-                $user->updateGroup($validatedData['group']);
-            }
-
-            //update permissions
-            if(isset($validatedData['permissions'])) {
-                $cognito->updateUserAttribute('custom:permissions', implode(',', $validatedData['permissions']), $request->id);
-            }
-            else {
-                //no permissions, remove them from user
-                $cognito->removeUserAttribute(['custom:permissions'], $request->id);
-            }
 
             return response()->json();
         }
@@ -360,5 +388,13 @@ class UserController extends Controller
         catch (\Exception $e) {
             return response()->json($e->getMessage(), 500);
         }
+    }
+
+    private function _getAddressByType(array $types = [])
+    {
+        return function ($address) use ($types)
+        {
+            return in_array($address->type->id, $types);
+        };
     }
 }
