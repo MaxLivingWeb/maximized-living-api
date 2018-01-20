@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Foundation\Inspiring;
+use App\Helpers\ShopifyHelper;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,6 +17,41 @@ use Illuminate\Foundation\Inspiring;
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->describe('Display an inspiring quote');
+
+Artisan::command('update:products', function () {
+    $shopify = new ShopifyHelper();
+    $products = $shopify->getProducts([], FALSE);
+    
+    //dump($products);
+    
+    dump(count($products), count($products, COUNT_RECURSIVE), count($products, COUNT_RECURSIVE) - count($products));
+    
+    $this->info('Products updated');
+})->describe('Pulls all products from Shopify and updates the database.');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 Artisan::command('wholesale {file}', function ($file) {
     try {

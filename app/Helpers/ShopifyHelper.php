@@ -245,4 +245,24 @@ class ShopifyHelper
 
         return $allOrders;
     }
+    
+    public function getProducts()
+    {
+        try
+        {
+            $query = http_build_query(
+                array_filter([
+                    'limit' => 250
+                ])
+            );
+        
+            $result = $this->client->get('products.json?' . $query);
+        
+            return json_decode($result->getBody()->getContents(), true)['products'];
+        }
+        catch (ClientException $e)
+        {
+            return $result;
+        }
+    }
 }
