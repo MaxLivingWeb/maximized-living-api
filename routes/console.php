@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Foundation\Inspiring;
-use App\Helpers\ShopifyHelper;
 
 /*
 |--------------------------------------------------------------------------
