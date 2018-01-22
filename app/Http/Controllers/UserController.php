@@ -182,7 +182,10 @@ class UserController extends Controller
                 $customer['phone'] = $validatedData['phone'];
             }
 
-            //Add customer to Shopify
+            // Add customer to Shopify
+            // IMPORTANT: creating a Shopify customer should be the LAST step of the user creation process.
+            // If any previous step fails, we roll back the account creation to prevent 'account already exists' errors.
+            // We CANNOT DO THIS for Shopify customers. Creating a Shopify customer should always be the FINAL STEP.
             $shopifyCustomer = $shopify->getOrCreateCustomer($customer);
 
             //Save Shopify ID to Cognito user attribute
@@ -402,18 +405,8 @@ class UserController extends Controller
     public function delete($id)
     {
         $cognito = new CognitoHelper();
-        $shopify = new ShopifyHelper();
 
         try {
-            $cognitoUser = $cognito->getUser($id);
-            $shopifyId = collect($cognitoUser['UserAttributes'])
-                ->where('Name', env('COGNITO_SHOPIFY_CUSTOM_ATTRIBUTE'))
-                ->first()['Value'];
-
-            if(!empty($shopifyId)){
-                $shopify->deleteCustomer($shopifyId);
-            }
-
             $cognito->deleteUser($id);
 
             return response()->json();
