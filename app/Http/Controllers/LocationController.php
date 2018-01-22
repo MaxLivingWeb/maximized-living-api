@@ -6,6 +6,11 @@ use App\Location;
 
 class LocationController extends Controller
 {
+    public function all()
+    {
+        return Location::all();
+    }
+
     /**
      * Retrieves a list of all Cognito users associated with a given location.
      *

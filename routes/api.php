@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 |
 */
 
+// User Groups
 Route::group(['prefix' => 'group'], function() {
     Route::get('/all', 'GroupController@all');
     Route::get('/commissions', 'GroupController@allWithCommission');
@@ -25,10 +26,7 @@ Route::group(['prefix' => 'group'], function() {
     Route::delete('/{id}', 'GroupController@delete');
 });
 
-Route::group(['prefix' => 'location'], function() {
-    Route::get('/{id}/users', 'LocationController@getUsersById');
-});
-
+// Users
 Route::group(['prefix' => 'user'], function() {
     Route::get('/{id}', 'UserController@getUser');
     Route::post('/', 'UserController@addUser');
@@ -39,6 +37,14 @@ Route::group(['prefix' => 'user'], function() {
 
 Route::get('/users', 'UserController@listUsers');
 
+// Locations
+Route::group(['prefix' => 'location'], function() {
+    Route::get('/{id}/users', 'LocationController@getUsersById');
+});
+
+Route::get('/locations', 'LocationController@all');
+
+// Commissions
 Route::group(['prefix' => 'commission'], function() {
     Route::get('/', 'CommissionController@all');
     Route::get('/{id}', 'CommissionController@getById');
@@ -47,12 +53,15 @@ Route::group(['prefix' => 'commission'], function() {
     Route::delete('/{id}', 'CommissionController@delete');
 });
 
+// Permissions
 Route::group(['prefix' => 'permissions'], function() {
     Route::get('/', 'PermissionsController@all');
 });
 
+// Emails
 Route::post('/contact', 'TransactionalEmailController@save');
 
+// Reporting
 Route::group(['prefix' => 'reporting'], function() {
     Route::get('/sales', 'Reporting\SalesController@sales');
 
