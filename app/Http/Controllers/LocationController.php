@@ -20,6 +20,6 @@ class LocationController extends Controller
     public function getUsersById($id)
     {
         $location = Location::with('userGroup')->findOrFail($id);
-        return $location->listUsers();
+        return response()->json($location->listUsers());
     }
 }
