@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Address;
 use App\AddressType;
 use App\UserGroup;
+use App\Location;
 use App\Helpers\CognitoHelper;
 use App\Helpers\TextHelper;
 use Aws\Exception\AwsException;
@@ -32,14 +33,16 @@ class GroupController extends Controller
         return UserGroup::with('commission')->findOrFail($id);
     }
 
+    /**
+     * Retrieves a list of all Cognito users associated with a given location.
+     *
+     * @param integer $id The ID of the location to retrieve users for.
+     * @return array
+     */
     public function getUsersById($id)
     {
-        $userGroup = UserGroup::with('commission')->findOrFail($id);
-
-        $cognito = new CognitoHelper();
-        $users = $cognito->listUsersForGroup($userGroup->group_name);
-
-        return $users;
+        $location = Location::with('userGroup')->findOrFail($id);
+        return $location->listUsers();
     }
 
     public function allWithCommission()
