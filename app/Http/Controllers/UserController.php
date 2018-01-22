@@ -188,7 +188,7 @@ class UserController extends Controller
             //Save Shopify ID to Cognito user attribute
             $cognito->updateUserAttribute(
                 env('COGNITO_SHOPIFY_CUSTOM_ATTRIBUTE'),
-                (string)$shopifyCustomer->id,
+                strval($shopifyCustomer->id),
                 $validatedData['email']
             );
 
