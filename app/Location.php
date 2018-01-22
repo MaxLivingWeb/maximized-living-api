@@ -156,7 +156,7 @@ class Location extends Model
         $users = [];
         foreach($user_ids as $id) {
             try {
-                $users[] = $cognito->getUser($id)->toArray();
+                $users[] = User::structureUser($cognito->getUser($id));
             }
             catch(AwsException $e) {
                 // do nothing, we don't want the whole process to fail if a user doesn't exist
