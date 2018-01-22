@@ -414,7 +414,7 @@ class UserController extends Controller
                 $shopify->deleteCustomer($shopifyId);
             }
 
-            $cognito->deleteUser($cognitoUser->get('Username'));
+            $cognito->deleteUser($id);
 
             return response()->json();
         } catch (AwsException $e) {
