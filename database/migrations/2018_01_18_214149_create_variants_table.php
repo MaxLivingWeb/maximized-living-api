@@ -15,11 +15,13 @@ class CreateVariantsTable extends Migration
     {
         Schema::create('variants', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('variantID');
-            $table->integer('productID');
+            $table->bigInteger('variantID');
+            $table->bigInteger('productID');
+            $table->bigInteger('productTableID');
             $table->string('title');
             $table->string('sku');
             $table->string('price');
+            $table->string('compareAtPrice');
             $table->string('userType');
             $table->string('variantName');
             $table->string('qty');

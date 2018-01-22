@@ -73,7 +73,11 @@ Route::get('/update-products', function () {
     $shopify = new ShopifyHelper();
     $products = $shopify->getProducts([], FALSE);
     
-    ProductHelper::importProducts($products);
+    $productHelper = new ProductHelper();
+    
+    $productHelper->importProducts($products);
     
     dd($products);
 });
+
+Route::get('/search', 'SearchController@index');
