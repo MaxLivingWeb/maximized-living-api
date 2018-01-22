@@ -241,9 +241,11 @@ class UserController extends Controller
     {
         try {
             $validatedData = $request->validate([
-                'first_name' => 'required',
-                'last_name'  => 'required',
-                'phone'      => 'nullable',
+                'first_name'    => 'required',
+                'last_name'     => 'required',
+                'phone'         => 'nullable',
+                'permissions'   => 'nullable|array|min:1',
+                'permissions.*' => 'nullable|string|distinct|exists:user_permissions,key'
             ]);
 
             $user = new CognitoUser($id);
@@ -289,22 +291,33 @@ class UserController extends Controller
             // update user in Cognito / get Shopify ID from Cognito user
             $cognito = new CognitoHelper();
             $cognitoUser = $cognito->getUser($id);
+
+            // Update permissions (for Cognito user)
+            if(isset($validatedData['permissions'])) {
+                $cognito->updateUserAttribute('custom:permissions', implode(',', $validatedData['permissions']), $request->id);
+            }
+            else {
+                //no permissions, remove them from user
+                $cognito->removeUserAttribute(['custom:permissions'], $request->id);
+            }
+
+            // Update user in Shopify
             $shopifyId = collect($cognitoUser['UserAttributes'])
                 ->where('Name', env('COGNITO_SHOPIFY_CUSTOM_ATTRIBUTE'))
                 ->first()['Value'];
-
-            // update user in Shopify
-            $customer = [
+            $shopifyCustomer = [
                 'id'         => $shopifyId,
                 'first_name' => $validatedData['first_name'],
                 'last_name'  => $validatedData['last_name']
             ];
+
+            // Update phone number (for Shopify Customer)
             if(!is_null($validatedData['phone'])) {
-                $customer['phone'] = $validatedData['phone'];
+                $shopifyCustomer['phone'] = $validatedData['phone'];
             }
 
             $shopify = new ShopifyHelper();
-            $shopify->updateCustomer($customer);
+            $shopify->updateCustomer($shopifyCustomer);
 
             return response()->json();
         }
