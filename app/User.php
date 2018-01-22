@@ -35,7 +35,8 @@ class User extends Authenticatable
             'email' => collect($cognitoUser['UserAttributes'])
                 ->where('Name', 'email')
                 ->first()['Value'],
-            'user_status' => $cognitoUser->get('UserStatus')
+            'user_status' => $cognitoUser->get('UserStatus'),
+            'created' => $cognitoUser->get('UserCreateDate')
         ];
 
         $shopifyId = collect($cognitoUser['UserAttributes'])
