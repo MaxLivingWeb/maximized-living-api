@@ -126,7 +126,7 @@ class UserController extends Controller
                         'address_1' => $request->input('wholesale.shipping.address_1'),
                         'address_2' => $request->input('wholesale.shipping.address_2'),
                         'zip_postal_code' => $request->input('wholesale.shipping.zip_postal_code') ?? '',
-                        'city_id'   => (int)$request->input('wholesale.shipping.city_id'),
+                        'city_id'   => intval($request->input('wholesale.shipping.city_id')),
                         'latitude' => 0,
                         'longitude' => 0
                     ]);
@@ -143,7 +143,7 @@ class UserController extends Controller
                         'address_1' => $request->input('wholesale.billing.address_1'),
                         'address_2' => $request->input('wholesale.billing.address_2'),
                         'zip_postal_code' => $request->input('wholesale.billing.zip_postal_code') ?? '',
-                        'city_id'   => (int)$request->input('wholesale.billing.city_id'),
+                        'city_id'   => intval($request->input('wholesale.billing.city_id')),
                         'latitude' => 0,
                         'longitude' => 0
                     ]);
@@ -160,7 +160,7 @@ class UserController extends Controller
                         'address_1' => $request->input('commission.billing.address_1'),
                         'address_2' => $request->input('commission.billing.address_2'),
                         'zip_postal_code' => $request->input('commission.billing.zip_postal_code') ?? '',
-                        'city_id'   => (int)$request->input('commission.billing.city_id'),
+                        'city_id'   => intval($request->input('commission.billing.city_id')),
                         'latitude' => 0,
                         'longitude' => 0
                     ]);
@@ -264,7 +264,7 @@ class UserController extends Controller
 
             $user = new CognitoUser($id);
             $userGroup = $user->group();
-            if(NULL !== $userGroup) {
+            if(!is_null($userGroup)) {
                 $res->affiliate = $userGroup;
             }
 
