@@ -35,8 +35,6 @@ class GroupController extends Controller
     public function getUsersById($id)
     {
         $userGroup = UserGroup::with('commission')->findOrFail($id);
-        
-        dd($userGroup);
 
         $cognito = new CognitoHelper();
         $users = $cognito->listUsersForGroup($userGroup->group_name);
