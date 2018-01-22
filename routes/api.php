@@ -26,7 +26,7 @@ Route::group(['prefix' => 'group'], function() {
 });
 
 Route::group(['prefix' => 'location'], function() {
-    Route::get('/{id}/users', 'GroupController@getUsersById');
+    Route::get('/{id}/users', 'LocationController@getUsersById');
 });
 
 Route::group(['prefix' => 'user'], function() {
