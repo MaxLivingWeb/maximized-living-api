@@ -69,15 +69,13 @@ Route::group(['prefix' => 'reporting'], function() {
     });
 });
 
-Route::get('/update-products', function () {
+Route::get('/store/update-products', function () {
     $shopify = new ShopifyHelper();
     $products = $shopify->getProducts([], FALSE);
     
     $productHelper = new ProductHelper();
     
     $productHelper->importProducts($products);
-    
-    dd($products);
 });
 
-Route::get('/search', 'SearchController@index');
+Route::get('/store/search', 'SearchController@index');
