@@ -15,7 +15,7 @@ class ProductHelper
     }
     
     /**
-     * Sends an error notification to the ecomm team
+     * Imports products from Shopify
      *
      * @param array $products
      */
@@ -26,6 +26,7 @@ class ProductHelper
                 'productId'   => $product['id'],
                 'title'       => $product['title'],
                 'description' => $product['body_html'],
+                'image'       => $product['image']['src'],
                 'vendor'      => $product['vendor'],
                 'productType' => $product['product_type'],
                 'handle'      => $product['handle'],
@@ -53,7 +54,7 @@ class ProductHelper
      */
     private function getDatabaseProducts(): array
     {
-        $products = DB::table('products')->pluck('productId', 'id');
+        $products = DB::table('products')->pluck('product_id', 'id');
         
         return $products->toArray();
     }
@@ -91,11 +92,12 @@ class ProductHelper
             ->where('id', $row)
             ->update(
                 [
-                    'productId'   => $product['productId'],
+                    'product_id'   => $product['productId'],
                     'title'       => $product['title'],
                     'description' => $product['description'],
+                    'image'       => $product['image']['src'],
                     'vendor'      => $product['vendor'],
-                    'productType' => $product['productType'],
+                    'product_type' => $product['productType'],
                     'handle'      => $product['handle'],
                     'tags'        => $product['tags'],
                     'updated_at'  => \Carbon\Carbon::now()
@@ -115,11 +117,12 @@ class ProductHelper
         try {
             $result = DB::table('products')->insertGetId(
                 [
-                    'productId'   => $product['productId'],
+                    'product_id'   => $product['productId'],
                     'title'       => $product['title'],
                     'description' => $product['description'],
+                    'image'       => $product['image'],
                     'vendor'      => $product['vendor'],
-                    'productType' => $product['productType'],
+                    'product_type' => $product['productType'],
                     'handle'      => $product['handle'],
                     'tags'        => $product['tags'],
                     'created_at'  => \Carbon\Carbon::now(),
@@ -151,25 +154,26 @@ class ProductHelper
     ): void
     {
         DB::table('variants')
-            ->where('productTableID', $productTableID)
+            ->where('product_table_id', $productTableID)
             ->delete();
+        
         foreach ($variants as $variant) {
             DB::table('variants')->insert(
                 [
-                    'variantID'        => $variant['id'],
-                    'productTableID'   => $productTableID,
-                    'productID'        => $variant['product_id'],
+                    'variant_id'        => $variant['id'],
+                    'product_table_id'   => $productTableID,
+                    'product_id'        => $variant['product_id'],
                     'title'            => $variant['title'],
                     'sku'              => $variant['sku'],
                     'price'            => $variant['price'],
-                    'compareAtPrice'   => $variant['compare_at_price'],
-                    'userType'         => $variant['option' . $userTypePosition],
-                    'variantName'      => $variant['option' . $variantNamePosition],
+                    'compare_at_price'   => $variant['compare_at_price'],
+                    'user_type'         => $variant['option' . $userTypePosition],
+                    'variant_name'      => $variant['option' . $variantNamePosition],
                     'qty'              => $variant['inventory_quantity'],
                     'position'         => $variant['position'],
                     'weight'           => $variant['weight'],
-                    'weightUnit'       => $variant['weight_unit'],
-                    'requiresShipping' => $variant['requires_shipping'],
+                    'weight_unit'       => $variant['weight_unit'],
+                    'requires_shipping' => $variant['requires_shipping'],
                     'grams'            => $variant['grams'],
                     'taxable'          => $variant['taxable'],
                     'created_at'       => \Carbon\Carbon::now(),

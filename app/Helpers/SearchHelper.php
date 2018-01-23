@@ -26,7 +26,7 @@ class SearchHelper
     {
         $results = DB::table('variants')
             ->where('sku', 'like', '%' . $query . '%')
-            ->pluck('productTableID')
+            ->pluck('product_table_id')
             ->toArray();
         
         $uniqueVariants = array_unique($results);
@@ -35,11 +35,11 @@ class SearchHelper
             $products[] = self::getProductsById($uniqueVariant);
         }
         
-        if (isset($products)) {
-            return $products;
+        if (!isset($products)) {
+            return [];
         }
-        
-        return [];
+    
+        return $products;
     }
     
     private static function nameSearch(string $query): array
@@ -56,10 +56,10 @@ class SearchHelper
         }
         
         if (isset($products)) {
-            return $products;
+            return [];
         }
-        
-        return [];
+    
+        return $products;
     }
     
     private static function descriptionSearch(string $query): array
@@ -76,10 +76,10 @@ class SearchHelper
         }
         
         if (isset($products)) {
-            return $products;
+            return [];
         }
-        
-        return [];
+    
+        return $products;
     }
     
     private static function getProductsById(int $id)
@@ -89,7 +89,7 @@ class SearchHelper
             ->first();
         
         $product->variants = DB::table('variants')
-            ->where('productTableID', $id)
+            ->where('product_table_id', $id)
             ->orderBy('position')
             ->get()
             ->toArray();
