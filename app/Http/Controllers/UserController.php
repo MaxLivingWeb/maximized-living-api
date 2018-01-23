@@ -6,6 +6,7 @@ use App\Address;
 use App\AddressType;
 use App\CognitoUser;
 use App\UserGroup;
+use App\User;
 use App\Helpers\CognitoHelper;
 use App\Helpers\ShopifyHelper;
 use GuzzleHttp\Exception\ClientException;
@@ -236,51 +237,9 @@ class UserController extends Controller
     public function getUser($id)
     {
         $cognito = new CognitoHelper();
-        $shopify = new ShopifyHelper();
 
         try {
-            $cognitoUser = $cognito->getUser($id);
-
-            $res = (object) [
-                'id'    => $cognitoUser->get('Username'),
-                'email' => collect($cognitoUser['UserAttributes'])
-                    ->where('Name', 'email')
-                    ->first()['Value'],
-                'user_status' => $cognitoUser->get('UserStatus')
-            ];
-
-            $shopifyId = collect($cognitoUser['UserAttributes'])
-                ->where('Name', env('COGNITO_SHOPIFY_CUSTOM_ATTRIBUTE'))
-                ->first()['Value'];
-
-            $affiliateId = collect($cognitoUser['UserAttributes'])
-                ->where('Name', 'custom:affiliateId')
-                ->first()['Value'];
-
-            $shopifyCustomer = $shopify->getCustomer($shopifyId);
-
-            $res->shopify_id = $shopifyCustomer->id;
-            $res->referred_affiliate_id = is_null($affiliateId) ? $affiliateId : intval($affiliateId);
-            $res->first_name = $shopifyCustomer->first_name;
-            $res->last_name = $shopifyCustomer->last_name;
-            $res->phone = $shopifyCustomer->phone;
-
-            $user = new CognitoUser($id);
-            $userGroup = $user->group();
-            if(!is_null($userGroup)) {
-                $res->affiliate = $userGroup;
-            }
-
-            $permissions = collect($cognitoUser['UserAttributes'])->where('Name', 'custom:permissions')->first();
-            if(NULL !== $permissions) {
-                $res->permissions = explode(',', $permissions['Value']);
-            }
-
-            $res->addresses = $userGroup->location->addresses
-                           ?? $userGroup->addresses
-                           ?? [];
-
-            return response()->json($res);
+            return response()->json(User::structureUser($cognito->getUser($id)));
         }
         catch(AwsException $e) {
             return response()->json([$e->getAwsErrorMessage()], 500);
@@ -294,9 +253,11 @@ class UserController extends Controller
     {
         try {
             $validatedData = $request->validate([
-                'first_name' => 'required',
-                'last_name'  => 'required',
-                'phone'      => 'nullable',
+                'first_name'    => 'required',
+                'last_name'     => 'required',
+                'phone'         => 'nullable',
+                'permissions'   => 'nullable|array|min:1',
+                'permissions.*' => 'nullable|string|distinct|exists:user_permissions,key'
             ]);
 
             $user = new CognitoUser($id);
@@ -342,22 +303,33 @@ class UserController extends Controller
             // update user in Cognito / get Shopify ID from Cognito user
             $cognito = new CognitoHelper();
             $cognitoUser = $cognito->getUser($id);
+
+            // Update permissions (for Cognito user)
+            if(isset($validatedData['permissions'])) {
+                $cognito->updateUserAttribute('custom:permissions', implode(',', $validatedData['permissions']), $request->id);
+            }
+            else {
+                //no permissions, remove them from user
+                $cognito->removeUserAttribute(['custom:permissions'], $request->id);
+            }
+
+            // Update user in Shopify
             $shopifyId = collect($cognitoUser['UserAttributes'])
                 ->where('Name', env('COGNITO_SHOPIFY_CUSTOM_ATTRIBUTE'))
                 ->first()['Value'];
-
-            // update user in Shopify
-            $customer = [
+            $shopifyCustomer = [
                 'id'         => $shopifyId,
                 'first_name' => $validatedData['first_name'],
                 'last_name'  => $validatedData['last_name']
             ];
-            if(NULL !== $validatedData['phone']) {
-                $customer['phone'] = $validatedData['phone'];
+
+            // Update phone number (for Shopify Customer)
+            if(!is_null($validatedData['phone'])) {
+                $shopifyCustomer['phone'] = $validatedData['phone'];
             }
 
             $shopify = new ShopifyHelper();
-            $shopify->updateCustomer($customer);
+            $shopify->updateCustomer($shopifyCustomer);
 
             return response()->json();
         }
