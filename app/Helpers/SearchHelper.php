@@ -11,9 +11,12 @@ class SearchHelper
     {
         $skuSearch = self::skuSearch($query);
         $nameSearch = self::nameSearch($query);
+        $tagSearch = self::tagSearch($query);
         $descriptionSearch = self::descriptionSearch($query);
         
-        $results = array_merge($skuSearch, $nameSearch, $descriptionSearch);
+        dd($nameSearch);
+        
+        $results = array_merge($skuSearch, $nameSearch, $tagSearch, $descriptionSearch);
         
         $serialized = array_map('serialize', $results);
         $unique = array_unique($serialized);
@@ -55,7 +58,7 @@ class SearchHelper
             $products[] = self::getProductsById($uniqueProduct);
         }
         
-        if (isset($products)) {
+        if (!isset($products)) {
             return [];
         }
     
@@ -75,10 +78,30 @@ class SearchHelper
             $products[] = self::getProductsById($uniqueProduct);
         }
         
-        if (isset($products)) {
+        if (!isset($products)) {
             return [];
         }
+        
+        return $products;
+    }
     
+    private static function tagSearch(string $query): array
+    {
+        $results = DB::table('products')
+            ->where('tags', 'like', '%' . $query . '%')
+            ->pluck('id')
+            ->toArray();
+        
+        $uniqueProducts = array_unique($results);
+        
+        foreach ($uniqueProducts as $uniqueProduct) {
+            $products[] = self::getProductsById($uniqueProduct);
+        }
+        
+        if (!isset($products)) {
+            return [];
+        }
+        
         return $products;
     }
     
@@ -88,12 +111,16 @@ class SearchHelper
             ->where('id', $id)
             ->first();
         
-        $product->variants = DB::table('variants')
+        $variants = DB::table('variants')
             ->where('product_table_id', $id)
             ->orderBy('position')
-            ->get()
-            ->toArray();
+            ->get();
+    
+        $variants = collect($variants)->map(function($x){ return (array) $x; })->toArray();
+        $data = collect($product)->map(function($x){ return (array) $x; })->toArray();
         
-        return $product;
+        $data['variants'] = $variants;
+        
+        return $data;
     }
 }
