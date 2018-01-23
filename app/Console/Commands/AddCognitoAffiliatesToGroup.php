@@ -78,7 +78,6 @@ class AddCognitoAffiliatesToGroup extends Command
                     if($this->option('log')) {
                         $this->info('Added user ' . $user_id . ' to ' . $this->userGroupName);
                     }
-                    break;
                 }
                 catch(AwsException $e) {
                     // do nothing, we don't want the whole process to fail if one of the users doesn't actually exist in Cognito
@@ -87,7 +86,7 @@ class AddCognitoAffiliatesToGroup extends Command
                         $this->info('Skipping user ' . $user_id . ' because they don\'t exist on Cognito.');
                     }
                 }
-                sleep(1); // just for safety, sleep a little (don't want to hit any AWS limits)
+                sleep(1); // just for safety, sleep a little (don't want to hit any AWS limits
             }
         } catch(AwsException $e) {
             $this->error($e->getAwsErrorMessage());
@@ -106,7 +105,7 @@ class AddCognitoAffiliatesToGroup extends Command
      */
     private function _getOrCreateGroup() {
         try {
-            $cognitoGroup = $this->cognito->getGroup($this->userGroupName . '878');
+            $cognitoGroup = $this->cognito->getGroup($this->userGroupName);
         }
         catch(AwsException $e) {
             if($e->getStatusCode() !== 400) { // group not found
@@ -114,12 +113,10 @@ class AddCognitoAffiliatesToGroup extends Command
                 exit;
             }
 
-            $this->cognito->createGroup(
-                $this->userGroupName . '878',
+            $cognitoGroup = $this->cognito->createGroup(
+                $this->userGroupName,
                 'Affiliates, wholesalers, etc.'
             );
-
-            $cognitoGroup = $this->_getOrCreateGroup();
         }
 
         return $cognitoGroup;
