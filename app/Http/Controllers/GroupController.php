@@ -181,9 +181,29 @@ class GroupController extends Controller
         }
     }
 
-    public function update($id)
+    public function update($id, Request $request)
     {
         $group = UserGroup::findOrFail($id);
+
+        $premium = false;
+        if (!is_null($request->input('premium'))) {
+            $premium = boolval($request->input('premium'));
+        }
+
+        $event_promoter = false;
+        if (!is_null($request->input('event_promoter'))) {
+            $event_promoter = boolval($request->input('event_promoter'));
+        }
+
+        $commission_id = null;
+        if (!is_null($request->input('commission.id'))) {
+            $commission_id = intval($request->input('commission.id'));
+        }
+
+        $group->premium = $premium;
+        $group->event_promoter = $event_promoter;
+        $group->commission_id = $commission_id;
+
         $group->save();
     }
 
