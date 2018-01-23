@@ -5,6 +5,8 @@ namespace App;
 use App\Events\AddLocation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Helpers\CognitoHelper;
+use Aws\Exception\AwsException;
 
 class Location extends Model
 {
@@ -131,5 +133,36 @@ class Location extends Model
         ));
 
         return collect($filteredLocations);
+    }
+
+    /**
+     * Retrieves a list of all Cognito users associated with a given location.
+     *
+     * @return array
+     */
+    public function listUsers()
+    {
+        if(empty($this->userGroup)) {
+            return [];
+        }
+
+        $user_ids = \DB::table('usergroup_users')
+            ->select('user_id')
+            ->where('user_group_id', '=', $this->userGroup->id)
+            ->get()
+            ->pluck('user_id');
+
+        $cognito = new CognitoHelper();
+        $users = [];
+        foreach($user_ids as $id) {
+            try {
+                $users[] = User::structureUser($cognito->getUser($id));
+            }
+            catch(AwsException $e) {
+                // do nothing, we don't want the whole process to fail if a user doesn't exist
+            }
+        }
+
+        return $users;
     }
 }
