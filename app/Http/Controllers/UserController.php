@@ -16,11 +16,11 @@ use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
 {
-    public function listUsers()
+    public function listUsers(Request $request)
     {
         $cognito = new CognitoHelper();
         try {
-            $result = $cognito->listUsers();
+            $result = $cognito->listUsers($request->input('paginationToken'));
 
             if(is_null($result)) {
                 return response()->json('no users', 404);

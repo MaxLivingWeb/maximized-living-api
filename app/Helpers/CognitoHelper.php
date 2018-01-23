@@ -28,24 +28,27 @@ class CognitoHelper
         ]);
     }
 
-    public function listUsers()
+    /**
+     * Returns an array of users from Cognito.
+     *
+     * @param string|null $groupName The name of the group to get users for. If no group name is provided, will default to the .env affiliate group name.
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    public function listUsers($groupName = NULL)
     {
-        $users = collect();
-
-        while(!isset($result) || $result->hasKey('PaginationToken')) {
-            $params = [
-                'UserPoolId' => env('AWS_COGNITO_USER_POOL_ID')
-            ];
-
-            if(isset($result)) {
-                $params['PaginationToken'] =  $result->get('PaginationToken');
-            }
-            $result = $this->client->listUsers($params);
-
-            $users = $users->merge(collect($result->get('Users'))->transform(function($user) {
-                return self::formatUserData($user);
-            }));
+        if(!$groupName){
+            $groupName = env('AWS_COGNITO_AFFILIATE_USER_GROUP_NAME');
         }
+
+        $result = $this->client->listUsersInGroup([
+            'GroupName' => $groupName,
+            'UserPoolId' => env('AWS_COGNITO_USER_POOL_ID')
+        ]);
+
+        $users = collect($result->get('Users'))->transform(function($user) {
+            return self::formatUserData($user);
+        });
 
         return $users;
     }
