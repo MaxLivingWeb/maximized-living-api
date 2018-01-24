@@ -115,7 +115,7 @@ class AddCognitoAffiliatesToGroup extends Command
 
             $cognitoGroup = $this->cognito->createGroup(
                 $this->userGroupName,
-                'Affiliates, wholesalers, etc.'
+                'All affiliate (incl. wholesalers etc.) users.'
             );
         }
 
