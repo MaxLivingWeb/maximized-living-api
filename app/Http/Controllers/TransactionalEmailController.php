@@ -55,19 +55,19 @@ class TransactionalEmailController extends Controller
         $formattedData = $this->formatArrayData($requestData);
 
         // Save request to the DB and returns ID
-        $this->emailRecordID = $this->saveTransactionalEmail($formattedData);
+//        $this->emailRecordID = $this->saveTransactionalEmail($formattedData);
 
         // Send to Arcane Leads API
         $arcaneLeadsStatus = $this->leadsAPISubmission($formattedData);
 
         // Save Arcane Leads API Status
-        $this->updateTransactionalEmails(['leads_api_submission_status' => $arcaneLeadsStatus]);
+//        $this->updateTransactionalEmails(['leads_api_submission_status' => $arcaneLeadsStatus]);
 
         // Send via Sendgrid
         $sendgridStatus = $this->sendgridSubmission($formattedData);
 
         // Save Sendgrid Response status
-        $this->updateTransactionalEmails(['sendgrid_submission_status' => $sendgridStatus]);
+//        $this->updateTransactionalEmails(['sendgrid_submission_status' => $sendgridStatus]);
 
         // If Sendgrid error return 202
         if($sendgridStatus !== 202){
