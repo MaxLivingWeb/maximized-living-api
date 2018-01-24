@@ -3,6 +3,7 @@
 namespace App\Helpers;
 
 use Aws\Sdk;
+use Aws\Exception\AwsException;
 
 class CognitoHelper
 {
@@ -37,14 +38,26 @@ class CognitoHelper
      */
     public function listUsers($groupName = NULL)
     {
-        if(!$groupName){
+        if (!$groupName) {
             $groupName = env('AWS_COGNITO_AFFILIATE_USER_GROUP_NAME');
         }
 
-        $result = $this->client->listUsersInGroup([
-            'GroupName' => $groupName,
-            'UserPoolId' => env('AWS_COGNITO_USER_POOL_ID')
-        ]);
+        try {
+            $result = $this->client->listUsersInGroup([
+                'GroupName' => $groupName,
+                'UserPoolId' => env('AWS_COGNITO_USER_POOL_ID')
+            ]);
+        }
+        catch(AwsException $e) {
+            if($e->getStatusCode() !== 400) { // group not found
+                abort(
+                    $e->getStatusCode(),
+                    $e->getAwsErrorMessage()
+                );
+            }
+
+            return collect([]);
+        }
 
         $users = collect($result->get('Users'))->transform(function($user) {
             return self::formatUserData($user);
