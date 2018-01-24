@@ -123,7 +123,8 @@ class Location extends Model
             JOIN locations l ON la.location_id = l.id
             LEFT JOIN user_groups ug ON ug.location_id = l.id
             WHERE l.deleted_at IS NULL) AS query
-            WHERE distance <= :distance";
+            WHERE distance <= :distance
+            ORDER BY distance ASC";
 
         $filteredLocations = \DB::select(\DB::raw($query), array(
             'lat' => $lat,
