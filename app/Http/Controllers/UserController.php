@@ -179,7 +179,7 @@ class UserController extends Controller
                     );
                 }
 
-                //request includes a wholesale billing address, attach the address to the associate group
+                // Request includes a wholesale billing address, attach the address to the associate group
                 if($request->has('wholesale.billing')) {
                     $wholesaleBillingAddress = Address::create([
                         'address_1' => $request->input('wholesale.billing.address_1'),
@@ -202,7 +202,7 @@ class UserController extends Controller
                     );
                 }
 
-                //request includes a commission billing address, attach the address to the associate group
+                // Request includes a commission billing address, attach the address to the associate group
                 if($request->has('commission.billing')) {
                     $commissionBillingAddress = Address::create([
                         'address_1' => $request->input('commission.billing.address_1'),
@@ -227,14 +227,12 @@ class UserController extends Controller
 
                 // By default, use the Wholesale Shipping address as the default. Otherwise, just use the first in the array.
                 if (isset($wholesaleShippingAddress)) {
-                    $addresses = collect($addresses)
-                        ->transform(function($address) use($wholesaleShippingAddress){
-                            if ($address->id === $wholesaleShippingAddress['id']) {
-                                $address->default = true;
-                            }
-                            return $address;
-                        })
-                        ->all();
+                    foreach ($addresses as $i => $address) {
+                        if ($address->zip === $wholesaleShippingAddress['zip_postal_code']) {
+                            $addresses[$i]->default = true;
+                            break;
+                        }
+                    }
                 }
                 else {
                     $addresses[0]->default = true;
@@ -243,7 +241,14 @@ class UserController extends Controller
 
             // Update Shopify Customer params
             $shopifyCustomerData['addresses'] = $addresses;
-            $shopifyCustomerData['default_address'] = collect($addresses)->where('default', true)->first();
+
+            $defaultAddress = collect($addresses)
+                ->where('default', true)
+                ->first();
+
+            if ($defaultAddress) {
+                $shopifyCustomerData['default_address'] = $defaultAddress;
+            }
 
             // Add customer to Shopify
             // IMPORTANT: creating a Shopify customer should be the LAST step of the user creation process.
@@ -466,16 +471,14 @@ class UserController extends Controller
         $default = false
     ){
         return (object)[
-            'id'            => $address['id'],
             'address1'      => $address['address_1'],
             'address2'      => $address['address_2'],
             'zip'           => $address['zip_postal_code'],
             'city'          => $address['city']['name'],
             'province'      => $address['region']['name'],
             'province_code' => $address['region']['abbreviation'],
-            'country'       => $address['country']['abbreviation'],
+            'country'       => $address['country']['name'],
             'country_code'  => $address['country']['abbreviation'],
-            'country_name'  => $address['country']['name'],
             'company'       => $businessName,
             'first_name'    => $shopifyCustomerData['first_name'],
             'last_name'     => $shopifyCustomerData['last_name'],
