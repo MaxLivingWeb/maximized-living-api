@@ -14,6 +14,7 @@ class Address extends Model
     protected $dates = ['deleted_at'];
 
     protected $fillable = [
+        'shopify_id',
         'address_1',
         'address_2',
         'zip_postal_code',
@@ -155,5 +156,11 @@ class Address extends Model
         $new_address->save();
         
         $new_address->locations()->attach($location_id, ['address_type_id' => $address['address_type']]);
+    }
+
+    public function attachShopifyAddressID($shopify_id)
+    {
+        $this->shopify_id = (int)$shopify_id;
+        $this->save();
     }
 }

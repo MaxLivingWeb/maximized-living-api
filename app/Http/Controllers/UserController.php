@@ -107,6 +107,7 @@ class UserController extends Controller
 
             // Get User Addresses (which will be saved to Shopify Customer account)
             $shopifyAddresses = [];
+            $mappedAddresses = [];
 
             //user is associated to a location
             if(isset($validatedData['groupName'])) {
@@ -128,9 +129,17 @@ class UserController extends Controller
                     ->all()
                 );
 
+                // We will need this once attaching Shopify IDs to each Address (after the Shopify Customer gets made)
+                $mappedAddresses = collect($shopifyAddresses)
+                    ->transform(function($address, $i) use($locationAddresses){
+                        $address->custom_address_id = $locationAddresses[$i]['id'];
+                    })
+                    ->all();
+
                 // Set first address in array to be the default
                 // Note: MOST Locations should only have 1 address associated with them anyway.
                 $shopifyAddresses[0]->default = true;
+                $mappedAddresses[0]->default = true;
 
                 $userGroup->addUser($cognitoUser->get('User')['Username']);
             }
@@ -156,7 +165,8 @@ class UserController extends Controller
                 $userGroup = UserGroup::create($params);
                 $userGroup->addUser($cognitoUser->get('User')['Username']);
 
-                // Request includes a wholesale shipping address, attach the address to the associate group
+                // Attach the Wholesale Shipping address to the associate group
+                $wholesaleShippingAddress = null;
                 if($request->has('wholesale.shipping')) {
                     $wholesaleShippingAddress = Address::create([
                         'address_1' => $request->input('wholesale.shipping.address_1'),
@@ -167,11 +177,15 @@ class UserController extends Controller
                         'longitude' => 0
                     ]);
 
-                    $shopifyAddresses[] = $this->formatAddressForShopifyCustomer(
+                    $shopifyAddress = $this->formatAddressForShopifyCustomer(
                         $shopifyCustomerData,
                         $wholesaleShippingAddress,
                         $validatedData['business']['name']
                     );
+
+                    $shopifyAddresses[] = $shopifyAddress;
+
+                    $mappedAddresses[] = (object)array_merge((array)$shopifyAddress, ['custom_address_id' => $wholesaleShippingAddress['id']]);
 
                     $wholesaleShippingAddress->groups()->attach(
                         $userGroup->id,
@@ -179,7 +193,8 @@ class UserController extends Controller
                     );
                 }
 
-                // Request includes a wholesale billing address, attach the address to the associate group
+                // Attach the Wholesale Billing address to the associate group
+                $wholesaleBillingAddress = null;
                 if($request->has('wholesale.billing')) {
                     $wholesaleBillingAddress = Address::create([
                         'address_1' => $request->input('wholesale.billing.address_1'),
@@ -190,11 +205,15 @@ class UserController extends Controller
                         'longitude' => 0
                     ]);
 
-                    $shopifyAddresses[] = $this->formatAddressForShopifyCustomer(
+                    $shopifyAddress = $this->formatAddressForShopifyCustomer(
                         $shopifyCustomerData,
                         $wholesaleBillingAddress,
                         $validatedData['business']['name']
                     );
+
+                    $shopifyAddresses[] = $shopifyAddress;
+
+                    $mappedAddresses[] = (object)array_merge((array)$shopifyAddress, ['custom_address_id' => $wholesaleBillingAddress['id']]);
 
                     $wholesaleBillingAddress->groups()->attach(
                         $userGroup->id,
@@ -202,7 +221,8 @@ class UserController extends Controller
                     );
                 }
 
-                // Request includes a commission billing address, attach the address to the associate group
+                // Attach the Commission Billing address to the associate group
+                $commissionBillingAddress = null;
                 if($request->has('commission.billing')) {
                     $commissionBillingAddress = Address::create([
                         'address_1' => $request->input('commission.billing.address_1'),
@@ -213,11 +233,15 @@ class UserController extends Controller
                         'longitude' => 0
                     ]);
 
-                    $shopifyAddresses[] = $this->formatAddressForShopifyCustomer(
+                    $shopifyAddress = $this->formatAddressForShopifyCustomer(
                         $shopifyCustomerData,
                         $commissionBillingAddress,
                         $validatedData['business']['name']
                     );
+
+                    $shopifyAddresses[] = $shopifyAddress;
+
+                    $mappedAddresses[] = (object)array_merge((array)$shopifyAddress, ['custom_address_id' => $commissionBillingAddress['id']]);
 
                     $commissionBillingAddress->groups()->attach(
                         $userGroup->id,
@@ -226,16 +250,18 @@ class UserController extends Controller
                 }
 
                 // By default, use the Wholesale Shipping address as the default. Otherwise, just use the first in the array.
-                if (isset($wholesaleShippingAddress)) {
-                    foreach ($shopifyAddresses as $i => $address) {
-                        if ($address->zip === $wholesaleShippingAddress['zip_postal_code']) {
+                if (!empty($wholesaleShippingAddress)) {
+                    foreach ($mappedAddresses as $i => $address) {
+                        if ($address->custom_address_id === $wholesaleShippingAddress['id']) {
                             $shopifyAddresses[$i]->default = true;
+                            $mappedAddresses[$i]->default = true;
                             break;
                         }
                     }
                 }
                 else {
                     $shopifyAddresses[0]->default = true;
+                    $mappedAddresses[0]->default = true;
                 }
             }
 
@@ -263,7 +289,7 @@ class UserController extends Controller
                 $validatedData['email']
             );
 
-            if(isset($validatedData['permissions'])) {
+            if (isset($validatedData['permissions'])) {
                 //attach permissions to user
                 $cognito->updateUserAttribute(
                     'custom:permissions',
@@ -272,7 +298,22 @@ class UserController extends Controller
                 );
             }
 
-            return response()->json();
+            // Update Addresses saved in DB, so they are mapped to these Shopify Customer Addresses
+            // Then while Editing Users, we can re-use the same Shopify Addresses than re-creating new ones
+            $this->attachShopifyAddressIDs(
+                [
+                    $wholesaleBillingAddress,
+                    $wholesaleShippingAddress,
+                    $commissionBillingAddress
+                ],
+                $shopifyCustomer->addresses,
+                $mappedAddresses
+            );
+
+            return response()->json([
+                'shopifyCustomer' => $shopifyCustomer,
+                'mappedAddresses' => $mappedAddresses
+            ]);
         }
         catch(AwsException $e) {
             return response()->json([$e->getAwsErrorMessage()], 500);
@@ -298,6 +339,29 @@ class UserController extends Controller
                 $cognito->deleteUser($cognitoUser->get('User')['Username']);
             }
             return response()->json($e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Attach the Shopify Address ID to our Custom Address that is saved into the API
+     * @param $addresses (List of Address objects that need to attach the Shopify Address IDs)
+     * @param $shopifyCustomerAddresses (Addresses saved to Shopify Customer)
+     * @param $mappedAddresses
+     */
+    private function attachShopifyAddressIDs($addresses, $shopifyCustomerAddresses, $mappedAddresses)
+    {
+        if (count($addresses) > 0) {
+            foreach ($addresses as $address) {
+                $arrayIndex = (int)collect($mappedAddresses)
+                    ->where('custom_address_id', $address['id'])
+                    ->keys()
+                    ->first();
+
+                $shopifyAddressId = $shopifyCustomerAddresses[$arrayIndex]->id;
+                if ($shopifyAddressId) {
+                    $address->attachShopifyAddressID($shopifyAddressId);
+                }
+            }
         }
     }
 
@@ -388,6 +452,9 @@ class UserController extends Controller
             $shopifyId = collect($cognitoUser['UserAttributes'])
                 ->where('Name', env('COGNITO_SHOPIFY_CUSTOM_ATTRIBUTE'))
                 ->first()['Value'];
+
+            // Get current instance of this Shopify Customer
+            $shopifyCustomer = $shopify->getCustomer($shopifyId);
 
             // Basic Shopify Customer data to be updated...
             $shopifyCustomerData = [
@@ -509,7 +576,7 @@ class UserController extends Controller
         $businessName = null,
         $default = false
     ){
-        return (object)[
+        $result = (object)[
             'address1'      => $address['address_1'],
             'address2'      => $address['address_2'],
             'zip'           => $address['zip_postal_code'],
@@ -525,5 +592,11 @@ class UserController extends Controller
             'phone'         => $shopifyCustomerData['phone'] ?? null,
             'default'       => $default
         ];
+
+        if (isset($address['shopify_id'])) {
+            $result->id = $address['shopify_id'];
+        }
+
+        return $result;
     }
 }
