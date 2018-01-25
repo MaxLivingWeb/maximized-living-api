@@ -106,7 +106,7 @@ class UserController extends Controller
             }
 
             // Get User Addresses (which will be saved to Shopify Customer account)
-            $addresses = [];
+            $shopifyAddresses = [];
 
             //user is associated to a location
             if(isset($validatedData['groupName'])) {
@@ -117,7 +117,7 @@ class UserController extends Controller
                 $locationAddresses = $location->addresses()->get()->toArray();
 
                 // Get Address info for this Selected Location, and save that to Shopify Customer
-                $addresses = array_merge($addresses, collect($locationAddresses)
+                $shopifyAddresses = array_merge($shopifyAddresses, collect($locationAddresses)
                     ->transform(function($address) use($shopifyCustomerData, $validatedData){
                         return $this->formatAddressForShopifyCustomer(
                             $shopifyCustomerData,
@@ -130,7 +130,7 @@ class UserController extends Controller
 
                 // Set first address in array to be the default
                 // Note: MOST Locations should only have 1 address associated with them anyway.
-                $addresses[0]->default = true;
+                $shopifyAddresses[0]->default = true;
 
                 $userGroup->addUser($cognitoUser->get('User')['Username']);
             }
@@ -167,7 +167,7 @@ class UserController extends Controller
                         'longitude' => 0
                     ]);
 
-                    $addresses[] = $this->formatAddressForShopifyCustomer(
+                    $shopifyAddresses[] = $this->formatAddressForShopifyCustomer(
                         $shopifyCustomerData,
                         $wholesaleShippingAddress,
                         $validatedData['business']['name']
@@ -190,7 +190,7 @@ class UserController extends Controller
                         'longitude' => 0
                     ]);
 
-                    $addresses[] = $this->formatAddressForShopifyCustomer(
+                    $shopifyAddresses[] = $this->formatAddressForShopifyCustomer(
                         $shopifyCustomerData,
                         $wholesaleBillingAddress,
                         $validatedData['business']['name']
@@ -213,7 +213,7 @@ class UserController extends Controller
                         'longitude' => 0
                     ]);
 
-                    $addresses[] = $this->formatAddressForShopifyCustomer(
+                    $shopifyAddresses[] = $this->formatAddressForShopifyCustomer(
                         $shopifyCustomerData,
                         $commissionBillingAddress,
                         $validatedData['business']['name']
@@ -227,22 +227,22 @@ class UserController extends Controller
 
                 // By default, use the Wholesale Shipping address as the default. Otherwise, just use the first in the array.
                 if (isset($wholesaleShippingAddress)) {
-                    foreach ($addresses as $i => $address) {
+                    foreach ($shopifyAddresses as $i => $address) {
                         if ($address->zip === $wholesaleShippingAddress['zip_postal_code']) {
-                            $addresses[$i]->default = true;
+                            $shopifyAddresses[$i]->default = true;
                             break;
                         }
                     }
                 }
                 else {
-                    $addresses[0]->default = true;
+                    $shopifyAddresses[0]->default = true;
                 }
             }
 
             // Update Shopify Customer params
-            $shopifyCustomerData['addresses'] = $addresses;
+            $shopifyCustomerData['addresses'] = $shopifyAddresses;
 
-            $defaultAddress = collect($addresses)
+            $defaultAddress = collect($shopifyAddresses)
                 ->where('default', true)
                 ->first();
 
@@ -318,85 +318,124 @@ class UserController extends Controller
 
     public function updateUser(Request $request, $id)
     {
+        $cognito = new CognitoHelper();
+        $shopify = new ShopifyHelper();
+
         try {
             $validatedData = $request->validate([
                 'first_name'    => 'required',
                 'last_name'     => 'required',
                 'phone'         => 'nullable',
                 'permissions'   => 'nullable|array|min:1',
-                'permissions.*' => 'nullable|string|distinct|exists:user_permissions,key'
+                'permissions.*' => 'nullable|string|distinct|exists:user_permissions,key',
+                'business.name' => 'required'
             ]);
 
             $user = new CognitoUser($id);
 
-            // update user addresses in API database
+            // Update user addresses in API database
             $userGroup = $user->group();
             $addresses = $userGroup->location->addresses
                 ?? $userGroup->addresses
                 ?? [];
 
-            // wholesaler addresses
+            // Wholesaler Shipping Addresses
             if(!empty($request->input('wholesale.shipping'))) {
-                $shippingAddress = $addresses
+                $wholesaleShippingAddress = $addresses
                     ->filter($this->_getAddressByType([4]))
                     ->first();
-                if(!empty($shippingAddress)){
-                    $shippingAddress->fill($request->input('wholesale.shipping'));
-                    $shippingAddress->save();
+
+                if(!empty($wholesaleShippingAddress)){
+                    $wholesaleShippingAddress->fill($request->input('wholesale.shipping'));
+                    $wholesaleShippingAddress->save();
                 }
             }
 
+            // Wholesaler Billing Address
             if(!empty($request->input('wholesale.billing'))) {
-                $billingAddress = $addresses
+                $wholesaleBillingAddress = $addresses
                     ->filter($this->_getAddressByType([5]))
                     ->first();
-                if(!empty($billingAddress)){
-                    $billingAddress->fill($request->input('wholesale.billing'));
-                    $billingAddress->save();
+
+                if(!empty($wholesaleBillingAddress)){
+                    $wholesaleBillingAddress->fill($request->input('wholesale.billing'));
+                    $wholesaleBillingAddress->save();
                 }
             }
 
-            // commission addresses
+            // Commission Billing address
             if(!empty($request->input('commission.billing'))){
-                $billingAddress = $addresses
+                $commissionBillingAddress = $addresses
                     ->filter($this->_getAddressByType([6]))
                     ->first();
-                if(!empty($billingAddress)){
-                    $billingAddress->fill($request->input('commission.billing'));
-                    $billingAddress->save();
+
+                if(!empty($commissionBillingAddress)){
+                    $commissionBillingAddress->fill($request->input('commission.billing'));
+                    $commissionBillingAddress->save();
                 }
             }
-
-            // update user in Cognito / get Shopify ID from Cognito user
-            $cognito = new CognitoHelper();
-            $cognitoUser = $cognito->getUser($id);
 
             // Update permissions (for Cognito user)
             if(isset($validatedData['permissions'])) {
                 $cognito->updateUserAttribute('custom:permissions', implode(',', $validatedData['permissions']), $request->id);
             }
             else {
-                //no permissions, remove them from user
                 $cognito->removeUserAttribute(['custom:permissions'], $request->id);
             }
 
-            // Update user in Shopify
+            // Get Shopify ID from Cognito user
+            $cognitoUser = $cognito->getUser($id);
             $shopifyId = collect($cognitoUser['UserAttributes'])
                 ->where('Name', env('COGNITO_SHOPIFY_CUSTOM_ATTRIBUTE'))
                 ->first()['Value'];
-            $shopifyCustomer = [
+
+            // Basic Shopify Customer data to be updated...
+            $shopifyCustomerData = [
                 'id'         => $shopifyId,
                 'first_name' => $validatedData['first_name'],
                 'last_name'  => $validatedData['last_name']
             ];
 
-            // Update phone number (for Shopify Customer)
             if(!is_null($validatedData['phone'])) {
-                $shopifyCustomer['phone'] = $validatedData['phone'];
+                $shopifyCustomerData['phone'] = $validatedData['phone'];
             }
 
-            $shopify = new ShopifyHelper();
-            $shopify->updateCustomer($shopifyCustomer);
+            // Shopify Addresses to be updated...
+            $shopifyAddresses = collect($addresses)
+                ->transform(function($address) use($shopifyCustomerData, $validatedData){
+                    return $this->formatAddressForShopifyCustomer(
+                        $shopifyCustomerData,
+                        $address,
+                        $validatedData['business']['name']
+                    );
+                })
+                ->all();
+
+            // By default, use the Wholesale Shipping address as the default. Otherwise, just use the first in the array.
+            if (isset($wholesaleShippingAddress)) {
+                foreach ($shopifyAddresses as $i => $address) {
+                    if ($address->zip === $wholesaleShippingAddress['zip_postal_code']) {
+                        $shopifyAddresses[$i]->default = true;
+                        break;
+                    }
+                }
+            }
+            else {
+                $shopifyAddresses[0]->default = true;
+            }
+
+            $shopifyCustomerData['addresses'] = $shopifyAddresses;
+
+            $defaultAddress = collect($shopifyAddresses)
+                ->where('default', true)
+                ->first();
+
+            if ($defaultAddress) {
+                $shopifyCustomerData['default_address'] = $defaultAddress;
+            }
+
+            // Save updates for Shopify Customer
+            $shopify->updateCustomer($shopifyCustomerData);
 
             return response()->json();
         }
