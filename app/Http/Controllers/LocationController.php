@@ -22,4 +22,10 @@ class LocationController extends Controller
         $location = Location::with('userGroup')->findOrFail($id);
         return response()->json($location->listUsers());
     }
+
+    public function getUserGroupById($id)
+    {
+        $location = Location::with('userGroup')->findOrFail($id);
+        return $location;
+    }
 }
