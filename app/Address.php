@@ -15,6 +15,7 @@ class Address extends Model
 
     protected $fillable = [
         'shopify_id',
+        'shopify_default',
         'address_1',
         'address_2',
         'zip_postal_code',
