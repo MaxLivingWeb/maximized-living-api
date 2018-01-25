@@ -163,4 +163,10 @@ class Address extends Model
         $this->shopify_id = (int)$shopify_id;
         $this->save();
     }
+
+    public function attachShopifyAddressDefaultValue($shopify_default)
+    {
+        $this->shopify_default = (bool)$shopify_default;
+        $this->save();
+    }
 }

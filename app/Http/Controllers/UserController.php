@@ -300,7 +300,7 @@ class UserController extends Controller
 
             // Update Addresses saved in DB, so they are mapped to these Shopify Customer Addresses
             // Then while Editing Users, we can re-use the same Shopify Addresses than re-creating new ones
-            $this->attachShopifyAddressIDs(
+            $this->attachShopifyAttributes(
                 [
                     $wholesaleBillingAddress,
                     $wholesaleShippingAddress,
@@ -348,7 +348,7 @@ class UserController extends Controller
      * @param $shopifyCustomerAddresses (Addresses saved to Shopify Customer)
      * @param $mappedAddresses
      */
-    private function attachShopifyAddressIDs($addresses, $shopifyCustomerAddresses, $mappedAddresses)
+    private function attachShopifyAttributes($addresses, $shopifyCustomerAddresses, $mappedAddresses)
     {
         if (count($addresses) > 0) {
             foreach ($addresses as $address) {
@@ -360,6 +360,11 @@ class UserController extends Controller
                 $shopifyAddressId = $shopifyCustomerAddresses[$arrayIndex]->id;
                 if ($shopifyAddressId) {
                     $address->attachShopifyAddressID($shopifyAddressId);
+                }
+
+                $shopifyAddressDefaultValue = $shopifyCustomerAddresses[$arrayIndex]->default;
+                if ($shopifyAddressDefaultValue) {
+                    $address->attachShopifyAddressDefaultValue($shopifyAddressDefaultValue);
                 }
             }
         }
@@ -402,6 +407,8 @@ class UserController extends Controller
             $addresses = $userGroup->location->addresses
                 ?? $userGroup->addresses
                 ?? [];
+
+            $mappedAddresses = [];
 
             // Wholesaler Shipping Addresses
             if(!empty($request->input('wholesale.shipping'))) {
@@ -470,25 +477,30 @@ class UserController extends Controller
             // Shopify Addresses to be updated...
             $shopifyAddresses = collect($addresses)
                 ->transform(function($address) use($shopifyCustomerData, $validatedData){
+                    $default = isset($address['shopify_default']) && $address['shopify_default'];
                     return $this->formatAddressForShopifyCustomer(
                         $shopifyCustomerData,
                         $address,
-                        $validatedData['business']['name']
+                        $validatedData['business']['name'],
+                        $default
                     );
                 })
                 ->all();
 
             // By default, use the Wholesale Shipping address as the default. Otherwise, just use the first in the array.
-            if (isset($wholesaleShippingAddress)) {
-                foreach ($shopifyAddresses as $i => $address) {
-                    if ($address->zip === $wholesaleShippingAddress['zip_postal_code']) {
-                        $shopifyAddresses[$i]->default = true;
-                        break;
+            $defaultAddressIsSet = collect($shopifyAddresses)->where('default', true)->isNotEmpty();
+            if (!$defaultAddressIsSet) {
+                if (isset($wholesaleShippingAddress)) {
+                    foreach ($shopifyAddresses as $i => $address) {
+                        if ($address->shopify_id === $wholesaleShippingAddress['shopify_id']) {
+                            $shopifyAddresses[$i]->default = true;
+                            break;
+                        }
                     }
                 }
-            }
-            else {
-                $shopifyAddresses[0]->default = true;
+                else {
+                    $shopifyAddresses[0]->default = true;
+                }
             }
 
             $shopifyCustomerData['addresses'] = $shopifyAddresses;
