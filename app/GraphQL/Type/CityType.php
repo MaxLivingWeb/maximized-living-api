@@ -39,6 +39,19 @@ class CityType extends GraphQLType
                 'resolve' => function ($root, $args) {
                     return  [ $root->region ] ;
                 }
+            ],
+            'addresses' => [
+                'args' => [
+                    'id' => [
+                        'type' => Type::int(),
+                        'name' => 'id'
+                    ]
+                ],
+                'type' => Type::listOf(GraphQL::type('OutputAddress')),
+                'description' => 'addresses',
+                'resolve' => function ($root, $args) {
+                    return  $root->addresses ;
+                }
             ]
         ];
     }
