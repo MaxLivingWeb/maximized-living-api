@@ -50,11 +50,17 @@ class User extends Authenticatable
         $shopify = new ShopifyHelper();
         $shopifyCustomer = $shopify->getCustomer($shopifyId);
 
+        $shopifyCustomerCompanyName = collect($shopifyCustomer->addresses)
+            ->where('default', true)
+            ->pluck('company')
+            ->first();
+
         $res->shopify_id = $shopifyCustomer->id;
         $res->referred_affiliate_id = is_null($affiliateId) ? $affiliateId : intval($affiliateId);
         $res->first_name = $shopifyCustomer->first_name;
         $res->last_name = $shopifyCustomer->last_name;
         $res->phone = $shopifyCustomer->phone;
+        $res->business = (object)['name' => $shopifyCustomerCompanyName];
 
         $user = new CognitoUser($cognitoUser->get('Username'));
         $userGroup = $user->group();

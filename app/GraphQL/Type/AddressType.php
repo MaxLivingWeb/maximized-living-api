@@ -21,6 +21,14 @@ class AddressType extends GraphQLType
                 'type' => Type::int(),
                 'description' => 'ID of the region'
             ],
+            'shopify_id' => [
+                'type' => Type::int(),
+                'description' => 'Shopify Address ID'
+            ],
+            'shopify_default' => [
+                'type' => Type::boolean(),
+                'description' => 'Shopify Address is saved as default'
+            ],
             'address_1' => [
                 'type' => Type::string(),
                 'description' => 'address 1'
