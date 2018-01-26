@@ -86,7 +86,7 @@ class AddCognitoAffiliatesToGroup extends Command
                         $this->info('Skipping user ' . $user_id . ' because they don\'t exist on Cognito.');
                     }
                 }
-                sleep(1); // just for safety, sleep a little (don't want to hit any AWS limits
+                //sleep(1); // just for safety, sleep a little (don't want to hit any AWS limits
             }
         } catch(AwsException $e) {
             $this->error($e->getAwsErrorMessage());
