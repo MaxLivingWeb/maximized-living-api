@@ -93,6 +93,7 @@ class UserController extends Controller
                 $validatedData['email'],
                 $validatedData['password']
             );
+            $cognito->addUserToGroup($cognitoUser->get('User')['Username'], env('AWS_COGNITO_AFFILIATE_USER_GROUP_NAME'));
 
             // Setup Shopify Customer initial params
             $shopifyCustomerData = [
@@ -316,7 +317,10 @@ class UserController extends Controller
             ]);
         }
         catch(AwsException $e) {
-            return response()->json([$e->getAwsErrorMessage()], 500);
+            return response()->json(
+                $e->getAwsErrorMessage(),
+                $e->getStatusCode()
+            );
         }
         catch(ClientException $e) {
             if(!empty($cognitoUser->get('User')['Username'])){
@@ -326,19 +330,28 @@ class UserController extends Controller
             if($e->hasResponse()) {
                 $msg = $e->getResponse()->getBody()->getContents();
             }
-            return response()->json([$msg], 500);
+            return response()->json(
+                $msg,
+                $e->getCode()
+            );
         }
         catch (ValidationException $e) {
             if(!empty($cognitoUser->get('User')['Username'])){
                 $cognito->deleteUser($cognitoUser->get('User')['Username']);
             }
-            return response()->json($e->errors(), 400);
+            return response()->json(
+                $e->errors(),
+                400
+            );
         }
         catch (\Exception $e) {
             if(!empty($cognitoUser->get('User')['Username'])){
                 $cognito->deleteUser($cognitoUser->get('User')['Username']);
             }
-            return response()->json($e->getMessage(), 500);
+            return response()->json(
+                $e->getMessage(),
+                $e->getCode()
+            );
         }
     }
 
