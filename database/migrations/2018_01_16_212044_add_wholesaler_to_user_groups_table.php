@@ -18,13 +18,15 @@ class AddWholesalerToUserGroupsTable extends Migration
             $table->boolean('wholesaler')->default(false)->after('legacy_affiliate_id');
         });
 
-        DB::table('user_groups')
-            ->whereNotNull('discount_id')
-            ->update(['wholesaler' => true]);
+        if (Schema::hasColumn('user_groups', 'discount_id')) {
+            DB::table('user_groups')
+                ->whereNotNull('discount_id')
+                ->update(['wholesaler' => true]);
 
-        Schema::table('user_groups', function (Blueprint $table) {
-            $table->dropColumn('discount_id');
-        });
+            Schema::table('user_groups', function (Blueprint $table) {
+                $table->dropColumn('discount_id');
+            });
+        }
     }
 
     /**
