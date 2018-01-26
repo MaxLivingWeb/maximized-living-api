@@ -46,14 +46,14 @@ class CognitoHelper
 
             $users = collect();
 
-            while(!isset($result) || $result->hasKey('PaginationToken')) {
+            while(!isset($result) || $result->hasKey('NextToken')) {
                 $params = [
                     'GroupName' => $groupName,
                     'UserPoolId' => env('AWS_COGNITO_USER_POOL_ID')
                 ];
 
                 if(isset($result)) {
-                    $params['PaginationToken'] =  $result->get('PaginationToken');
+                    $params['NextToken'] =  $result->get('NextToken');
                 }
 
                 $result = $this->client->listUsersInGroup($params);
