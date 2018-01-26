@@ -54,6 +54,23 @@ class ShopifyHelper
         return json_decode($result->getBody()->getContents())->customer;
     }
 
+    /**
+     * Deletes a given customer from the Shopify store.
+     *
+     * @param array $customer An associative array of customer info.
+     * @return array
+     */
+    public function deleteCustomer($customer)
+    {
+        $result = $this->client->delete('customers/' . $customer['id'] . '.json', [
+            'json' => [
+                'customer' => $customer
+            ]
+        ]);
+
+        return json_decode($result->getBody()->getContents())->customer;
+    }
+
     public function getPriceRules()
     {
         $result = $this->client->get('price_rules.json');

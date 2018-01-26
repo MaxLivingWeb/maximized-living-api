@@ -26,35 +26,110 @@ class Address extends Model
         'updated_at',
         'deleted_at',
         'city_id',
-        'pivot'
+        'pivot',
+        'userGroupTypes',
+        'locationTypes',
     ];
 
-    public function city() {
-        return $this->belongsTo('App\City');
+    protected $appends = [
+        'type', 'region', 'country'
+    ];
+
+    /**
+     * Returns and appends the 'type' relation of the address (location type first, falling back to usergroup type).
+     *
+     * @return mixed
+     */
+    public function getTypeAttribute()
+    {
+        return $this->getType();
     }
 
+    /**
+     * Returns and appends the region name for the address.
+     *
+     * @return string
+     */
+    public function getRegionAttribute()
+    {
+        return $this->city->region;
+    }
+
+    /**
+     * Returns and appends the country name for the address.
+     *
+     * @return string
+     */
+    public function getCountryAttribute()
+    {
+        return $this->city->region->country;
+    }
+
+    /**
+     * Returns the relation to the City model.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function city() {
+        return $this->belongsTo('App\City', 'city_id');
+    }
+
+    /**
+     * Returns the relation to the Location model.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function locations()
     {
         return $this->belongsToMany('App\Location', 'locations_addresses');
     }
 
+    /**
+     * Returns the relation to the UserGroup model.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function groups()
     {
         return $this->belongsToMany('App\UserGroup', 'usergroup_addresses');
     }
 
-    public function types()
+    /**
+     * Returns the relation to the AddressType model through the locations_addresses table.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function locationTypes()
     {
         return $this->belongsToMany('App\AddressType', 'locations_addresses');
     }
 
-    public function getType()
+    /**
+     * Returns the relation to the AddressType model through the usergroup_addresses table.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function userGroupTypes()
     {
-        return $this->types->first()->name;
+        return $this->belongsToMany('App\AddressType', 'usergroup_addresses');
     }
 
-    //takes the location id of the associated location and an array of addresses
-    //the address_array is 2-d and each element has an address_1, address_2 and an address type id
+    /**
+     * Returns the 'type' relation of the address (location type first, falling back to usergroup type).
+     *
+     * @return \App\AddressType|null
+     */
+    public function getType()
+    {
+        return $this->locationTypes->first() ?? $this->userGroupTypes->first() ?? NULL;
+    }
+
+    /**
+     * Attaches an address to a given location.
+     *
+     * @param integer $location_id The location id of the associated location
+     * @param array $address 2D array containing address_1, address_2, and an address type ID.
+     */
     static public function attachAddress($location_id, $address)
     {
         $cityId = City::checkCity( $address['country'], $address['region'], $address['city'] );

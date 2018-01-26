@@ -6,6 +6,7 @@ use App\Address;
 use App\AddressType;
 use App\CognitoUser;
 use App\UserGroup;
+use App\User;
 use App\Helpers\CognitoHelper;
 use App\Helpers\ShopifyHelper;
 use GuzzleHttp\Exception\ClientException;
@@ -182,7 +183,10 @@ class UserController extends Controller
                 $customer['phone'] = $validatedData['phone'];
             }
 
-            //Add customer to Shopify
+            // Add customer to Shopify
+            // IMPORTANT: creating a Shopify customer should be the LAST step of the user creation process.
+            // If any previous step fails, we roll back the account creation to prevent 'account already exists' errors.
+            // We CANNOT DO THIS for Shopify customers. Creating a Shopify customer should always be the FINAL STEP.
             $shopifyCustomer = $shopify->getOrCreateCustomer($customer);
 
             //Save Shopify ID to Cognito user attribute
@@ -207,6 +211,9 @@ class UserController extends Controller
             return response()->json([$e->getAwsErrorMessage()], 500);
         }
         catch(ClientException $e) {
+            if(!empty($cognitoUser->get('User')['Username'])){
+                $cognito->deleteUser($cognitoUser->get('User')['Username']);
+            }
             $msg = $e->getMessage();
             if($e->hasResponse()) {
                 $msg = $e->getResponse()->getBody()->getContents();
@@ -214,9 +221,15 @@ class UserController extends Controller
             return response()->json([$msg], 500);
         }
         catch (ValidationException $e) {
+            if(!empty($cognitoUser->get('User')['Username'])){
+                $cognito->deleteUser($cognitoUser->get('User')['Username']);
+            }
             return response()->json($e->errors(), 400);
         }
         catch (\Exception $e) {
+            if(!empty($cognitoUser->get('User')['Username'])){
+                $cognito->deleteUser($cognitoUser->get('User')['Username']);
+            }
             return response()->json($e->getMessage(), 500);
         }
     }
@@ -224,49 +237,9 @@ class UserController extends Controller
     public function getUser($id)
     {
         $cognito = new CognitoHelper();
-        $shopify = new ShopifyHelper();
 
         try {
-            $cognitoUser = $cognito->getUser($id);
-
-            $res = (object) [
-                'id'    => $cognitoUser->get('Username'),
-                'email' => collect($cognitoUser['UserAttributes'])
-                    ->where('Name', 'email')
-                    ->first()['Value'],
-                'user_status' => $cognitoUser->get('UserStatus')
-            ];
-
-            $shopifyId = collect($cognitoUser['UserAttributes'])
-                ->where('Name', env('COGNITO_SHOPIFY_CUSTOM_ATTRIBUTE'))
-                ->first()['Value'];
-
-            $affiliateId = collect($cognitoUser['UserAttributes'])
-                ->where('Name', 'custom:affiliateId')
-                ->first()['Value'];
-
-            $shopifyCustomer = $shopify->getCustomer($shopifyId);
-
-            $res->shopify_id = $shopifyCustomer->id;
-            $res->referred_affiliate_id = is_null($affiliateId) ? $affiliateId : intval($affiliateId);
-            $res->first_name = $shopifyCustomer->first_name;
-            $res->last_name = $shopifyCustomer->last_name;
-            $res->phone = $shopifyCustomer->phone;
-            $res->addresses = $shopifyCustomer->addresses;
-
-
-            $user = new CognitoUser($id);
-            $userGroup = $user->group();
-            if(!is_null($userGroup)) {
-                $res->affiliate = $userGroup;
-            }
-
-            $permissions = collect($cognitoUser['UserAttributes'])->where('Name', 'custom:permissions')->first();
-            if(!is_null($permissions)) {
-                $res->permissions = explode(',', $permissions['Value']);
-            }
-
-            return response()->json($res);
+            return response()->json(User::structureUser($cognito->getUser($id)));
         }
         catch(AwsException $e) {
             return response()->json([$e->getAwsErrorMessage()], 500);
@@ -276,41 +249,62 @@ class UserController extends Controller
         }
     }
 
-    public function updateUser(Request $request)
+    public function updateUser(Request $request, $id)
     {
         try {
             $validatedData = $request->validate([
-                'shopify_id' => 'required',
-                'first_name' => 'required',
-                'last_name'  => 'required',
-                'phone'      => 'nullable',
-                'group'      => 'nullable',
+                'first_name'    => 'required',
+                'last_name'     => 'required',
+                'phone'         => 'nullable',
                 'permissions'   => 'nullable|array|min:1',
                 'permissions.*' => 'nullable|string|distinct|exists:user_permissions,key'
             ]);
 
-            //update user in Shopify
-            $shopify = new ShopifyHelper();
+            $user = new CognitoUser($id);
 
-            $customer = [
-                'id'         => $validatedData['shopify_id'],
-                'first_name' => $validatedData['first_name'],
-                'last_name'  => $validatedData['last_name']
-            ];
-            if(!is_null($validatedData['phone'])) {
-                $customer['phone'] = $validatedData['phone'];
+            // update user addresses in API database
+            $userGroup = $user->group();
+            $addresses = $userGroup->location->addresses
+                ?? $userGroup->addresses
+                ?? [];
+
+            // wholesaler addresses
+            if(!empty($request->input('wholesale.shipping'))) {
+                $shippingAddress = $addresses
+                    ->filter($this->_getAddressByType([4]))
+                    ->first();
+                if(!empty($shippingAddress)){
+                    $shippingAddress->fill($request->input('wholesale.shipping'));
+                    $shippingAddress->save();
+                }
             }
 
-            $shopify->updateCustomer($customer);
+            if(!empty($request->input('wholesale.billing'))) {
+                $billingAddress = $addresses
+                    ->filter($this->_getAddressByType([5]))
+                    ->first();
+                if(!empty($billingAddress)){
+                    $billingAddress->fill($request->input('wholesale.billing'));
+                    $billingAddress->save();
+                }
+            }
 
+            // commission addresses
+            if(!empty($request->input('commission.billing'))){
+                $billingAddress = $addresses
+                    ->filter($this->_getAddressByType([6]))
+                    ->first();
+                if(!empty($billingAddress)){
+                    $billingAddress->fill($request->input('commission.billing'));
+                    $billingAddress->save();
+                }
+            }
+
+            // update user in Cognito / get Shopify ID from Cognito user
             $cognito = new CognitoHelper();
+            $cognitoUser = $cognito->getUser($id);
 
-            if(isset($validatedData['group'])) {
-                $user = new CognitoUser($request->id);
-                $user->updateGroup($validatedData['group']);
-            }
-
-            //update permissions
+            // Update permissions (for Cognito user)
             if(isset($validatedData['permissions'])) {
                 $cognito->updateUserAttribute('custom:permissions', implode(',', $validatedData['permissions']), $request->id);
             }
@@ -318,6 +312,24 @@ class UserController extends Controller
                 //no permissions, remove them from user
                 $cognito->removeUserAttribute(['custom:permissions'], $request->id);
             }
+
+            // Update user in Shopify
+            $shopifyId = collect($cognitoUser['UserAttributes'])
+                ->where('Name', env('COGNITO_SHOPIFY_CUSTOM_ATTRIBUTE'))
+                ->first()['Value'];
+            $shopifyCustomer = [
+                'id'         => $shopifyId,
+                'first_name' => $validatedData['first_name'],
+                'last_name'  => $validatedData['last_name']
+            ];
+
+            // Update phone number (for Shopify Customer)
+            if(!is_null($validatedData['phone'])) {
+                $shopifyCustomer['phone'] = $validatedData['phone'];
+            }
+
+            $shopify = new ShopifyHelper();
+            $shopify->updateCustomer($shopifyCustomer);
 
             return response()->json();
         }
@@ -360,5 +372,28 @@ class UserController extends Controller
         catch (\Exception $e) {
             return response()->json($e->getMessage(), 500);
         }
+    }
+
+    public function delete($id)
+    {
+        $cognito = new CognitoHelper();
+
+        try {
+            $cognito->deleteUser($id);
+
+            return response()->json();
+        } catch (AwsException $e) {
+            return response()->json([$e->getAwsErrorMessage()], 500);
+        } catch (\Exception $e) {
+            return response()->json($e->getMessage(), 500);
+        }
+    }
+
+    private function _getAddressByType(array $types = [])
+    {
+        return function ($address) use ($types)
+        {
+            return in_array($address->type->id, $types);
+        };
     }
 }

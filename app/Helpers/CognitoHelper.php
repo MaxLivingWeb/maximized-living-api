@@ -165,10 +165,10 @@ class CognitoHelper
         $attributes = collect($user['Attributes']);
         return [
             'id'            => $user['Username'],
-            'userStatus'    => $user['UserStatus'],
+            'user_status'    => $user['UserStatus'],
             'email'         => $attributes->where('Name', 'email')->first()['Value'],
             'created'       => $user['UserCreateDate'],
-            'shopifyId'     => intval($attributes->where('Name', env('COGNITO_SHOPIFY_CUSTOM_ATTRIBUTE'))->first()['Value'])
+            'shopify_id'     => intval($attributes->where('Name', env('COGNITO_SHOPIFY_CUSTOM_ATTRIBUTE'))->first()['Value'])
         ];
     }
 }

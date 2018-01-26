@@ -55,7 +55,10 @@ class UpdateLocationMutation extends Mutation
                 'business_hours'            => $args['business_hours']
             ]);
 
-        $updated_location = Location::where('vanity_website_id', $args['vanity_website_id'])->first();
+        $updated_location = Location
+            ::where('vanity_website_id', $args['vanity_website_id'])
+            ->orWhere('id', $args['id'])
+            ->first();
     
         $addresses = $args['addresses'];
 
