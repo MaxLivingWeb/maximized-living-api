@@ -43,10 +43,24 @@ class CognitoHelper
         }
 
         try {
-            $result = $this->client->listUsersInGroup([
-                'GroupName' => $groupName,
-                'UserPoolId' => env('AWS_COGNITO_USER_POOL_ID')
-            ]);
+
+            $users = collect();
+
+            while(!isset($result) || $result->hasKey('NextToken')) {
+                $params = [
+                    'GroupName' => $groupName,
+                    'UserPoolId' => env('AWS_COGNITO_USER_POOL_ID')
+                ];
+
+                if(isset($result)) {
+                    $params['NextToken'] =  $result->get('NextToken');
+                }
+
+                $result = $this->client->listUsersInGroup($params);
+                $users = $users->merge(collect($result->get('Users'))->transform(function($user) {
+                    return self::formatUserData($user);
+                }));
+            }
         }
         catch(AwsException $e) {
             if($e->getStatusCode() !== 400) { // group not found
@@ -58,10 +72,6 @@ class CognitoHelper
 
             return collect([]);
         }
-
-        $users = collect($result->get('Users'))->transform(function($user) {
-            return self::formatUserData($user);
-        });
 
         return $users;
     }
