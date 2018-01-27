@@ -13,6 +13,7 @@ use App\Helpers\ShopifyHelper;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Http\Request;
 use Aws\Exception\AwsException;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
@@ -317,12 +318,14 @@ class UserController extends Controller
             ]);
         }
         catch(AwsException $e) {
+            Log::error($e);
             return response()->json(
                 $e->getAwsErrorMessage(),
                 $e->getStatusCode()
             );
         }
         catch(ClientException $e) {
+            Log::error($e);
             if(!empty($cognitoUser->get('User')['Username'])){
                 $cognito->deleteUser($cognitoUser->get('User')['Username']);
             }
@@ -336,6 +339,7 @@ class UserController extends Controller
             );
         }
         catch (ValidationException $e) {
+            Log::error($e);
             if(!empty($cognitoUser->get('User')['Username'])){
                 $cognito->deleteUser($cognitoUser->get('User')['Username']);
             }
@@ -345,12 +349,13 @@ class UserController extends Controller
             );
         }
         catch (\Exception $e) {
+            Log::error($e);
             if(!empty($cognitoUser->get('User')['Username'])){
                 $cognito->deleteUser($cognitoUser->get('User')['Username']);
             }
             return response()->json(
                 $e->getMessage(),
-                $e->getCode()
+                500
             );
         }
     }
@@ -365,17 +370,21 @@ class UserController extends Controller
     {
         if (count($addresses) > 0) {
             foreach ($addresses as $address) {
+                if (is_null($address)) {
+                    continue;
+                }
+
                 $arrayIndex = (int)collect($mappedAddresses)
                     ->where('custom_address_id', $address['id'])
                     ->keys()
                     ->first();
 
-                $shopifyAddressId = $shopifyCustomerAddresses[$arrayIndex]->id;
+                $shopifyAddressId = optional($shopifyCustomerAddresses[$arrayIndex])->id;
                 if ($shopifyAddressId) {
                     $address->attachShopifyAddressID($shopifyAddressId);
                 }
 
-                $shopifyAddressDefaultValue = $shopifyCustomerAddresses[$arrayIndex]->default;
+                $shopifyAddressDefaultValue = optional($shopifyCustomerAddresses[$arrayIndex])->default;
                 if ($shopifyAddressDefaultValue) {
                     $address->attachShopifyAddressDefaultValue($shopifyAddressDefaultValue);
                 }
@@ -505,14 +514,16 @@ class UserController extends Controller
             if (!$defaultAddressIsSet) {
                 if (isset($wholesaleShippingAddress)) {
                     foreach ($shopifyAddresses as $i => $address) {
-                        if ($address->shopify_id === $wholesaleShippingAddress['shopify_id']) {
+                        if (isset($address->shopify_id) && isset($wholesaleShippingAddress['shopify_id']) && $address->shopify_id === $wholesaleShippingAddress['shopify_id']) {
                             $shopifyAddresses[$i]->default = true;
                             break;
                         }
                     }
                 }
                 else {
-                    $shopifyAddresses[0]->default = true;
+                    if(isset($shopifyAddresses[0])) {
+                        $shopifyAddresses[0]->default = true;
+                    }
                 }
             }
 
