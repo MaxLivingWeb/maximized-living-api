@@ -374,7 +374,7 @@ class UserController extends Controller
      */
     private function attachShopifyAttributesToAddresses($addresses, $shopifyCustomerAddresses, $mappedAddresses)
     {
-        if (count($addresses) > 0) {
+        if (count($addresses) > 0 && count($shopifyCustomerAddresses) > 0) {
             foreach ($addresses as $address) {
                 if (is_null($address)) {
                     continue;
@@ -385,13 +385,13 @@ class UserController extends Controller
                     ->keys()
                     ->first();
 
-                if ($arrayIndex) {
-                    $shopifyAddressId = optional($shopifyCustomerAddresses[$arrayIndex])->id;
+                if (!is_null($arrayIndex)) {
+                    $shopifyAddressId = $shopifyCustomerAddresses[$arrayIndex]->id;
                     if ($shopifyAddressId) {
                         $address->attachShopifyAddressID($shopifyAddressId);
                     }
 
-                    $shopifyAddressDefaultValue = optional($shopifyCustomerAddresses[$arrayIndex])->default;
+                    $shopifyAddressDefaultValue = $shopifyCustomerAddresses[$arrayIndex]->default;
                     if ($shopifyAddressDefaultValue) {
                         $address->attachShopifyAddressDefaultValue($shopifyAddressDefaultValue);
                     }
@@ -510,6 +510,7 @@ class UserController extends Controller
                         $default
                     );
                 })
+                ->unique()
                 ->all();
 
             // If User has addresses associated, then set the default address
