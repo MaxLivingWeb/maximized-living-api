@@ -257,7 +257,7 @@ class UserController extends Controller
                     );
                 }
 
-                // If User has addressess associated, then set the default address
+                // If User has addresses associated, then set the default address
                 // By default, use the Wholesale Shipping address as the default. Otherwise, just use the first in the array.
                 if (!empty($shopifyAddresses)) {
                     if (!empty($wholesaleShippingAddress)) {
@@ -438,8 +438,6 @@ class UserController extends Controller
                 ?? $userGroup->addresses
                 ?? [];
 
-            $mappedAddresses = [];
-
             // Wholesaler Shipping Addresses
             if(!empty($request->input('wholesale.shipping'))) {
                 $wholesaleShippingAddress = $addresses
@@ -490,9 +488,6 @@ class UserController extends Controller
                 ->where('Name', env('COGNITO_SHOPIFY_CUSTOM_ATTRIBUTE'))
                 ->first()['Value'];
 
-            // Get current instance of this Shopify Customer
-            $shopifyCustomer = $shopify->getCustomer($shopifyId);
-
             // Basic Shopify Customer data to be updated...
             $shopifyCustomerData = [
                 'id'         => $shopifyId,
@@ -517,20 +512,23 @@ class UserController extends Controller
                 })
                 ->all();
 
+            // If User has addresses associated, then set the default address
             // By default, use the Wholesale Shipping address as the default. Otherwise, just use the first in the array.
-            $defaultAddressIsSet = collect($shopifyAddresses)->where('default', true)->isNotEmpty();
-            if (!$defaultAddressIsSet) {
-                if (isset($wholesaleShippingAddress)) {
-                    foreach ($shopifyAddresses as $i => $address) {
-                        if (isset($address->shopify_id) && isset($wholesaleShippingAddress['shopify_id']) && $address->shopify_id === $wholesaleShippingAddress['shopify_id']) {
-                            $shopifyAddresses[$i]->default = true;
-                            break;
+            if (count($shopifyAddresses) > 0) {
+                $defaultAddressIsSet = collect($shopifyAddresses)->where('default', true)->isNotEmpty();
+                if (!$defaultAddressIsSet) {
+                    if (isset($wholesaleShippingAddress)) {
+                        foreach ($shopifyAddresses as $i => $address) {
+                            if (isset($address->shopify_id) && isset($wholesaleShippingAddress['shopify_id']) && $address->shopify_id === $wholesaleShippingAddress['shopify_id']) {
+                                $shopifyAddresses[$i]->default = true;
+                                break;
+                            }
                         }
                     }
-                }
-                else {
-                    if(isset($shopifyAddresses[0])) {
-                        $shopifyAddresses[0]->default = true;
+                    else {
+                        if(isset($shopifyAddresses[0])) {
+                            $shopifyAddresses[0]->default = true;
+                        }
                     }
                 }
             }
