@@ -317,10 +317,7 @@ class UserController extends Controller
                 $mappedAddresses
             );
 
-            return response()->json([
-                'shopifyCustomer' => $shopifyCustomer,
-                'mappedAddresses' => $mappedAddresses
-            ]);
+            return response()->json();
         }
         catch(AwsException $e) {
             Log::error($e);
