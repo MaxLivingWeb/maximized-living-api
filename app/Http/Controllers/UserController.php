@@ -128,6 +128,7 @@ class UserController extends Controller
                             $validatedData['business']['name']
                         );
                     })
+                    ->unique()
                     ->all()
                 );
 
@@ -187,9 +188,10 @@ class UserController extends Controller
                         $validatedData['business']['name']
                     );
 
-                    $shopifyAddresses[] = $shopifyAddress;
-
-                    $mappedAddresses[] = (object)array_merge((array)$shopifyAddress, ['custom_address_id' => $wholesaleShippingAddress['id']]);
+                    if (!$this->in_array_multidimensional($shopifyAddress, $shopifyAddresses)) {
+                        $shopifyAddresses[] = $shopifyAddress;
+                        $mappedAddresses[] = (object)array_merge((array)$shopifyAddress, ['custom_address_id' => $wholesaleShippingAddress['id']]);
+                    }
 
                     $wholesaleShippingAddress->groups()->attach(
                         $userGroup->id,
@@ -215,9 +217,10 @@ class UserController extends Controller
                         $validatedData['business']['name']
                     );
 
-                    $shopifyAddresses[] = $shopifyAddress;
-
-                    $mappedAddresses[] = (object)array_merge((array)$shopifyAddress, ['custom_address_id' => $wholesaleBillingAddress['id']]);
+                    if (!$this->in_array_multidimensional($shopifyAddress, $shopifyAddresses)) {
+                        $shopifyAddresses[] = $shopifyAddress;
+                        $mappedAddresses[] = (object)array_merge((array)$shopifyAddress, ['custom_address_id' => $wholesaleBillingAddress['id']]);
+                    }
 
                     $wholesaleBillingAddress->groups()->attach(
                         $userGroup->id,
@@ -243,9 +246,10 @@ class UserController extends Controller
                         $validatedData['business']['name']
                     );
 
-                    $shopifyAddresses[] = $shopifyAddress;
-
-                    $mappedAddresses[] = (object)array_merge((array)$shopifyAddress, ['custom_address_id' => $commissionBillingAddress['id']]);
+                    if (!$this->in_array_multidimensional($shopifyAddress, $shopifyAddresses)) {
+                        $shopifyAddresses[] = $shopifyAddress;
+                        $mappedAddresses[] = (object)array_merge((array)$shopifyAddress, ['custom_address_id' => $commissionBillingAddress['id']]);
+                    }
 
                     $commissionBillingAddress->groups()->attach(
                         $userGroup->id,
@@ -381,14 +385,16 @@ class UserController extends Controller
                     ->keys()
                     ->first();
 
-                $shopifyAddressId = optional($shopifyCustomerAddresses[$arrayIndex])->id;
-                if ($shopifyAddressId) {
-                    $address->attachShopifyAddressID($shopifyAddressId);
-                }
+                if ($arrayIndex) {
+                    $shopifyAddressId = optional($shopifyCustomerAddresses[$arrayIndex])->id;
+                    if ($shopifyAddressId) {
+                        $address->attachShopifyAddressID($shopifyAddressId);
+                    }
 
-                $shopifyAddressDefaultValue = optional($shopifyCustomerAddresses[$arrayIndex])->default;
-                if ($shopifyAddressDefaultValue) {
-                    $address->attachShopifyAddressDefaultValue($shopifyAddressDefaultValue);
+                    $shopifyAddressDefaultValue = optional($shopifyCustomerAddresses[$arrayIndex])->default;
+                    if ($shopifyAddressDefaultValue) {
+                        $address->attachShopifyAddressDefaultValue($shopifyAddressDefaultValue);
+                    }
                 }
             }
         }
@@ -636,5 +642,20 @@ class UserController extends Controller
         }
 
         return $result;
+    }
+
+    private function in_array_multidimensional($currentItem, $items)
+    {
+        if (count($items) === 0) {
+            return false;
+        }
+        foreach($items as $item){
+            foreach($item as $key => $value){
+                if (in_array($value, (array)$currentItem)){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
