@@ -307,7 +307,7 @@ class UserController extends Controller
 
             // Update Addresses saved in DB, so they are mapped to these Shopify Customer Addresses
             // Then while Editing Users, we can re-use the same Shopify Addresses than re-creating new ones
-            $this->attachShopifyAttributes(
+            $this->attachShopifyAttributesToAddresses(
                 [
                     $wholesaleBillingAddress,
                     $wholesaleShippingAddress,
@@ -371,7 +371,7 @@ class UserController extends Controller
      * @param $shopifyCustomerAddresses (Addresses saved to Shopify Customer)
      * @param $mappedAddresses
      */
-    private function attachShopifyAttributes($addresses, $shopifyCustomerAddresses, $mappedAddresses)
+    private function attachShopifyAttributesToAddresses($addresses, $shopifyCustomerAddresses, $mappedAddresses)
     {
         if (count($addresses) > 0) {
             foreach ($addresses as $address) {
