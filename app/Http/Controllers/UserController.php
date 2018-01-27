@@ -140,8 +140,10 @@ class UserController extends Controller
 
                 // Set first address in array to be the default
                 // Note: MOST Locations should only have 1 address associated with them anyway.
-                $shopifyAddresses[0]->default = true;
-                $mappedAddresses[0]->default = true;
+                if (!empty($shopifyAddresses)) {
+                    $shopifyAddresses[0]->default = true;
+                    $mappedAddresses[0]->default = true;
+                }
 
                 $userGroup->addUser($cognitoUser->get('User')['Username']);
             }
@@ -251,19 +253,22 @@ class UserController extends Controller
                     );
                 }
 
+                // If User has addressess associated, then set the default address
                 // By default, use the Wholesale Shipping address as the default. Otherwise, just use the first in the array.
-                if (!empty($wholesaleShippingAddress)) {
-                    foreach ($mappedAddresses as $i => $address) {
-                        if ($address->custom_address_id === $wholesaleShippingAddress['id']) {
-                            $shopifyAddresses[$i]->default = true;
-                            $mappedAddresses[$i]->default = true;
-                            break;
+                if (!empty($shopifyAddresses)) {
+                    if (!empty($wholesaleShippingAddress)) {
+                        foreach ($mappedAddresses as $i => $address) {
+                            if ($address->custom_address_id === $wholesaleShippingAddress['id']) {
+                                $shopifyAddresses[$i]->default = true;
+                                $mappedAddresses[$i]->default = true;
+                                break;
+                            }
                         }
                     }
-                }
-                else {
-                    $shopifyAddresses[0]->default = true;
-                    $mappedAddresses[0]->default = true;
+                    else {
+                        $shopifyAddresses[0]->default = true;
+                        $mappedAddresses[0]->default = true;
+                    }
                 }
             }
 
