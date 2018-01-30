@@ -14,8 +14,6 @@ class SearchHelper
         $tagSearch = self::tagSearch($query);
         $descriptionSearch = self::descriptionSearch($query);
         
-        dd($nameSearch);
-        
         $results = array_merge($skuSearch, $nameSearch, $tagSearch, $descriptionSearch);
         
         $serialized = array_map('serialize', $results);
