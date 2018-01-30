@@ -80,7 +80,8 @@ class Handler extends ExceptionHandler
                 '*Environment*: ' . $environment . "\n" .
                 (!empty($code) ? '*Code*: ' . $code . "\n" : '') .
                 (!empty($message) ? '*Code*: ' . $message . "\n" : '') .
-                '*Trace*: ' . "\n" . $trace;
+                '*Trace*: ' . "\n" . $trace . "\n" .
+                "---------------------------------------\n\n";
 
             SlackHelper::slackNotification(
                 $message,
