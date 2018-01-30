@@ -28,7 +28,7 @@ class LocationController extends Controller
     {
         $location = Location::with('userGroup')->findOrFail($id);
 
-        $userGroup = UserGroup::with('commission')->findOrFail($location->userGroup->id);
+        $userGroup = UserGroup::with(['location', 'commission'])->findOrFail($location->userGroup->id);
 
         return $userGroup;
     }
