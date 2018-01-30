@@ -46,18 +46,18 @@ class UserController extends Controller
 
         try {
             $fields = [
-                'email'         => 'required|email',
-                'password'      => 'required|min:8',
-                'firstName'     => 'required',
-                'lastName'      => 'required',
-                'phone'         => 'nullable',
-                'legacyId'      => 'nullable|integer',
-                'commission.id' => 'nullable|integer',
-                'wholesaler'    => 'nullable|boolean',
-                'groupName'     => 'nullable',
-                'permissions'   => 'nullable|array|min:1',
-                'permissions.*' => 'nullable|string|distinct|exists:user_permissions,key',
-                'business.name' => 'required'
+                'email'               => 'required|email',
+                'password'            => 'required|min:8',
+                'firstName'           => 'required',
+                'lastName'            => 'required',
+                'phone'               => 'nullable',
+                'legacyId'            => 'nullable|integer',
+                'commission.id'       => 'nullable|integer',
+                'wholesaler'          => 'nullable|boolean',
+                'selectedLocation.id' => 'nullable',
+                'permissions'         => 'nullable|array|min:1',
+                'permissions.*'       => 'nullable|string|distinct|exists:user_permissions,key',
+                'business.name'       => 'required'
             ];
 
             //body includes a wholesale billing address, validate it
@@ -111,12 +111,11 @@ class UserController extends Controller
             $shopifyAddresses = [];
             $mappedAddresses = [];
 
-            //user is associated to a location
-            if(isset($validatedData['groupName'])) {
-                $userGroup = UserGroup::with(['commission', 'location'])
-                    ->where('group_name', $validatedData['groupName'])
-                    ->firstOrFail();
-                $location = Location::with('userGroup')->findOrFail($userGroup->location->id);
+            // User is associated to a location
+            if(isset($validatedData['selectedLocation']['id'])) {
+                $locationId = (int)$validatedData['selectedLocation']['id'];
+                $location = Location::with('userGroup')->findOrFail($locationId);
+                $userGroup = UserGroup::with(['commission', 'location'])->findOrFail($location->userGroup->id);
                 $locationAddresses = $location->addresses()->get()->toArray();
 
                 // Get Address info for this Selected Location, and save that to Shopify Customer
@@ -136,6 +135,7 @@ class UserController extends Controller
                 $mappedAddresses = collect($shopifyAddresses)
                     ->transform(function($address, $i) use($locationAddresses){
                         $address->custom_address_id = $locationAddresses[$i]['id'];
+                        return $address;
                     })
                     ->all();
 
@@ -188,7 +188,7 @@ class UserController extends Controller
                         $validatedData['business']['name']
                     );
 
-                    if (!$this->in_array_multidimensional($shopifyAddress, $shopifyAddresses)) {
+                    if ($this->unique_array_items($shopifyAddress, $shopifyAddresses)) {
                         $shopifyAddresses[] = $shopifyAddress;
                         $mappedAddresses[] = (object)array_merge((array)$shopifyAddress, ['custom_address_id' => $wholesaleShippingAddress['id']]);
                     }
@@ -217,7 +217,7 @@ class UserController extends Controller
                         $validatedData['business']['name']
                     );
 
-                    if (!$this->in_array_multidimensional($shopifyAddress, $shopifyAddresses)) {
+                    if ($this->unique_array_items($shopifyAddress, $shopifyAddresses)) {
                         $shopifyAddresses[] = $shopifyAddress;
                         $mappedAddresses[] = (object)array_merge((array)$shopifyAddress, ['custom_address_id' => $wholesaleBillingAddress['id']]);
                     }
@@ -246,7 +246,7 @@ class UserController extends Controller
                         $validatedData['business']['name']
                     );
 
-                    if (!$this->in_array_multidimensional($shopifyAddress, $shopifyAddresses)) {
+                    if ($this->unique_array_items($shopifyAddress, $shopifyAddresses)) {
                         $shopifyAddresses[] = $shopifyAddress;
                         $mappedAddresses[] = (object)array_merge((array)$shopifyAddress, ['custom_address_id' => $commissionBillingAddress['id']]);
                     }
@@ -311,15 +311,17 @@ class UserController extends Controller
 
             // Update Addresses saved in DB, so they are mapped to these Shopify Customer Addresses
             // Then while Editing Users, we can re-use the same Shopify Addresses than re-creating new ones
-            $this->attachShopifyAttributesToAddresses(
-                [
-                    $wholesaleBillingAddress,
-                    $wholesaleShippingAddress,
-                    $commissionBillingAddress
-                ],
-                $shopifyCustomer->addresses,
-                $mappedAddresses
-            );
+            if (isset($wholesaleBillingAddress) && isset($wholesaleShippingAddress) && isset($commissionBillingAddress)) {
+                $this->attachShopifyAttributesToAddresses(
+                    [
+                        $wholesaleBillingAddress,
+                        $wholesaleShippingAddress,
+                        $commissionBillingAddress
+                    ],
+                    $shopifyCustomer->addresses,
+                    $mappedAddresses
+                );
+            }
 
             return response()->json();
         }
@@ -643,18 +645,22 @@ class UserController extends Controller
         return $result;
     }
 
-    private function in_array_multidimensional($currentItem, $items)
+    private function unique_array_items($currentItem, $items)
     {
         if (count($items) === 0) {
-            return false;
+            return true;
         }
+
+        $unique = 0;
+
         foreach($items as $item){
             foreach($item as $key => $value){
                 if (in_array($value, (array)$currentItem)){
-                    return true;
+                    $unique++;
                 }
             }
         }
-        return false;
+
+        return $unique !== count(array_keys((array)$currentItem));
     }
 }
