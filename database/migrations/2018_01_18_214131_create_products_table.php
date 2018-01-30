@@ -23,6 +23,7 @@ class CreateProductsTable extends Migration
             $table->string('product_type');
             $table->string('handle');
             $table->text('tags');
+            $table->longText('shopify_data');
             $table->timestamps();
         });
     }

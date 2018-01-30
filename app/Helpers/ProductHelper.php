@@ -31,6 +31,7 @@ class ProductHelper
                 'productType' => $product['product_type'],
                 'handle'      => $product['handle'],
                 'tags'        => $product['tags'],
+                'shopifyData' => json_encode($product),
             ];
             
             $productTableID = $this->updateOrInsert($data);
@@ -95,11 +96,12 @@ class ProductHelper
                     'product_id'   => $product['productId'],
                     'title'       => $product['title'],
                     'description' => $product['description'],
-                    'image'       => $product['image']['src'],
+                    'image'       => $product['image'],
                     'vendor'      => $product['vendor'],
                     'product_type' => $product['productType'],
                     'handle'      => $product['handle'],
                     'tags'        => $product['tags'],
+                    'shopify_data' => $product['shopifyData'],
                     'updated_at'  => \Carbon\Carbon::now()
                 ]
             );
@@ -125,6 +127,7 @@ class ProductHelper
                     'product_type' => $product['productType'],
                     'handle'      => $product['handle'],
                     'tags'        => $product['tags'],
+                    'shopify_data' => $product['shopifyData'],
                     'created_at'  => \Carbon\Carbon::now(),
                     'updated_at'  => \Carbon\Carbon::now()
                 ]

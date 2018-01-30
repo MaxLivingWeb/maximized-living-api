@@ -11,6 +11,7 @@ class SearchController extends Controller
     {
         $query = $request->input('q');
         $results = SearchHelper::productSearch($query ?? '');
+        dd($results);
         
         return $results;
     }

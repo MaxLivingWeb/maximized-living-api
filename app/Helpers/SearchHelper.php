@@ -7,118 +7,93 @@ use Mockery\Exception;
 
 class SearchHelper
 {
-    public static function productSearch(string $query): array
+    /**
+     * Searches the database for products matching the given string.
+     *
+     * @param string $query The string to search for.
+     * @return \Illuminate\Support\Collection
+     */
+    public static function productSearch(string $query): \Illuminate\Support\Collection
     {
-        $skuSearch = self::skuSearch($query);
-        $nameSearch = self::nameSearch($query);
-        $tagSearch = self::tagSearch($query);
-        $descriptionSearch = self::descriptionSearch($query);
+        $skuSearch = self::_skuSearch($query);
+        $nameSearch = self::_nameSearch($query);
+        $tagSearch = self::_tagSearch($query);
+        $descriptionSearch = self::_descriptionSearch($query);
         
         $results = array_merge($skuSearch, $nameSearch, $tagSearch, $descriptionSearch);
-        
-        $serialized = array_map('serialize', $results);
-        $unique = array_unique($serialized);
-        $search = array_intersect_key($results, $unique);
-    
-        return $search;
+        $unique = array_unique($results);
+        return self::_shopifyDataByIds($unique);
     }
-    
-    private static function skuSearch(string $query): array
+
+    /**
+     * Matches specific SKUs that may be searched for.
+     *
+     * @param string $query The string to search for.
+     * @return array
+     */
+    private static function _skuSearch(string $query): array
     {
-        $results = DB::table('variants')
+        return DB::table('variants')
             ->where('sku', 'like', '%' . $query . '%')
             ->pluck('product_table_id')
             ->toArray();
-        
-        $uniqueVariants = array_unique($results);
-        
-        foreach ($uniqueVariants as $uniqueVariant) {
-            $products[] = self::getProductsById($uniqueVariant);
-        }
-        
-        if (!isset($products)) {
-            return [];
-        }
-    
-        return $products;
     }
-    
-    private static function nameSearch(string $query): array
+
+    /**
+     * Matches product names that may be searched for.
+     *
+     * @param string $query The string to search for.
+     * @return array
+     */
+    private static function _nameSearch(string $query): array
     {
-        $results = DB::table('products')
+        return DB::table('products')
             ->where('title', 'like', '%' . $query . '%')
             ->pluck('id')
             ->toArray();
-        
-        $uniqueProducts = array_unique($results);
-        
-        foreach ($uniqueProducts as $uniqueProduct) {
-            $products[] = self::getProductsById($uniqueProduct);
-        }
-        
-        if (!isset($products)) {
-            return [];
-        }
-    
-        return $products;
     }
-    
-    private static function descriptionSearch(string $query): array
+
+    /**
+     * Matches product descriptions that may be searched for.
+     *
+     * @param string $query The string to search for.
+     * @return array
+     */
+    private static function _descriptionSearch(string $query): array
     {
-        $results = DB::table('products')
+        return DB::table('products')
             ->where('description', 'like', '%' . $query . '%')
             ->pluck('id')
             ->toArray();
-        
-        $uniqueProducts = array_unique($results);
-        
-        foreach ($uniqueProducts as $uniqueProduct) {
-            $products[] = self::getProductsById($uniqueProduct);
-        }
-        
-        if (!isset($products)) {
-            return [];
-        }
-        
-        return $products;
     }
-    
-    private static function tagSearch(string $query): array
+
+    /**
+     * Matches product tags that may be searched for.
+     *
+     * @param string $query The string to search for.
+     * @return array
+     */
+    private static function _tagSearch(string $query): array
     {
-        $results = DB::table('products')
+        return DB::table('products')
             ->where('tags', 'like', '%' . $query . '%')
             ->pluck('id')
             ->toArray();
-        
-        $uniqueProducts = array_unique($results);
-        
-        foreach ($uniqueProducts as $uniqueProduct) {
-            $products[] = self::getProductsById($uniqueProduct);
-        }
-        
-        if (!isset($products)) {
-            return [];
-        }
-        
-        return $products;
     }
-    
-    private static function getProductsById(int $id)
+
+    /**
+     * Retrieves Shopify data for products with the given IDs.
+     *
+     * @param array $ids The IDs of products to return Shopify data for.
+     * @return \Illuminate\Support\Collection
+     */
+    private static function _shopifyDataByIds(array $ids): \Illuminate\Support\Collection
     {
-        $product = DB::table('products')
-            ->where('id', $id)
-            ->first();
-        
-        $variants = DB::table('variants')
-            ->where('product_table_id', $id)
-            ->orderBy('position')
-            ->get();
-    
-        $variants = collect($variants)->map(function($x){ return (array) $x; })->toArray();
-        $data = collect($product)->map(function($x){ return (array) $x; })->toArray();
-        
-        $data['variants'] = $variants;
-        
-        return $data;
+        return DB::table('products')
+            ->whereIn('id', $ids)
+            ->pluck('shopify_data')
+            ->transform(function($product) {
+                return json_decode($product);
+            });
     }
 }

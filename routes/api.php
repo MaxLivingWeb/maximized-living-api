@@ -85,12 +85,11 @@ Route::group(['prefix' => 'reporting'], function() {
 });
 
 Route::get('/store/update-products', function () {
-    $shopify = new ShopifyHelper();
-    $products = $shopify->getProducts([], FALSE);
+    $products = (new ShopifyHelper())
+        ->getProducts([], FALSE);
     
-    $productHelper = new ProductHelper();
-    
-    $productHelper->importProducts($products);
+    (new ProductHelper())
+        ->importProducts($products);
 });
 
 Route::get('/store/search', 'SearchController@index');
