@@ -21,7 +21,7 @@ class ProductHelper
      */
     public function importProducts(array $products): void
     {
-        foreach ($products as $key => $product) {
+        foreach ($products as $product) {
             $data = [
                 'productId'   => $product->id,
                 'title'       => $product->title,
