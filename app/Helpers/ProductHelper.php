@@ -23,14 +23,14 @@ class ProductHelper
     {
         foreach ($products as $key => $product) {
             $data = [
-                'productId'   => $product['id'],
-                'title'       => $product['title'],
-                'description' => $product['body_html'],
-                'image'       => $product['image']['src'],
-                'vendor'      => $product['vendor'],
-                'productType' => $product['product_type'],
-                'handle'      => $product['handle'],
-                'tags'        => $product['tags'],
+                'productId'   => $product->id,
+                'title'       => $product->title,
+                'description' => $product->body_html,
+                'image'       => $product->image->src ?? '',
+                'vendor'      => $product->vendor ?? '',
+                'productType' => $product->product_type,
+                'handle'      => $product->handle,
+                'tags'        => $product->tags,
                 'shopifyData' => json_encode($product),
             ];
             
@@ -40,7 +40,7 @@ class ProductHelper
             
             self::saveVariants(
                 $productTableID,
-                $product['variants'],
+                $product->variants,
                 2,
                 1
             );
@@ -163,22 +163,22 @@ class ProductHelper
         foreach ($variants as $variant) {
             DB::table('variants')->insert(
                 [
-                    'variant_id'        => $variant['id'],
+                    'variant_id'        => $variant->id,
                     'product_table_id'   => $productTableID,
-                    'product_id'        => $variant['product_id'],
-                    'title'            => $variant['title'],
-                    'sku'              => $variant['sku'],
-                    'price'            => $variant['price'],
-                    'compare_at_price'   => $variant['compare_at_price'],
-                    'user_type'         => $variant['option' . $userTypePosition],
-                    'variant_name'      => $variant['option' . $variantNamePosition],
-                    'qty'              => $variant['inventory_quantity'],
-                    'position'         => $variant['position'],
-                    'weight'           => $variant['weight'],
-                    'weight_unit'       => $variant['weight_unit'],
-                    'requires_shipping' => $variant['requires_shipping'],
-                    'grams'            => $variant['grams'],
-                    'taxable'          => $variant['taxable'],
+                    'product_id'        => $variant->product_id,
+                    'title'            => $variant->title,
+                    'sku'              => $variant->sku,
+                    'price'            => $variant->price,
+                    'compare_at_price'   => $variant->compare_at_price,
+                    'user_type'         => $variant->{'option' . $userTypePosition},
+                    'variant_name'      => $variant->{'option' . $variantNamePosition},
+                    'qty'              => $variant->inventory_quantity,
+                    'position'         => $variant->position,
+                    'weight'           => $variant->weight,
+                    'weight_unit'       => $variant->weight_unit,
+                    'requires_shipping' => $variant->requires_shipping,
+                    'grams'            => $variant->grams,
+                    'taxable'          => $variant->taxable,
                     'created_at'       => \Carbon\Carbon::now(),
                     'updated_at'       => \Carbon\Carbon::now()
                 ]

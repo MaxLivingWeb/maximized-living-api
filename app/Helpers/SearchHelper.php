@@ -22,6 +22,7 @@ class SearchHelper
         
         $results = array_merge($skuSearch, $nameSearch, $tagSearch, $descriptionSearch);
         $unique = array_unique($results);
+
         return self::_shopifyDataByIds($unique);
     }
 
