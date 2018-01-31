@@ -652,41 +652,8 @@ class UserController extends Controller
                 $cognito->removeUserAttribute(['custom:permissions'], $request->id);
             }
 
-//            // Shopify Addresses to be updated...
-//            $shopifyAddresses = collect($addresses)
-//                ->transform(function($address) use($shopifyCustomerData, $validatedData){
-//                    $default = isset($address['shopify_default']) && $address['shopify_default'];
-//                    return $this->formatAddressForShopifyCustomer(
-//                        $shopifyCustomerData,
-//                        $address,
-//                        $validatedData['business']['name'],
-//                        $default
-//                    );
-//                })
-//                ->unique()
-//                ->all();
 
-//            // If User has addresses associated, then set the default address
-//            // By default, use the Wholesale Shipping address as the default. Otherwise, just use the first in the array.
-//            if (count($shopifyAddresses) > 0) {
-//                $defaultAddressIsSet = collect($shopifyAddresses)->where('default', true)->isNotEmpty();
-//                if (!$defaultAddressIsSet) {
-//                    if (isset($wholesaleShippingAddress)) {
-//                        foreach ($shopifyAddresses as $i => $address) {
-//                            if (isset($address->shopify_id) && isset($wholesaleShippingAddress['shopify_id']) && $address->shopify_id === $wholesaleShippingAddress['shopify_id']) {
-//                                $shopifyAddresses[$i]->default = true;
-//                                break;
-//                            }
-//                        }
-//                    }
-//                    else {
-//                        if(isset($shopifyAddresses[0])) {
-//                            $shopifyAddresses[0]->default = true;
-//                        }
-//                    }
-//                }
-//            }
-
+            // Attach Shopify Addresses to Shopify Customer data
             $shopifyCustomerData['addresses'] = $shopifyAddresses;
 
             $defaultAddress = collect($shopifyAddresses)
@@ -726,9 +693,7 @@ class UserController extends Controller
                 }
             }
 
-            return response()->json([
-                'Customer' => $shopifyCustomer
-            ]);
+            return response()->json();
         }
         catch(AwsException $e) {
             return response()->json([$e->getAwsErrorMessage()], 500);
