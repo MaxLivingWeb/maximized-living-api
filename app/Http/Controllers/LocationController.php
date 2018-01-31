@@ -28,7 +28,7 @@ class LocationController extends Controller
     {
         $location = Location::with('userGroup')->findOrFail($id);
 
-        if (!$location->userGroup) {
+        if (!empty($location->userGroup)) {
             return;
         }
 
