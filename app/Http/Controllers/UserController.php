@@ -725,7 +725,7 @@ class UserController extends Controller
                 'address_1'       => $request->input($fieldName.'.address_1'),
                 'address_2'       => $request->input($fieldName.'.address_2'),
                 'zip_postal_code' => $request->input($fieldName.'.zip_postal_code') ?? '',
-                'city_id'         => intval($request->input($fieldName.'.city_id')),
+                'city_id'         => (int)$request->input($fieldName.'.city_id'),
                 'latitude'        => 0,
                 'longitude'       => 0
             ]);
