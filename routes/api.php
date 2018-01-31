@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Http\Request;
+use App\Helpers\ShopifyHelper;
+use App\Helpers\ProductHelper;
 
 /*
 |--------------------------------------------------------------------------
@@ -81,3 +83,13 @@ Route::group(['prefix' => 'reporting'], function() {
         Route::get('{id}/sales', 'Reporting\WholesaleController@salesById');
     });
 });
+
+Route::get('/store/update-products', function () {
+    $products = (new ShopifyHelper())
+        ->getProducts([], FALSE);
+    
+    (new ProductHelper())
+        ->importProducts($products);
+});
+
+Route::get('/store/search', 'SearchController@index');

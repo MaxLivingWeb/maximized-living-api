@@ -262,4 +262,44 @@ class ShopifyHelper
 
         return $allOrders;
     }
+
+    /**
+     * Retrieve a count of all the products using Shopify's AdminAPI.
+     *
+     * @return Shopify Orders Count
+     */
+    public function getProductCount()
+    {
+
+        $result = $this->client->get('products/count.json');
+        return json_decode($result->getBody()->getContents())->count;
+    }
+    
+    public function getProducts()
+    {
+        try
+        {
+            $count = $this->getProductCount();
+            $per_page = 250;
+            $numPages = (int)ceil($count / $per_page);
+
+            $products = [];
+            for($i = 1; $i <= $numPages; ++$i) {
+                $result = $this->client->get('products.json', [
+                    'query' => [
+                        'limit'  => $per_page,
+                        'page'   => $i
+                    ]
+                ]);
+
+                $products[] = json_decode($result->getBody()->getContents())->products;
+            }
+
+            return array_merge(...$products);
+        }
+        catch (ClientException $e)
+        {
+            return $result;
+        }
+    }
 }
