@@ -173,21 +173,7 @@ class UserController extends Controller
                 // Attach the Wholesale Shipping address to the associate group
                 $wholesaleShippingAddress = null;
                 if($request->has('wholesale.shipping')) {
-//                    $wholesaleShippingAddress = Address::create([
-//                        'address_1' => $request->input('wholesale.shipping.address_1'),
-//                        'address_2' => $request->input('wholesale.shipping.address_2'),
-//                        'zip_postal_code' => $request->input('wholesale.shipping.zip_postal_code') ?? '',
-//                        'city_id'   => intval($request->input('wholesale.shipping.city_id')),
-//                        'latitude' => 0,
-//                        'longitude' => 0
-//                    ]);
-//
-//                    $wholesaleShippingAddress->groups()->attach(
-//                        $userGroup->id,
-//                        ['address_type_id' => AddressType::firstOrCreate(['name' => 'Wholesale Shipping'])->id]
-//                    );
-
-                    $wholesaleShippingAddress = $this->saveAddressToUserGroup(
+                    $wholesaleShippingAddress = $this->addAddressToDatabase(
                         $request,
                         'wholesale.shipping',
                         'Wholesale Shipping',
@@ -199,7 +185,6 @@ class UserController extends Controller
                         $validatedData['business']['name'],
                         $wholesaleShippingAddress
                     );
-
                     if ($this->unique_array_items($shopifyAddress, $shopifyAddresses)) {
                         $shopifyAddresses[] = $shopifyAddress;
                         $mappedAddresses[] = (object)array_merge((array)$shopifyAddress, ['custom_address_id' => $wholesaleShippingAddress['id']]);
@@ -209,21 +194,7 @@ class UserController extends Controller
                 // Attach the Wholesale Billing address to the associate group
                 $wholesaleBillingAddress = null;
                 if($request->has('wholesale.billing')) {
-//                    $wholesaleBillingAddress = Address::create([
-//                        'address_1' => $request->input('wholesale.billing.address_1'),
-//                        'address_2' => $request->input('wholesale.billing.address_2'),
-//                        'zip_postal_code' => $request->input('wholesale.billing.zip_postal_code') ?? '',
-//                        'city_id'   => intval($request->input('wholesale.billing.city_id')),
-//                        'latitude' => 0,
-//                        'longitude' => 0
-//                    ]);
-//
-//                    $wholesaleBillingAddress->groups()->attach(
-//                        $userGroup->id,
-//                        ['address_type_id' => AddressType::firstOrCreate(['name' => 'Wholesale Billing'])->id]
-//                    );
-
-                    $wholesaleBillingAddress = $this->saveAddressToUserGroup(
+                    $wholesaleBillingAddress = $this->addAddressToDatabase(
                         $request,
                         'wholesale.billing',
                         'Wholesale Billing',
@@ -235,7 +206,6 @@ class UserController extends Controller
                         $validatedData['business']['name'],
                         $wholesaleBillingAddress
                     );
-
                     if ($this->unique_array_items($shopifyAddress, $shopifyAddresses)) {
                         $shopifyAddresses[] = $shopifyAddress;
                         $mappedAddresses[] = (object)array_merge((array)$shopifyAddress, ['custom_address_id' => $wholesaleBillingAddress['id']]);
@@ -245,21 +215,7 @@ class UserController extends Controller
                 // Attach the Commission Billing address to the associate group
                 $commissionBillingAddress = null;
                 if($request->has('commission.billing')) {
-//                    $commissionBillingAddress = Address::create([
-//                        'address_1' => $request->input('commission.billing.address_1'),
-//                        'address_2' => $request->input('commission.billing.address_2'),
-//                        'zip_postal_code' => $request->input('commission.billing.zip_postal_code') ?? '',
-//                        'city_id'   => intval($request->input('commission.billing.city_id')),
-//                        'latitude' => 0,
-//                        'longitude' => 0
-//                    ]);
-//
-//                    $commissionBillingAddress->groups()->attach(
-//                        $userGroup->id,
-//                        ['address_type_id' => AddressType::firstOrCreate(['name' => 'Commission Billing'])->id]
-//                    );
-
-                    $commissionBillingAddress = $this->saveAddressToUserGroup(
+                    $commissionBillingAddress = $this->addAddressToDatabase(
                         $request,
                         'commission.billing',
                         'Commission Billing',
@@ -271,7 +227,6 @@ class UserController extends Controller
                         $validatedData['business']['name'],
                         $commissionBillingAddress
                     );
-
                     if ($this->unique_array_items($shopifyAddress, $shopifyAddresses)) {
                         $shopifyAddresses[] = $shopifyAddress;
                         $mappedAddresses[] = (object)array_merge((array)$shopifyAddress, ['custom_address_id' => $commissionBillingAddress['id']]);
@@ -305,6 +260,7 @@ class UserController extends Controller
                     $validatedData['business']['name']
                 )
             ];
+
             $shopifyCustomerData['addresses'] = !empty($shopifyAddresses) ? $shopifyAddresses : $placeholderAddresses;
 
             $defaultAddress = collect($shopifyAddresses)
@@ -507,7 +463,7 @@ class UserController extends Controller
                 }
                 else {
                     // Add new wholesale.shipping address
-                    $wholesaleShippingAddress = $this->saveAddressToUserGroup(
+                    $wholesaleShippingAddress = $this->addAddressToDatabase(
                         $request,
                         'wholesale.shipping',
                         'Wholesale Shipping',
@@ -522,7 +478,6 @@ class UserController extends Controller
                     $validatedData['business']['name'],
                     $wholesaleShippingAddress
                 );
-
                 if ($this->unique_array_items($shopifyAddress, $shopifyAddresses)) {
                     $shopifyAddresses[] = $shopifyAddress;
                     $mappedAddresses[] = (object)array_merge((array)$shopifyAddress, ['custom_address_id' => $wholesaleShippingAddress['id']]);
@@ -544,7 +499,7 @@ class UserController extends Controller
                 }
                 else {
                     // Add new wholesale.shipping address
-                    $wholesaleBillingAddress = $this->saveAddressToUserGroup(
+                    $wholesaleBillingAddress = $this->addAddressToDatabase(
                         $request,
                         'wholesale.billing',
                         'Wholesale Billing',
@@ -559,7 +514,6 @@ class UserController extends Controller
                     $validatedData['business']['name'],
                     $wholesaleBillingAddress
                 );
-
                 if ($this->unique_array_items($shopifyAddress, $shopifyAddresses)) {
                     $shopifyAddresses[] = $shopifyAddress;
                     $mappedAddresses[] = (object)array_merge((array)$shopifyAddress, ['custom_address_id' => $wholesaleBillingAddress['id']]);
@@ -581,7 +535,7 @@ class UserController extends Controller
                 }
                 else {
                     // Add new commission.billing address
-                    $commissionBillingAddress = $this->saveAddressToUserGroup(
+                    $commissionBillingAddress = $this->addAddressToDatabase(
                         $request,
                         'commission.billing',
                         'Commission Billing',
@@ -596,7 +550,6 @@ class UserController extends Controller
                     $validatedData['business']['name'],
                     $commissionBillingAddress
                 );
-
                 if ($this->unique_array_items($shopifyAddress, $shopifyAddresses)) {
                     $shopifyAddresses[] = $shopifyAddress;
                     $mappedAddresses[] = (object)array_merge((array)$shopifyAddress, ['custom_address_id' => $commissionBillingAddress['id']]);
@@ -759,13 +712,14 @@ class UserController extends Controller
         };
     }
 
-    private function saveAddressToUserGroup(
+    private function addAddressToDatabase(
         $request,
         $fieldName,
         $fieldDescription,
         $userGroup
     ) {
         $address = null;
+
         if($request->has($fieldName)) {
             $address = Address::create([
                 'address_1'       => $request->input($fieldName.'.address_1'),
@@ -776,22 +730,12 @@ class UserController extends Controller
                 'longitude'       => 0
             ]);
 
-//            $shopifyAddress = $this->formatAddressForShopifyCustomer(
-//                $shopifyCustomerData,
-//                $validatedData['business']['name'],
-//                $address
-//            );
-//
-//            if ($this->unique_array_items($shopifyAddress, $shopifyAddresses)) {
-//                $shopifyAddresses[] = $shopifyAddress;
-//                $mappedAddresses[] = (object)array_merge((array)$shopifyAddress, ['custom_address_id' => $address['id']]);
-//            }
-
             $address->groups()->attach(
                 $userGroup->id,
                 ['address_type_id' => AddressType::firstOrCreate(['name' => $fieldDescription])->id]
             );
         }
+
         return $address;
     }
 
