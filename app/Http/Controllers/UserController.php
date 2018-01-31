@@ -295,13 +295,19 @@ class UserController extends Controller
 
             // Update Addresses saved in DB, so they are mapped to these Shopify Customer Addresses
             // Then while Editing Users, we can re-use the same Shopify Addresses than re-creating new ones
-            if (isset($wholesaleBillingAddress) && isset($wholesaleShippingAddress) && isset($commissionBillingAddress)) {
+            $addressesToUpdate = [];
+            if (isset($wholesaleBillingAddress)) {
+                $addressesToUpdate[] = $wholesaleBillingAddress;
+            }
+            if (isset($wholesaleShippingAddress)) {
+                $addressesToUpdate[] = $wholesaleShippingAddress;
+            }
+            if (isset($commissionBillingAddress)) {
+                $addressesToUpdate[] = $commissionBillingAddress;
+            }
+            if (count($addressesToUpdate) > 0) {
                 $this->attachShopifyAttributesToAddresses(
-                    [
-                        $wholesaleBillingAddress,
-                        $wholesaleShippingAddress,
-                        $commissionBillingAddress
-                    ],
+                    $addressesToUpdate,
                     $shopifyCustomer->addresses,
                     $mappedAddresses
                 );
@@ -622,28 +628,22 @@ class UserController extends Controller
 
             // Update Addresses saved in DB, so they are mapped to these Shopify Customer Addresses
             // Then while Editing Users, we can re-use the same Shopify Addresses than re-creating new ones
-            if (isset($wholesaleBillingAddress) && isset($wholesaleShippingAddress) && isset($commissionBillingAddress)) {
-                $addressesToUpdate = [];
-
-                if ($wholesaleBillingAddressIsNew) {
-                    $addressesToUpdate[] = $wholesaleBillingAddress;
-                }
-
-                if ($wholesaleShippingAddressIsNew) {
-                    $addressesToUpdate[] = $wholesaleShippingAddress;
-                }
-
-                if ($commissionBillingAddressIsNew) {
-                    $addressesToUpdate[] = $commissionBillingAddress;
-                }
-
-                if (count($addressesToUpdate) > 0) {
-                    $this->attachShopifyAttributesToAddresses(
-                        $addressesToUpdate,
-                        $shopifyCustomer->addresses,
-                        $mappedAddresses
-                    );
-                }
+            $addressesToUpdate = [];
+            if (isset($wholesaleBillingAddress) && $wholesaleBillingAddressIsNew) {
+                $addressesToUpdate[] = $wholesaleBillingAddress;
+            }
+            if (isset($wholesaleShippingAddress) && $wholesaleShippingAddressIsNew) {
+                $addressesToUpdate[] = $wholesaleShippingAddress;
+            }
+            if (isset($commissionBillingAddress) && $commissionBillingAddressIsNew) {
+                $addressesToUpdate[] = $commissionBillingAddress;
+            }
+            if (count($addressesToUpdate) > 0) {
+                $this->attachShopifyAttributesToAddresses(
+                    $addressesToUpdate,
+                    $shopifyCustomer->addresses,
+                    $mappedAddresses
+                );
             }
 
             return response()->json();
