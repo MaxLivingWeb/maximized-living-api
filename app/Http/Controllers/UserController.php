@@ -187,7 +187,10 @@ class UserController extends Controller
                     );
                     if ($this->unique_array_items($shopifyAddress, $shopifyAddresses)) {
                         $shopifyAddresses[] = $shopifyAddress;
-                        $mappedAddresses[] = (object)array_merge((array)$shopifyAddress, ['custom_address_id' => $wholesaleShippingAddress['id']]);
+                        $mappedAddresses[] = (object)array_merge(
+                            (array)$shopifyAddress,
+                            ['custom_address_id' => $wholesaleShippingAddress['id']]
+                        );
                     }
                 }
 
@@ -208,7 +211,10 @@ class UserController extends Controller
                     );
                     if ($this->unique_array_items($shopifyAddress, $shopifyAddresses)) {
                         $shopifyAddresses[] = $shopifyAddress;
-                        $mappedAddresses[] = (object)array_merge((array)$shopifyAddress, ['custom_address_id' => $wholesaleBillingAddress['id']]);
+                        $mappedAddresses[] = (object)array_merge(
+                            (array)$shopifyAddress,
+                            ['custom_address_id' => $wholesaleBillingAddress['id']]
+                        );
                     }
                 }
 
@@ -229,7 +235,10 @@ class UserController extends Controller
                     );
                     if ($this->unique_array_items($shopifyAddress, $shopifyAddresses)) {
                         $shopifyAddresses[] = $shopifyAddress;
-                        $mappedAddresses[] = (object)array_merge((array)$shopifyAddress, ['custom_address_id' => $commissionBillingAddress['id']]);
+                        $mappedAddresses[] = (object)array_merge(
+                            (array)$shopifyAddress,
+                            ['custom_address_id' => $commissionBillingAddress['id']]
+                        );
                     }
                 }
 
@@ -486,7 +495,10 @@ class UserController extends Controller
                 );
                 if ($this->unique_array_items($shopifyAddress, $shopifyAddresses)) {
                     $shopifyAddresses[] = $shopifyAddress;
-                    $mappedAddresses[] = (object)array_merge((array)$shopifyAddress, ['custom_address_id' => $wholesaleShippingAddress['id']]);
+                    $mappedAddresses[] = (object)array_merge(
+                        (array)$shopifyAddress,
+                        ['custom_address_id' => $wholesaleShippingAddress['id']]
+                    );
                 }
             }
 
@@ -522,7 +534,10 @@ class UserController extends Controller
                 );
                 if ($this->unique_array_items($shopifyAddress, $shopifyAddresses)) {
                     $shopifyAddresses[] = $shopifyAddress;
-                    $mappedAddresses[] = (object)array_merge((array)$shopifyAddress, ['custom_address_id' => $wholesaleBillingAddress['id']]);
+                    $mappedAddresses[] = (object)array_merge(
+                        (array)$shopifyAddress,
+                        ['custom_address_id' => $wholesaleBillingAddress['id']]
+                    );
                 }
             }
 
@@ -558,7 +573,10 @@ class UserController extends Controller
                 );
                 if ($this->unique_array_items($shopifyAddress, $shopifyAddresses)) {
                     $shopifyAddresses[] = $shopifyAddress;
-                    $mappedAddresses[] = (object)array_merge((array)$shopifyAddress, ['custom_address_id' => $commissionBillingAddress['id']]);
+                    $mappedAddresses[] = (object)array_merge(
+                        (array)$shopifyAddress,
+                        ['custom_address_id' => $commissionBillingAddress['id']]
+                    );
                 }
             }
 
