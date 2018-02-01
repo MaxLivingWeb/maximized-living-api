@@ -8,6 +8,7 @@ use GuzzleHttp;
 use Mockery\Exception;
 use GuzzleHttp\Exception\RequestException;
 use Symfony\Component\Process\Process;
+use App\Location;
 
 class GmbController extends Controller
 {
@@ -57,11 +58,37 @@ class GmbController extends Controller
             return;
         }
 
-        dd($this->access_token);
-
         $gmb_data = $this->format_for_gmb($location);
 
         //send that formatted gmb_data to gmb
+        //https://mybusiness.googleapis.com/v3/accounts/account_name/locations/locationId?languageCode=language&validateOnly=True|False&fieldMask=field1,field2,etc.
+    }
+
+    /**
+     * Queries a single GMB location
+     * @param $gmb_location_id
+     */
+    public function get($gmb_location_id) {
+
+        if(empty($this->access_token) ) {
+            return;
+        }
+
+        //query API based on its $gmb_locations_id
+        //https://mybusiness.googleapis.com/v3/accounts/account_name/locations/locationId
+    }
+
+    /**
+     *
+     */
+    public function get_all() {
+
+        if(empty($this->access_token) ) {
+            return;
+        }
+
+        //query API based on its $gmb_locations_id
+        //https://mybusiness.googleapis.com/v3/{name=accounts/*}/locations:batchGet
     }
 
     /**
