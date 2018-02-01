@@ -15,6 +15,7 @@ class GmbController extends Controller
     private $client_id;
     private $client_secret;
     private $refresh_token;
+    private $client;
     private $access_token;
 
     /**
@@ -28,8 +29,9 @@ class GmbController extends Controller
         $this->refresh_token = env('GOOGLE_REFRESH_TOKEN');
 
 
-        $client = new \GuzzleHttp\Client();
-        $response = $client->request(
+        $this->client = new \GuzzleHttp\Client();
+
+        $response = $this->client->request(
             'POST',
             'https://www.googleapis.com/oauth2/v4/token',
             array(
@@ -70,12 +72,12 @@ class GmbController extends Controller
      */
     public function get($gmb_location_id) {
 
+        //query API based on its $gmb_locations_id
+        //https://mybusiness.googleapis.com/v3/accounts/account_name/locations/locationId
+
         if(empty($this->access_token) ) {
             return;
         }
-
-        //query API based on its $gmb_locations_id
-        //https://mybusiness.googleapis.com/v3/accounts/account_name/locations/locationId
     }
 
     /**
@@ -83,12 +85,26 @@ class GmbController extends Controller
      */
     public function get_all() {
 
+        //query API based on its $gmb_locations_id
+        //https://mybusiness.googleapis.com/v3/{name=accounts/*}/locations:batchGet
+
         if(empty($this->access_token) ) {
             return;
         }
 
-        //query API based on its $gmb_locations_id
-        //https://mybusiness.googleapis.com/v3/{name=accounts/*}/locations:batchGet
+        //it will look something like this
+        try {
+            $g_response = $this->client->request(
+                'GET',
+                'https://mybusiness.googleapis.com/v3/accounts/arcaneSEM/locations',
+                array(
+                    'headers' => array(
+                        'Authorization' => "Bearer $this->access_token"
+                    )
+                )
+            );
+        } catch(Exception $e) {
+        }
     }
 
     /**
