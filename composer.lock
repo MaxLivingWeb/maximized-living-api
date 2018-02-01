@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "d4ffa7b545eb744ca8f854306303440c",
+    "content-hash": "a9b948607e2ac64acb3c2fda3b735894",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -2067,7 +2067,7 @@
             ],
             "authors": [
                 {
-                    "name": "Jean-François Simon",
+                    "name": "Jean-Fran??ois Simon",
                     "email": "jeanfrancois.simon@sensiolabs.com"
                 },
                 {
@@ -3066,7 +3066,7 @@
             ],
             "authors": [
                 {
-                    "name": "François Zaninotto"
+                    "name": "Fran??ois Zaninotto"
                 }
             ],
             "description": "Faker is a PHP library that generates fake data for you.",
@@ -3161,7 +3161,7 @@
             ],
             "authors": [
                 {
-                    "name": "Pádraic Brady",
+                    "name": "P??draic Brady",
                     "email": "padraic.brady@gmail.com",
                     "homepage": "http://blog.astrumfutura.com"
                 },
