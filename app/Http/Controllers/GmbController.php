@@ -103,7 +103,9 @@ class GmbController extends Controller
                     )
                 )
             );
+            dd($g_response);
         } catch(Exception $e) {
+
         }
     }
 
@@ -168,6 +170,10 @@ class GmbController extends Controller
         return $gmb_data;
     }
 
+    /**
+     * @param $business_hours
+     * @return string
+     */
     private function format_business_hours($business_hours) {
 
         $f_business_hours = '"businessHours": {';
@@ -196,6 +202,10 @@ class GmbController extends Controller
         return $f_business_hours;
     }
 
+    /**
+     * @param $hour_string
+     * @return false|string
+     */
     private function to_twenty_four_hour($hour_string) {
 
         return date("H:i", strtotime($hour_string) );

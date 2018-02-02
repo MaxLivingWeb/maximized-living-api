@@ -2,6 +2,7 @@
 
 namespace App\GraphQL\Mutation;
 
+use App\Http\Controllers\GmbController;
 use GraphQL;
 use Folklore\GraphQL\Support\Mutation;
 use App\Location;
