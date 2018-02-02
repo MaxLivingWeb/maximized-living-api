@@ -10,6 +10,7 @@ use App\Helpers\TextHelper;
 use Aws\Exception\AwsException;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use App\Helpers\ShopifyHelper;
 
 class GroupController extends Controller
 {
@@ -32,13 +33,34 @@ class GroupController extends Controller
         return UserGroup::with('commission')->findOrFail($id);
     }
 
-    public function allWithCommission()
+    public function allWithCommission(Request $request)
     {
-        return UserGroup::with(['commission', 'location'])
+        $userGroups = UserGroup::with(['commission', 'location'])
             ->get()
             ->where('commission', '!==', null)
             ->values()
             ->all();
+
+        $includeUsers = $request->input('include_users');
+        if(!empty($includeUsers) && $includeUsers === 'true') {
+            $allUsers = (new CognitoHelper(1440))
+                ->listUsers();
+
+            $shopifyUsers = (new ShopifyHelper(1440))
+                ->getCustomers(
+                    $allUsers
+                        ->pluck('shopify_id')
+                );
+
+            foreach($userGroups as $userGroup) {
+                $userGroup->loadUsers(
+                    $allUsers,
+                    $shopifyUsers
+                );
+            }
+        }
+
+        return $userGroups;
     }
 
     public function getByName(Request $request)

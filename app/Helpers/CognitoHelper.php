@@ -70,6 +70,7 @@ class CognitoHelper
 
             $users = collect();
 
+            $count = 0;
             while(!isset($result) || $result->hasKey('NextToken')) {
                 $bodyParams = [
                     'GroupName' => $groupName,
@@ -85,6 +86,10 @@ class CognitoHelper
                 $users = $users->merge(collect($result->get('Users'))->transform(function($user) {
                     return self::formatUserData($user);
                 }));
+                if($count % 3 === 0) {
+                    sleep(1);
+                }
+                $count++;
             }
         }
         catch(AwsException $e) {

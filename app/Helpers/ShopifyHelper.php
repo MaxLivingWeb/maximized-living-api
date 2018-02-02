@@ -4,6 +4,7 @@ namespace App\Helpers;
 
 use App\Extensions\CacheableApi\CacheableApi;
 use GuzzleHttp\Exception\ClientException;
+use Illuminate\Support\Facades\Cache;
 
 class ShopifyHelper extends CacheableApi
 {
@@ -45,6 +46,55 @@ class ShopifyHelper extends CacheableApi
         ]);
 
         return json_decode($result->getBody()->getContents())->customer;
+    }
+
+    public function getCustomerCount()
+    {
+        $result = $this->get('customers/count.json', TRUE);
+        return json_decode($result)->count;
+    }
+
+    public function getCustomers($ids)
+    {
+        $endpoint = 'customers.json';
+        if(Cache::has($this->cacheName . $endpoint)) {
+            return Cache::get($this->cacheName . $endpoint);
+        }
+
+        try {
+            $customers = collect([]);
+
+            collect($ids)
+                ->chunk(30)
+                ->each(function($chunk) use ($endpoint, $customers){
+                    $params = [
+                        'query' => [
+                            'ids' => $chunk->implode(',')
+                        ]
+                    ];
+
+                    $cacheString = $this->cacheName . $endpoint . serialize($params);
+
+                    if(Cache::has($cacheString)) {
+                        $customers->push(json_decode(Cache::get($cacheString)));
+                    } else {
+                        $result = $this->client->get($endpoint, $params);
+                        try {
+                            $customers->push(json_decode($result->getBody()->getContents())->customers);
+                            Cache::put($cacheString, $result->getBody()->getContents(), $this->cacheTime);
+                        }
+                        catch(\Exception $e) {
+                            dd($result->getBody()->getContents());
+                        }
+                    }
+                });
+
+            return $customers->flatten();
+        }
+        catch (ClientException $e)
+        {
+            dd($e);
+        }
     }
 
     public function updateCustomer($customer)
@@ -274,7 +324,6 @@ class ShopifyHelper extends CacheableApi
      */
     public function getProductCount()
     {
-
         $result = $this->get('products/count.json', TRUE);
         return json_decode($result)->count;
     }
