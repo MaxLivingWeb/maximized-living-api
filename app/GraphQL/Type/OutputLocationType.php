@@ -143,11 +143,6 @@ class OutputLocationType extends LocationType
             }
         ];
 
-        $fields['gmb_id'] = [
-            'name' => 'gmb_id',
-            'type' => Type::string()
-        ];
-
         return $fields;
     }
 }
