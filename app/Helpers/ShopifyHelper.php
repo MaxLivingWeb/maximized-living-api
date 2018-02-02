@@ -2,33 +2,37 @@
 
 namespace App\Helpers;
 
-use GuzzleHttp\Client as GuzzleClient;
+use App\Extensions\CacheableApi\CacheableApi;
 use GuzzleHttp\Exception\ClientException;
 
-class ShopifyHelper
+class ShopifyHelper extends CacheableApi
 {
-    private $client;
-
-    function __construct()
+    /**
+     * ShopifyAdminAPI constructor.
+     *
+     * @param integer $cacheTime The number of minutes to cache request results.
+     */
+    public function __construct($cacheTime = NULL)
     {
-        $this->client = new GuzzleClient([
-            'base_uri' => 'https://' . env('SHOPIFY_API_KEY') . ':' . env('SHOPIFY_API_PASSWORD') . '@' . env('SHOPIFY_API_STORE') . '.myshopify.com/admin/'
-        ]);
+        parent::__construct(
+            'https://' . env('SHOPIFY_API_KEY') . ':' . env('SHOPIFY_API_PASSWORD') . '@' . env('SHOPIFY_API_STORE') . '.myshopify.com/admin/',
+            $cacheTime ?? env('SHOPIFY_API_CACHE_TIME', 5)
+        );
     }
 
     public function getCustomer($id)
     {
-        $result = $this->client->get('customers/' . $id . '.json');
+        $result = $this->get('customers/' . $id . '.json', TRUE);
 
-        return json_decode($result->getBody()->getContents())->customer;
+        return json_decode($result)->customer;
     }
 
     public function getOrCreateCustomer($customer)
     {
         //search for existing customer
-        $result = $this->client->get('customers/search.json?query=email:' . $customer['email']);
+        $result = $this->get('customers/search.json?query=email:' . $customer['email']);
 
-        $customers = json_decode($result->getBody()->getContents())->customers;
+        $customers = json_decode($result)->customers;
         if(count($customers) > 0) {
             return $customers[0];
         }
@@ -73,7 +77,7 @@ class ShopifyHelper
 
     public function getPriceRules()
     {
-        $result = $this->client->get('price_rules.json');
+        $result = $this->get('price_rules.json', TRUE);
 
         return json_decode($result->getBody()->getContents())->price_rules;
     }
@@ -82,9 +86,9 @@ class ShopifyHelper
     {
         try
         {
-            $result = $this->client->get('price_rules/' . $id . '.json');
+            $result = $this->get('price_rules/' . $id . '.json', TRUE);
 
-            return json_decode($result->getBody()->getContents())->price_rule;
+            return json_decode($result)->price_rule;
         }
         catch (ClientException $e)
         {
@@ -112,9 +116,9 @@ class ShopifyHelper
     {
         try
         {
-            $result = $this->client->get('customers/' . $id . '/metafields.json');
+            $result = $this->get('customers/' . $id . '/metafields.json', TRUE);
 
-            return json_decode($result->getBody()->getContents())->metafields;
+            return json_decode($result)->metafields;
         }
         catch (ClientException $e)
         {
@@ -271,8 +275,8 @@ class ShopifyHelper
     public function getProductCount()
     {
 
-        $result = $this->client->get('products/count.json');
-        return json_decode($result->getBody()->getContents())->count;
+        $result = $this->get('products/count.json', TRUE);
+        return json_decode($result)->count;
     }
     
     public function getProducts()
