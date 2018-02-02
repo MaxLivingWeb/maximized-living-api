@@ -11,6 +11,7 @@ use Aws\Exception\AwsException;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use App\Helpers\ShopifyHelper;
+use Illuminate\Support\Facades\Cache;
 
 class GroupController extends Controller
 {
@@ -43,8 +44,25 @@ class GroupController extends Controller
 
         $includeUsers = $request->input('include_users');
         if(!empty($includeUsers) && $includeUsers === 'true') {
-            $allUsers = (new CognitoHelper(1440))
-                ->listUsers();
+            
+            // the CognitoHelper IS using caching, but it seems as though the cache is refreshed very frequently
+            // probably because the pagination token changes on Cognito's side very frquently
+            // to get around this, cache the end results directly
+            if(Cache::has('allAffiliateUsersGroupController')) {
+                $allUsers = collect(json_decode(
+                    Cache::get('allAffiliateUsersGroupController'),
+                    TRUE
+                ));
+            } else {
+                $allUsers = (new CognitoHelper(1440))
+                    ->listUsers();
+
+                Cache::put(
+                    'allAffiliateUsersGroupController',
+                    json_encode($allUsers->toArray()),
+                    1440
+                );
+            }
 
             $shopifyUsers = (new ShopifyHelper(1440))
                 ->getCustomers(
