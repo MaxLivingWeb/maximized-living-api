@@ -70,13 +70,8 @@ class ShopifyHelper extends CacheableApi
                         $customers->push(json_decode(Cache::get($cacheString)));
                     } else {
                         $result = $this->client->get($endpoint, $params);
-                        try {
-                            $customers->push(json_decode($result->getBody()->getContents())->customers);
-                            Cache::put($cacheString, $result->getBody()->getContents(), $this->cacheTime);
-                        }
-                        catch(\Exception $e) {
-                            dd($result->getBody()->getContents());
-                        }
+                        $customers->push(json_decode($result->getBody()->getContents())->customers);
+                        Cache::put($cacheString, $result->getBody()->getContents(), $this->cacheTime);
                     }
                 });
 
