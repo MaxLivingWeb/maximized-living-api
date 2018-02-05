@@ -23,6 +23,20 @@ class CognitoHelper
     protected $cacheTime;
 
     /**
+     * How long to sleep between groups of listUser queries.
+     *
+     * @var integer
+     */
+    protected $listUsersSleepTime = 1;
+
+    /**
+     * How many listUser queries to run before sleeping.
+     *
+     * @var integer
+     */
+    protected $listUsersQueryGroupSize = 3;
+
+    /**
      * CognitoHelper constructor.
      *
      * @param integer|null $cacheTime
@@ -86,8 +100,8 @@ class CognitoHelper
                 $users = $users->merge(collect($result->get('Users'))->transform(function($user) {
                     return self::formatUserData($user);
                 }));
-                if($count % 3 === 0) {
-                    sleep(1);
+                if($count % $this->listUsersQueryGroupSize === 0) {
+                    sleep($this->listUsersSleepTime);
                 }
                 $count++;
             }

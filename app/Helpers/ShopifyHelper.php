@@ -115,7 +115,7 @@ class ShopifyHelper extends CacheableApi
     {
         $result = $this->get('price_rules.json', TRUE);
 
-        return json_decode($result->getBody()->getContents())->price_rules;
+        return json_decode($result)->price_rules;
     }
 
     public function getPriceRule($id)
