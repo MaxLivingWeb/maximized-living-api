@@ -79,8 +79,10 @@ class UserGroup extends Model
                 ->pluck('user_id')
                 ->unique();
 
+            $shopifyUsers = collect($shopifyUsers);
+
             $this->users = array_values(
-                $allUsers
+                collect($allUsers)
                     ->whereIn('id', $userIds)
                     ->transform(function($user) use ($shopifyUsers){
                         $shopifyUser = $shopifyUsers

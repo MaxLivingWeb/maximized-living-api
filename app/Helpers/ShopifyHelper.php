@@ -75,7 +75,9 @@ class ShopifyHelper extends CacheableApi
                     }
                 });
 
-            return $customers->flatten();
+            return $customers
+                ->flatten()
+                ->toArray();
         }
         catch (ClientException $e)
         {

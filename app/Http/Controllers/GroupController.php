@@ -36,14 +36,14 @@ class GroupController extends Controller
 
     public function allWithCommission(Request $request)
     {
+        \Illuminate\Support\Facades\Cache::flush();
         $userGroups = UserGroup::with(['commission', 'location'])
             ->get()
             ->where('commission', '!==', null)
             ->values()
             ->all();
 
-        $includeUsers = $request->input('include_users');
-        if(!empty($includeUsers) && $includeUsers === 'true') {
+        if((bool)$request->input('include_users') === TRUE) {
 
             // the CognitoHelper IS using caching, but it seems as though the cache is refreshed very frequently
             // probably because the pagination token changes on Cognito's side very frquently
@@ -59,14 +59,14 @@ class GroupController extends Controller
 
                 Cache::put(
                     'allAffiliateUsersGroupController',
-                    json_encode($allUsers->toArray()),
+                    json_encode($allUsers),
                     1440
                 );
             }
 
             $shopifyUsers = (new ShopifyHelper(1440))
                 ->getCustomers(
-                    $allUsers
+                    collect($allUsers)
                         ->pluck('shopify_id')
                 );
 

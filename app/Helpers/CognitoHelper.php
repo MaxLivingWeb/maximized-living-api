@@ -117,7 +117,7 @@ class CognitoHelper
             return collect([]);
         }
 
-        return $users;
+        return $users->toArray();
     }
 
     public function createUser($username, $password)
