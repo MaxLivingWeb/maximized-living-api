@@ -86,9 +86,7 @@ class UserGroup extends Model
                     ->whereIn('id', $userIds)
                     ->transform(function($user) use ($shopifyUsers){
                         $shopifyUser = $shopifyUsers
-                            ->filter(function($shopifyUser) use ($user){
-                                return $shopifyUser->id == $user['shopify_id'];
-                            })
+                            ->where('id', $user['shopify_id'])
                             ->first();
 
                         if(!empty($shopifyUser)) {
@@ -97,9 +95,6 @@ class UserGroup extends Model
                         }
 
                         return $user;
-                    })
-                    ->filter(function($user){
-                        return !empty($user['first_name']);
                     })
                     ->toArray()
             );
