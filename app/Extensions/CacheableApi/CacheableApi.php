@@ -142,12 +142,7 @@ class CacheableApi
      */
     public function get($endpoint, $cache = FALSE)
     {
-        try {
-            return $this->query('get', $endpoint, [], $cache);
-        }
-        catch(\Exception $e) {
-            throw $e;
-        }
+        return $this->query('get', $endpoint, [], $cache);
     }
 
     /**
@@ -160,12 +155,7 @@ class CacheableApi
      */
     public function post($endpoint, $data = [])
     {
-        try {
-            return $this->query('post', $endpoint, $data, FALSE);
-        }
-        catch(\Exception $e) {
-            throw $e;
-        }
+        return $this->query('post', $endpoint, $data, FALSE);
     }
 
     /**
@@ -178,12 +168,7 @@ class CacheableApi
      */
     public function put($endpoint, $data = [])
     {
-        try {
-            return $this->query('put', $endpoint, $data, FALSE);
-        }
-        catch(\Exception $e) {
-            throw $e;
-        }
+        return $this->query('put', $endpoint, $data, FALSE);
     }
 
     /**
@@ -196,12 +181,7 @@ class CacheableApi
      */
     public function patch($endpoint, $data = [])
     {
-        try {
-            return $this->query('patch', $endpoint, $data, FALSE);
-        }
-        catch(\Exception $e) {
-            throw $e;
-        }
+        return $this->query('patch', $endpoint, $data, FALSE);
     }
 
     /**
@@ -214,12 +194,7 @@ class CacheableApi
      */
     public function delete($endpoint, $data = [])
     {
-        try {
-            return $this->query('delete', $endpoint, $data, FALSE);
-        }
-        catch(\Exception $e) {
-            throw $e;
-        }
+        return $this->query('delete', $endpoint, $data, FALSE);
     }
 
     /**
