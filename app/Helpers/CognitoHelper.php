@@ -72,16 +72,16 @@ class CognitoHelper
 
             $count = 0;
             while(!isset($result) || $result->hasKey('NextToken')) {
-                $bodyParams = [
+                $params = [
                     'GroupName' => $groupName,
                     'UserPoolId' => env('AWS_COGNITO_USER_POOL_ID')
                 ];
 
                 if(isset($result)) {
-                    $bodyParams['NextToken'] = $result->get('NextToken');
+                    $params['NextToken'] = $result->get('NextToken');
                 }
 
-                $result = $this->getCached('listUsersInGroup', $bodyParams);
+                $result = $this->getCached('listUsersInGroup', $params);
 
                 $users = $users->merge(collect($result->get('Users'))->transform(function($user) {
                     return self::formatUserData($user);
@@ -240,17 +240,17 @@ class CognitoHelper
      * returned. If not, the data will be retrieved from Cognito and cached before returning it.
      *
      * @param string $endpoint The SDK endpoint to query.
-     * @param array $bodyParams An array of parameters to pass to the function.
+     * @param array $params An array of parameters to pass to the function.
      * @return mixed
      */
-    public function getCached($endpoint, $bodyParams)
+    public function getCached($endpoint, $params)
     {
-        $cacheName = $endpoint . $this->cacheTime . md5(serialize($bodyParams));
+        $cacheName = $endpoint . $this->cacheTime . md5(serialize($params));
         if(Cache::has($cacheName)) {
             return Cache::get($cacheName);
         }
 
-        $result = $this->client->{$endpoint}($bodyParams);
+        $result = $this->client->{$endpoint}($params);
         Cache::put(
             $cacheName,
             $result,
