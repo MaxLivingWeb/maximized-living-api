@@ -36,7 +36,6 @@ class GroupController extends Controller
 
     public function allWithCommission(Request $request)
     {
-        \Illuminate\Support\Facades\Cache::flush();
         $userGroups = UserGroup::with(['commission', 'location'])
             ->get()
             ->where('commission', '!==', null)
