@@ -44,7 +44,7 @@ class GroupController extends Controller
 
         $includeUsers = $request->input('include_users');
         if(!empty($includeUsers) && $includeUsers === 'true') {
-            
+
             // the CognitoHelper IS using caching, but it seems as though the cache is refreshed very frequently
             // probably because the pagination token changes on Cognito's side very frquently
             // to get around this, cache the end results directly

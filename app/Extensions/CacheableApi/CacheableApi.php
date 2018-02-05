@@ -58,7 +58,7 @@ class CacheableApi
     /**
      * CacheableApi constructor.
      *
-     * @param $baseUri The base URI for the client to make all requests off.
+     * @param string $baseUri The base URI for the client to make all requests off.
      * @param integer $cacheTime The number of minutes to cache request results.
      */
     public function __construct($baseUri, $cacheTime = NULL)

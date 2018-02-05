@@ -48,18 +48,9 @@ class ShopifyHelper extends CacheableApi
         return json_decode($result->getBody()->getContents())->customer;
     }
 
-    public function getCustomerCount()
-    {
-        $result = $this->get('customers/count.json', TRUE);
-        return json_decode($result)->count;
-    }
-
     public function getCustomers($ids)
     {
         $endpoint = 'customers.json';
-        if(Cache::has($this->cacheName . $endpoint)) {
-            return Cache::get($this->cacheName . $endpoint);
-        }
 
         try {
             $customers = collect([]);
@@ -93,7 +84,7 @@ class ShopifyHelper extends CacheableApi
         }
         catch (ClientException $e)
         {
-            dd($e);
+            return NULL;
         }
     }
 
