@@ -85,7 +85,7 @@ class Handler extends ExceptionHandler
 
             SlackHelper::slackNotification(
                 $message,
-                (config('app.env') === 'local' ? env('LOCAL_ERROR_SLACK_ID') : 'C90PWS19R')
+                (config('app.env') === 'local' ? env('LOCAL_ERROR_SLACK_ID') : 'C5S9LV83S')
             );
         }
     }
