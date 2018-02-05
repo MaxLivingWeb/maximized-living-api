@@ -76,7 +76,8 @@ class CacheableApi
      * @param string $method The method by which to query.
      * @param string $endpoint The endpoint to query.
      * @param bool $cache Whether to cache the result.
-     * @return stdClass|bool|\Exception
+     * @return stdClass|bool|
+     * @throws \Exception
      */
     public function query(string $method, string $endpoint, $data = [], $cache = FALSE)
     {
@@ -127,7 +128,7 @@ class CacheableApi
             return $resultContents;
         }
         catch(\Exception $e) {
-            return $e;
+            throw $e;
         }
     }
 
@@ -137,10 +138,16 @@ class CacheableApi
      * @param string $endpoint The endpoint to query.
      * @param bool $cache Whether to cache the result.
      * @return stdClass|bool
+     * @throws \Exception
      */
     public function get($endpoint, $cache = FALSE)
     {
-        return $this->query('get', $endpoint, [], $cache);
+        try {
+            return $this->query('get', $endpoint, [], $cache);
+        }
+        catch(\Exception $e) {
+            throw $e;
+        }
     }
 
     /**
@@ -149,10 +156,16 @@ class CacheableApi
      * @param string $endpoint The endpoint to query.
      * @param array $data An array of data to include.
      * @return stdClass|bool
+     * @throws \Exception
      */
     public function post($endpoint, $data = [])
     {
-        return $this->query('post', $endpoint, $data, FALSE);
+        try {
+            return $this->query('post', $endpoint, $data, FALSE);
+        }
+        catch(\Exception $e) {
+            throw $e;
+        }
     }
 
     /**
@@ -161,10 +174,16 @@ class CacheableApi
      * @param string $endpoint The endpoint to query.
      * @param array $data An array of data to include.
      * @return stdClass|bool
+     * @throws \Exception
      */
     public function put($endpoint, $data = [])
     {
-        return $this->query('put', $endpoint, $data, FALSE);
+        try {
+            return $this->query('put', $endpoint, $data, FALSE);
+        }
+        catch(\Exception $e) {
+            throw $e;
+        }
     }
 
     /**
@@ -173,10 +192,16 @@ class CacheableApi
      * @param string $endpoint The endpoint to query.
      * @param array $data An array of data to include.
      * @return stdClass|bool
+     * @throws \Exception
      */
     public function patch($endpoint, $data = [])
     {
-        return $this->query('patch', $endpoint, $data, FALSE);
+        try {
+            return $this->query('patch', $endpoint, $data, FALSE);
+        }
+        catch(\Exception $e) {
+            throw $e;
+        }
     }
 
     /**
@@ -185,10 +210,16 @@ class CacheableApi
      * @param string $endpoint The endpoint to query.
      * @param array $data An array of data to include.
      * @return stdClass|bool
+     * @throws \Exception
      */
     public function delete($endpoint, $data = [])
     {
-        return $this->query('delete', $endpoint, $data, FALSE);
+        try {
+            return $this->query('delete', $endpoint, $data, FALSE);
+        }
+        catch(\Exception $e) {
+            throw $e;
+        }
     }
 
     /**
