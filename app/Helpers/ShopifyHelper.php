@@ -48,6 +48,12 @@ class ShopifyHelper extends CacheableApi
         return json_decode($result->getBody()->getContents())->customer;
     }
 
+    /**
+     * Returns an array of customers from Shopify with the given IDs.
+     *
+     * @param array $ids The IDs of the Shopify customers to return.
+     * @return array|\Exception|ClientException
+     */
     public function getCustomers($ids)
     {
         $endpoint = 'customers.json';
@@ -81,7 +87,7 @@ class ShopifyHelper extends CacheableApi
         }
         catch (ClientException $e)
         {
-            return NULL;
+            return $e;
         }
     }
 
