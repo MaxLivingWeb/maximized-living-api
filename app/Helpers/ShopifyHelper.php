@@ -23,9 +23,13 @@ class ShopifyHelper extends CacheableApi
 
     public function getCustomer($id)
     {
-        $result = $this->get('customers/' . $id . '.json', TRUE);
-
-        return json_decode($result)->customer;
+        try {
+            $result = $this->get('customers/' . $id . '.json', TRUE);
+            return json_decode($result)->customer;
+        }
+        catch(\Exception $e) {
+            throw $e;
+        }
     }
 
     public function getOrCreateCustomer($customer)
@@ -85,9 +89,11 @@ class ShopifyHelper extends CacheableApi
                 ->flatten()
                 ->toArray();
         }
-        catch (ClientException $e)
-        {
+        catch(ClientException $e) {
             return $e;
+        }
+        catch(\Exception $e) {
+            throw $e;
         }
     }
 
@@ -128,15 +134,16 @@ class ShopifyHelper extends CacheableApi
 
     public function getPriceRule($id)
     {
-        try
-        {
+        try {
             $result = $this->get('price_rules/' . $id . '.json', TRUE);
 
             return json_decode($result)->price_rule;
         }
-        catch (ClientException $e)
-        {
+        catch (ClientException $e) {
             return null;
+        }
+        catch(\Exception $e) {
+            throw $e;
         }
     }
 
@@ -158,15 +165,16 @@ class ShopifyHelper extends CacheableApi
 
     public function getUserMetafields($id)
     {
-        try
-        {
+        try {
             $result = $this->get('customers/' . $id . '/metafields.json', TRUE);
 
             return json_decode($result)->metafields;
         }
-        catch (ClientException $e)
-        {
+        catch (ClientException $e) {
             return null;
+        }
+        catch(\Exception $e) {
+            throw $e;
         }
     }
 
