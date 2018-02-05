@@ -80,13 +80,17 @@ class Handler extends ExceptionHandler
             $url = $request->fullUrl() ?? NULL;
             $method = $request->method() ?? NULL;
             $referer = $request->server()['HTTP_REFERER'] ?? NULL;
+            $clientIP = $request->ip() ?? NULL;
+            $data = $request->input() ?? NULL;
 
             $message = '*Application*: ' . $application . "\n" .
                 '*Environment*: ' . $environment . "\n" .
+                (!empty($code) ? '*Code*: ' . $code . "\n" : '') .
                 (!empty($url) ? '*URL*: ' . $url . "\n" : '') .
                 (!empty($method) ? '*Method*: ' . $method . "\n" : '') .
                 (!empty($referer) ? '*Referer*: ' . $referer . "\n" : '') .
-                (!empty($code) ? '*Code*: ' . $code . "\n" : '') .
+                (!empty($clientIP) ? '*Client IP*: ' . $clientIP . "\n" : '') .
+                (!empty($data) ? '*Request Data*: ' . print_r($data, TRUE) . "\n" : '') .
                 (!empty($message) ? '*Code*: ' . $message . "\n" : '') .
                 '*Trace*: ' . "\n" . $trace . "\n" .
                 "---------------------------------------------------------------------------------------------------------------------\n\n";
