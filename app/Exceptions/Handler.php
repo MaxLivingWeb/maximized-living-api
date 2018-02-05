@@ -66,7 +66,7 @@ class Handler extends ExceptionHandler
      */
     private function _notify(Exception $e): void
     {
-        if ($this->isHttpException($e) /*&& $e->getStatusCode() !== 404*/) {
+        if ($this->isHttpException($e) && $e->getStatusCode() !== 404) {
             if(config('app.env') == 'local' && empty(env('LOCAL_ERROR_SLACK_ID'))) {
                 return;
             }
