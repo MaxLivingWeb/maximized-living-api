@@ -5,6 +5,7 @@ namespace App\Exceptions;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use App\Helpers\SlackHelper;
 
 class Handler extends ExceptionHandler
 {
@@ -37,6 +38,7 @@ class Handler extends ExceptionHandler
      */
     public function report(Exception $exception)
     {
+        $this->_notify($exception);
         parent::report($exception);
     }
 
@@ -55,5 +57,36 @@ class Handler extends ExceptionHandler
         }
 
         return parent::render($request, $exception);
+    }
+
+    /**
+     * Handles error notifications to Slack.
+     *
+     * @param Exception $e
+     */
+    private function _notify(Exception $e): void
+    {
+        if ($this->isHttpException($e) && $e->getStatusCode() !== 404) {
+            if(config('app.env') == 'local' && empty(env('LOCAL_ERROR_SLACK_ID'))) {
+                return;
+            }
+            $code = $e->getStatusCode() ?? $e->getCode() ?? '';
+            $message = $e->getMessage();
+            $application = config('app.name');
+            $environment = config('app.env');
+            $trace = $e->getTraceAsString();
+
+            $message = '*Application*: ' . $application . "\n" .
+                '*Environment*: ' . $environment . "\n" .
+                (!empty($code) ? '*Code*: ' . $code . "\n" : '') .
+                (!empty($message) ? '*Code*: ' . $message . "\n" : '') .
+                '*Trace*: ' . "\n" . $trace . "\n" .
+                "---------------------------------------------------------------------------------------------------------------------\n\n";
+
+            SlackHelper::slackNotification(
+                $message,
+                (config('app.env') === 'local' ? env('LOCAL_ERROR_SLACK_ID') : 'C5S9LV83S')
+            );
+        }
     }
 }
