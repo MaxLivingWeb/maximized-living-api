@@ -127,7 +127,7 @@ class CacheableApi
             return $resultContents;
         }
         catch(\Exception $e) {
-            return $e; // TODO: what do we do with exceptions? Abort? Return NULL? Return the exception?
+            return $e;
         }
     }
 
