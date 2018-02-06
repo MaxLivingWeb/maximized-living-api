@@ -85,6 +85,7 @@ Route::group(['prefix' => 'reporting'], function() {
     });
 });
 
+
 // Csv Exports
 Route::get('/export/users/duplicates', 'UserController@exportDuplicateUsersToCSV');
 
@@ -97,3 +98,9 @@ Route::get('/store/update-products', function () {
 });
 
 Route::get('/store/search', 'SearchController@index');
+
+//Google My Business
+Route::group(['prefix' => 'gmb'], function() {
+    Route::get('/test', 'GmbController@get_all');
+
+});
