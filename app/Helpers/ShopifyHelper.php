@@ -125,6 +125,17 @@ class ShopifyHelper extends CacheableApi
         return json_decode($result->getBody()->getContents())->customer;
     }
 
+    /**
+     * Deletes a given customer Address from the Shopify store.
+     *
+     * @param array $address An associative array of address info.
+     * @return array
+     */
+    public function deleteCustomerAddress($address)
+    {
+        $this->client->delete('customers/' . $address['customer_id'] . '/addresses/' . $address['id'] . '.json');
+    }
+
     public function getPriceRules()
     {
         $result = $this->get('price_rules.json', TRUE);

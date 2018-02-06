@@ -194,7 +194,7 @@ class UserController extends Controller
                         $validatedData['business']['name'],
                         $defaultAddress
                     );
-                    if ($this->unique_array_items($shopifyAddress, $shopifyAddresses)) {
+                    if ($this->unique_address_data($shopifyAddress, $shopifyAddresses)) {
                         $shopifyAddresses[] = $shopifyAddress;
                         $mappedAddresses[] = (object)array_merge(
                             (array)$shopifyAddress,
@@ -218,7 +218,7 @@ class UserController extends Controller
                         $validatedData['business']['name'],
                         $wholesaleShippingAddress
                     );
-                    if ($this->unique_array_items($shopifyAddress, $shopifyAddresses)) {
+                    if ($this->unique_address_data($shopifyAddress, $shopifyAddresses)) {
                         $shopifyAddresses[] = $shopifyAddress;
                         $mappedAddresses[] = (object)array_merge(
                             (array)$shopifyAddress,
@@ -242,7 +242,7 @@ class UserController extends Controller
                         $validatedData['business']['name'],
                         $wholesaleBillingAddress
                     );
-                    if ($this->unique_array_items($shopifyAddress, $shopifyAddresses)) {
+                    if ($this->unique_address_data($shopifyAddress, $shopifyAddresses)) {
                         $shopifyAddresses[] = $shopifyAddress;
                         $mappedAddresses[] = (object)array_merge(
                             (array)$shopifyAddress,
@@ -266,7 +266,7 @@ class UserController extends Controller
                         $validatedData['business']['name'],
                         $commissionBillingAddress
                     );
-                    if ($this->unique_array_items($shopifyAddress, $shopifyAddresses)) {
+                    if ($this->unique_address_data($shopifyAddress, $shopifyAddresses)) {
                         $shopifyAddresses[] = $shopifyAddress;
                         $mappedAddresses[] = (object)array_merge(
                             (array)$shopifyAddress,
@@ -358,9 +358,7 @@ class UserController extends Controller
                 );
             }
 
-            return response()->json([
-                'ShopifyCustomer' => $shopifyCustomer
-            ]);
+            return response()->json();
         }
         catch(AwsException $e) {
             Log::error($e);
@@ -439,6 +437,28 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * Remove the Shopify Address ID from our Custom Address that is saved into the API
+     * @param $addresses (List of Address objects that need to attach the Shopify Address IDs)
+     * @param $shopifyCustomerAddresses (Addresses saved to Shopify Customer)
+     * @param $mappedAddresses
+     */
+    private function detachShopifyAddressFromUser($id, $shopifyAddress, $shopifyCustomerAddresses)
+    {
+        $shopify = new ShopifyHelper();
+
+        if (count($shopifyCustomerAddresses) > 0
+            && !is_null($shopifyAddress->id)
+            && !is_null($shopifyAddress->customer_id)
+        ) {
+            $address = Address::findOrFail($id);
+            $address->resetShopifyAddressID();
+            $address->resetShopifyAddressDefaultValue();
+
+            $shopify->deleteCustomerAddress((array)$shopifyAddress);
+        }
+    }
+
     public function getUser($id)
     {
         $cognito = new CognitoHelper();
@@ -486,6 +506,9 @@ class UserController extends Controller
                 ->where('Name', env('COGNITO_SHOPIFY_CUSTOM_ATTRIBUTE'))
                 ->first()['Value'];
 
+            // Get current state for shopify customer
+            $currentShopifyCustomer = $shopify->getCustomer($shopifyId);
+
             // Basic Shopify Customer data to be updated...
             $shopifyCustomerData = [
                 'id'         => $shopifyId,
@@ -503,7 +526,6 @@ class UserController extends Controller
 
             // Default Addresses
             $defaultAddress = null;
-            $defaultAddressIsNew = false;
             if(!empty($request->input('defaultAddress'))) {
                 $defaultAddress = $addresses
                     ->filter($this->_getAddressByType([1]))
@@ -522,7 +544,6 @@ class UserController extends Controller
                         'Main Location',
                         $userGroup
                     );
-                    $defaultAddressIsNew = true;
                 }
 
                 // Add this address to list of Shopify Addresses
@@ -531,18 +552,24 @@ class UserController extends Controller
                     $validatedData['business']['name'],
                     $defaultAddress
                 );
-                if ($this->unique_array_items($shopifyAddress, $shopifyAddresses)) {
+                if ($this->unique_address_data($shopifyAddress, $shopifyAddresses)) {
                     $shopifyAddresses[] = $shopifyAddress;
                     $mappedAddresses[] = (object)array_merge(
                         (array)$shopifyAddress,
                         ['custom_address_id' => $defaultAddress['id']]
                     );
                 }
+                else {
+                    $this->detachShopifyAddressFromUser(
+                        $defaultAddress['id'],
+                        $shopifyAddress,
+                        $currentShopifyCustomer->addresses
+                    );
+                }
             }
 
             // Wholesaler Shipping Addresses
             $wholesaleShippingAddress = null;
-            $wholesaleShippingAddressIsNew = false;
             if(!empty($request->input('wholesale.shipping'))) {
                 $wholesaleShippingAddress = $addresses
                     ->filter($this->_getAddressByType([4]))
@@ -561,7 +588,6 @@ class UserController extends Controller
                         'Wholesale Shipping',
                         $userGroup
                     );
-                    $wholesaleShippingAddressIsNew = true;
                 }
 
                 // Add this address to list of Shopify Addresses
@@ -570,18 +596,24 @@ class UserController extends Controller
                     $validatedData['business']['name'],
                     $wholesaleShippingAddress
                 );
-                if ($this->unique_array_items($shopifyAddress, $shopifyAddresses)) {
+                if ($this->unique_address_data($shopifyAddress, $shopifyAddresses)) {
                     $shopifyAddresses[] = $shopifyAddress;
                     $mappedAddresses[] = (object)array_merge(
                         (array)$shopifyAddress,
                         ['custom_address_id' => $wholesaleShippingAddress['id']]
                     );
                 }
+                else {
+                    $this->detachShopifyAddressFromUser(
+                        $wholesaleShippingAddress['id'],
+                        $shopifyAddress,
+                        $currentShopifyCustomer->addresses
+                    );
+                }
             }
 
             // Wholesaler Billing Address
             $wholesaleBillingAddress = null;
-            $wholesaleBillingAddressIsNew = false;
             if(!empty($request->input('wholesale.billing'))) {
                 $wholesaleBillingAddress = $addresses
                     ->filter($this->_getAddressByType([5]))
@@ -600,7 +632,6 @@ class UserController extends Controller
                         'Wholesale Billing',
                         $userGroup
                     );
-                    $wholesaleBillingAddressIsNew = true;
                 }
 
                 // Add this address to list of Shopify Addresses
@@ -609,18 +640,24 @@ class UserController extends Controller
                     $validatedData['business']['name'],
                     $wholesaleBillingAddress
                 );
-                if ($this->unique_array_items($shopifyAddress, $shopifyAddresses)) {
+                if ($this->unique_address_data($shopifyAddress, $shopifyAddresses)) {
                     $shopifyAddresses[] = $shopifyAddress;
                     $mappedAddresses[] = (object)array_merge(
                         (array)$shopifyAddress,
                         ['custom_address_id' => $wholesaleBillingAddress['id']]
                     );
                 }
+                else {
+                    $this->detachShopifyAddressFromUser(
+                        $wholesaleBillingAddress['id'],
+                        $shopifyAddress,
+                        $currentShopifyCustomer->addresses
+                    );
+                }
             }
 
             // Commission Billing address
             $commissionBillingAddress = null;
-            $commissionBillingAddressIsNew = false;
             if(!empty($request->input('commission.billing'))){
                 $commissionBillingAddress = $addresses
                     ->filter($this->_getAddressByType([6]))
@@ -639,7 +676,6 @@ class UserController extends Controller
                         'Commission Billing',
                         $userGroup
                     );
-                    $commissionBillingAddressIsNew = true;
                 }
 
                 // Add this address to list of Shopify Addresses
@@ -648,11 +684,18 @@ class UserController extends Controller
                     $validatedData['business']['name'],
                     $commissionBillingAddress
                 );
-                if ($this->unique_array_items($shopifyAddress, $shopifyAddresses)) {
+                if ($this->unique_address_data($shopifyAddress, $shopifyAddresses)) {
                     $shopifyAddresses[] = $shopifyAddress;
                     $mappedAddresses[] = (object)array_merge(
                         (array)$shopifyAddress,
                         ['custom_address_id' => $commissionBillingAddress['id']]
+                    );
+                }
+                else {
+                    $this->detachShopifyAddressFromUser(
+                        $commissionBillingAddress['id'],
+                        $shopifyAddress,
+                        $currentShopifyCustomer->addresses
                     );
                 }
             }
@@ -715,8 +758,6 @@ class UserController extends Controller
                 )
             ];
 
-            return $shopifyAddresses;
-
             $shopifyCustomerData['addresses'] = !empty($shopifyAddresses) ? $shopifyAddresses : $placeholderShopifyAddresses;
 
             $defaultShopifyAddress = collect($shopifyAddresses)
@@ -733,16 +774,16 @@ class UserController extends Controller
             // Update Addresses saved in DB, so they are mapped to these Shopify Customer Addresses
             // Then while Editing Users, we can re-use the same Shopify Addresses than re-creating new ones
             $addressesToUpdate = [];
-            if (isset($defaultAddress) && $defaultAddressIsNew && collect($mappedAddresses)->where('custom_address_id', $defaultAddress['id'])->isNotEmpty()) {
+            if (isset($defaultAddress) && is_null($defaultAddress['shopify_id'])) {
                 $addressesToUpdate[] = $defaultAddress;
             }
-            if (isset($wholesaleBillingAddress) && $wholesaleBillingAddressIsNew && collect($mappedAddresses)->where('custom_address_id', $wholesaleBillingAddress['id'])->isNotEmpty()) {
+            if (isset($wholesaleBillingAddress) && is_null($wholesaleBillingAddress['shopify_id'])) {
                 $addressesToUpdate[] = $wholesaleBillingAddress;
             }
-            if (isset($wholesaleShippingAddress) && $wholesaleShippingAddressIsNew && collect($mappedAddresses)->where('custom_address_id', $wholesaleShippingAddress['id'])->isNotEmpty()) {
+            if (isset($wholesaleShippingAddress) && is_null($wholesaleShippingAddress['shopify_id'])) {
                 $addressesToUpdate[] = $wholesaleShippingAddress;
             }
-            if (isset($commissionBillingAddress) && $commissionBillingAddressIsNew && collect($mappedAddresses)->where('custom_address_id', $commissionBillingAddress['id'])->isNotEmpty()) {
+            if (isset($commissionBillingAddress) && is_null($commissionBillingAddress['shopify_id'])) {
                 $addressesToUpdate[] = $commissionBillingAddress;
             }
             if (count($addressesToUpdate) > 0) {
@@ -753,9 +794,7 @@ class UserController extends Controller
                 );
             }
 
-            return response()->json([
-                'ShopifyCustomer' => $shopifyCustomer
-            ]);
+            return response()->json();
         }
         catch(AwsException $e) {
             return response()->json([$e->getAwsErrorMessage()], 500);
@@ -871,29 +910,43 @@ class UserController extends Controller
             'default'       => $default
         ];
 
-        if (isset($address['shopify_id'])) {
+        if (isset($address['shopify_id']) && !empty($address['shopify_id'])) {
             $result->id = $address['shopify_id'];
+        }
+
+        if (isset($shopifyCustomerData['id'])) {
+            $result->customer_id = (int)$shopifyCustomerData['id'];
         }
 
         return $result;
     }
 
-    private function unique_array_items($currentItem, $items)
+    private function unique_address_data($currentAddress, $addresses)
     {
-        if (count($items) === 0) {
+        if (count($addresses) === 0) {
             return true;
         }
 
         $unique = 0;
 
-        foreach($items as $item){
-            foreach($item as $key => $value){
-                if (in_array($value, (array)$currentItem)){
+        foreach($addresses as $address){
+            foreach($address as $key => $value){
+                if ($key === 'id' || $key === 'default') {
+                    continue;
+                }
+                if (in_array($value, (array)$currentAddress)){
                     $unique++;
                 }
             }
         }
 
-        return $unique !== count(array_keys((array)$currentItem));
+        $numberOfArrayKeys = array_keys(
+            collect($currentAddress)->reject(function($value, $key){
+                return $key === 'id' || $key === 'default';
+            })
+            ->all()
+        );
+
+        return $unique !== count($numberOfArrayKeys);
     }
 }
