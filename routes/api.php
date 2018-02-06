@@ -81,3 +81,9 @@ Route::group(['prefix' => 'reporting'], function() {
         Route::get('{id}/sales', 'Reporting\WholesaleController@salesById');
     });
 });
+
+//Google My Business
+Route::group(['prefix' => 'gmb'], function() {
+    Route::get('/test', 'GmbController@get_all');
+
+});
