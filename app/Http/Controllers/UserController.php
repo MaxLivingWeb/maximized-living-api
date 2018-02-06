@@ -448,8 +448,12 @@ class UserController extends Controller
         $shopify = new ShopifyHelper();
 
         if (count($shopifyCustomerAddresses) > 0
-            && !is_null($shopifyAddress->id)
-            && !is_null($shopifyAddress->customer_id)
+            && (
+                isset($shopifyAddress->id) && !is_null($shopifyAddress->id)
+            )
+            && (
+                isset($shopifyAddress->customer_id) && !is_null($shopifyAddress->customer_id)
+            )
         ) {
             $address = Address::findOrFail($id);
             $address->resetShopifyAddressID();
@@ -726,24 +730,13 @@ class UserController extends Controller
             }
 
             // Update `legacy_affiliate_id` value to User
-            $legacy_affiliate_id = null;
-            if (!is_null($validatedData['legacyId'])) {
-                $legacy_affiliate_id = (int)$validatedData['legacyId'];
-            }
-            $userGroup->legacy_affiliate_id = $legacy_affiliate_id;
-
+            $userGroup->legacy_affiliate_id = !empty($validatedData['legacyId']) ? (int)$validatedData['legacyId'] : null;
             // Update `commission.id` value to User
-            $commission_id = !is_null($validatedData['commission']['id']) ? (int)$validatedData['commission']['id'] : null;
-            $userGroup->commission_id = $commission_id;
-            $userGroup->save();
-
+            $userGroup->commission_id = !empty($validatedData['commission']['id']) ? (int)$validatedData['commission']['id'] : null;
             // Update `wholesaler` value to User
-            if(isset($validatedData['wholesaler'])
-                && (bool)$validatedData['wholesaler'] != $userGroup->wholesaler
-            ) {
-                $userGroup->wholesaler = (bool)$validatedData['wholesaler'];
-                $userGroup->save();
-            }
+            $userGroup->wholesaler = !empty($validatedData['wholesaler']) ? (bool)$validatedData['wholesaler'] : false;
+            // Save updates
+            $userGroup->save();
 
             // Update permissions (for Cognito user)
             if(isset($validatedData['permissions'])) {
@@ -778,16 +771,28 @@ class UserController extends Controller
             // Update Addresses saved in DB, so they are mapped to these Shopify Customer Addresses
             // Then while Editing Users, we can re-use the same Shopify Addresses than re-creating new ones
             $addressesToUpdate = [];
-            if (isset($defaultAddress) && is_null($defaultAddress['shopify_id'])) {
+            if (isset($defaultAddress)
+             && collect($mappedAddresses)->where('custom_address_id', $defaultAddress['id'])->isNotEmpty()
+             && is_null($defaultAddress['shopify_id'])
+            ) {
                 $addressesToUpdate[] = $defaultAddress;
             }
-            if (isset($wholesaleBillingAddress) && is_null($wholesaleBillingAddress['shopify_id'])) {
+            if (isset($wholesaleBillingAddress)
+                && collect($mappedAddresses)->where('custom_address_id', $wholesaleBillingAddress['id'])->isNotEmpty()
+                && is_null($wholesaleBillingAddress['shopify_id'])
+            ) {
                 $addressesToUpdate[] = $wholesaleBillingAddress;
             }
-            if (isset($wholesaleShippingAddress) && is_null($wholesaleShippingAddress['shopify_id'])) {
+            if (isset($wholesaleShippingAddress)
+                && collect($mappedAddresses)->where('custom_address_id', $wholesaleShippingAddress['id'])->isNotEmpty()
+                && is_null($wholesaleShippingAddress['shopify_id'])
+            ) {
                 $addressesToUpdate[] = $wholesaleShippingAddress;
             }
-            if (isset($commissionBillingAddress) && is_null($commissionBillingAddress['shopify_id'])) {
+            if (isset($commissionBillingAddress)
+                && collect($mappedAddresses)->where('custom_address_id', $commissionBillingAddress['id'])->isNotEmpty()
+                && is_null($commissionBillingAddress['shopify_id'])
+            ) {
                 $addressesToUpdate[] = $commissionBillingAddress;
             }
             if (count($addressesToUpdate) > 0) {
@@ -798,7 +803,11 @@ class UserController extends Controller
                 );
             }
 
-            return response()->json();
+            return response()->json([
+                'ShopifyCustomer' => $shopifyCustomer,
+                'MappedAddresses' => $mappedAddresses,
+                'AddressesToUpdate' => $addressesToUpdate
+            ]);
         }
         catch(AwsException $e) {
             return response()->json([$e->getAwsErrorMessage()], 500);
@@ -931,26 +940,36 @@ class UserController extends Controller
             return true;
         }
 
-        $unique = 0;
+        $matches = 0;
+
+        $keysToIgnore = ['id', 'default', 'customer_id'];
+
+        $numberOfArrayKeys = count(
+            array_keys(
+                collect($currentAddress)->reject(function($value, $key) use($keysToIgnore){
+                    return in_array($key, $keysToIgnore);
+                })
+                ->all()
+            )
+        );
 
         foreach($addresses as $address){
+            $numberOfSimilarities = 0;
+
             foreach($address as $key => $value){
-                if ($key === 'id' || $key === 'default') {
+                if (in_array($key, $keysToIgnore)) {
                     continue;
                 }
                 if (in_array($value, (array)$currentAddress)){
-                    $unique++;
+                    $numberOfSimilarities++;
                 }
+            }
+
+            if ($numberOfSimilarities === $numberOfArrayKeys) {
+                $matches++;
             }
         }
 
-        $numberOfArrayKeys = array_keys(
-            collect($currentAddress)->reject(function($value, $key){
-                return $key === 'id' || $key === 'default';
-            })
-            ->all()
-        );
-
-        return $unique !== count($numberOfArrayKeys);
+        return $matches === 0;
     }
 }
