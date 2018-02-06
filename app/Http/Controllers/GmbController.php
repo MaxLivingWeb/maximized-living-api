@@ -96,7 +96,7 @@ class GmbController extends Controller
         try {
             $g_response = $this->client->request(
                 'GET',
-                'https://mybusiness.googleapis.com/v3/accounts/arcaneSEM/locations',
+                'https://mybusiness.googleapis.com/v4/accounts',
                 array(
                     'headers' => array(
                         'Authorization' => "Bearer $this->access_token"
