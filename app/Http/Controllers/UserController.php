@@ -485,7 +485,7 @@ class UserController extends Controller
                 'last_name'     => 'required',
                 'phone'         => 'nullable',
                 'legacyId'      => 'nullable|integer',
-//                'commission.id' => 'nullable|integer', //TODO: Still implement saving commission.id while editing Users in Admin Portal
+                'commission.id' => 'nullable|integer',
                 'wholesaler'    => 'nullable|boolean',
                 'permissions'   => 'nullable|array|min:1',
                 'permissions.*' => 'nullable|string|distinct|exists:user_permissions,key',
@@ -725,15 +725,19 @@ class UserController extends Controller
                 }
             }
 
-            // Update `legacy_affiliate_id` value to UserGroup
-            if(isset($validatedData['legacyId'])
-                && (int)$validatedData['legacyId'] != $userGroup->legacy_affiliate_id
-            ) {
-                $userGroup->legacy_affiliate_id = (int)$validatedData['legacyId'];
-                $userGroup->save();
+            // Update `legacy_affiliate_id` value to User
+            $legacy_affiliate_id = null;
+            if (!is_null($validatedData['legacyId'])) {
+                $legacy_affiliate_id = (int)$validatedData['legacyId'];
             }
+            $userGroup->legacy_affiliate_id = $legacy_affiliate_id;
 
-            // Update `wholesaler` value to UserGroup
+            // Update `commission.id` value to User
+            $commission_id = !is_null($validatedData['commission']['id']) ? (int)$validatedData['commission']['id'] : null;
+            $userGroup->commission_id = $commission_id;
+            $userGroup->save();
+
+            // Update `wholesaler` value to User
             if(isset($validatedData['wholesaler'])
                 && (bool)$validatedData['wholesaler'] != $userGroup->wholesaler
             ) {
