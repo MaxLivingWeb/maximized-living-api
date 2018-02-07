@@ -62,7 +62,7 @@ class CognitoHelper
      */
     public function getUser($id)
     {
-        return $this->getCached('adminGetUser', [
+        return $this->client->adminGetUser([
             'UserPoolId' => env('AWS_COGNITO_USER_POOL_ID'),
             'Username' => $id
         ]);
