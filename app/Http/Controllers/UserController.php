@@ -528,7 +528,7 @@ class UserController extends Controller
             $shopifyAddresses = [];
             $mappedAddresses = [];
 
-            // Default Addresses
+            // Default Address
             $defaultAddress = null;
             if(!empty($request->input('defaultAddress'))) {
                 $defaultAddress = $addresses
@@ -572,7 +572,7 @@ class UserController extends Controller
                 }
             }
 
-            // Wholesaler Shipping Addresses
+            // Wholesaler Shipping Address
             $wholesaleShippingAddress = null;
             if(!empty($request->input('wholesale.shipping'))) {
                 $wholesaleShippingAddress = $addresses
