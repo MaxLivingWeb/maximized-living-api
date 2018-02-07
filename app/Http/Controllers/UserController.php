@@ -803,11 +803,7 @@ class UserController extends Controller
                 );
             }
 
-            return response()->json([
-                'ShopifyCustomer' => $shopifyCustomer,
-                'MappedAddresses' => $mappedAddresses,
-                'AddressesToUpdate' => $addressesToUpdate
-            ]);
+            return response()->json();
         }
         catch(AwsException $e) {
             return response()->json([$e->getAwsErrorMessage()], 500);
