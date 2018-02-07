@@ -62,6 +62,17 @@ class UserGroup extends Model
         );
     }
 
+    public function transferUserToAnotherUserGroup($userID, $otherGroupID) {
+        DB::table('usergroup_users')
+            ->where([
+                'user_group_id' => $this->id,
+                'user_id' => $userID
+            ])
+            ->update([
+                'user_group_id' => $otherGroupID
+            ]);
+    }
+
     public function addresses()
     {
         return $this->belongsToMany('App\Address', 'usergroup_addresses');

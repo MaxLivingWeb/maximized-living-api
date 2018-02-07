@@ -157,7 +157,7 @@ class UserController extends Controller
 
                 $userGroup->addUser($cognitoUser->get('User')['Username']);
             }
-            //user is not associated to a location
+            // User is not associated to a location
             else {
                 $params = [
                     'group_name' => 'user.' . $validatedData['email'],
@@ -478,15 +478,16 @@ class UserController extends Controller
 
         try {
             $validatedData = $request->validate([
-                'first_name'    => 'required',
-                'last_name'     => 'required',
-                'phone'         => 'nullable',
-                'legacyId'      => 'nullable|integer',
-                'commission.id' => 'nullable|integer',
-                'wholesaler'    => 'nullable|boolean',
-                'permissions'   => 'nullable|array|min:1',
-                'permissions.*' => 'nullable|string|distinct|exists:user_permissions,key',
-                'business.name' => 'required'
+                'first_name'          => 'required',
+                'last_name'           => 'required',
+                'phone'               => 'nullable',
+                'legacyId'            => 'nullable|integer',
+                'commission.id'       => 'nullable|integer',
+                'wholesaler'          => 'nullable|boolean',
+                'selectedLocation.id' => 'nullable',
+                'permissions'         => 'nullable|array|min:1',
+                'permissions.*'       => 'nullable|string|distinct|exists:user_permissions,key',
+                'business.name'       => 'required'
             ]);
 
             $user = new CognitoUser($id);
@@ -521,215 +522,258 @@ class UserController extends Controller
             $shopifyAddresses = [];
             $mappedAddresses = [];
 
-            // Default Address
-            $defaultAddress = null;
-            if(!empty($request->input('defaultAddress'))) {
-                $defaultAddress = $addresses
-                    ->filter($this->_getAddressByType([1]))
-                    ->first();
+            // User is associated to a location
+            if(isset($validatedData['selectedLocation']['id'])) {
+                $locationId = (int)$validatedData['selectedLocation']['id'];
+                $location = Location::with('userGroup')->findOrFail($locationId);
+                $locationUserGroup = UserGroup::with(['commission', 'location'])->findOrFail($location->userGroup->id);
+                $locationAddresses = $location->addresses()->get()->toArray();
 
-                if(!empty($defaultAddress)){
-                    // Update defaultAddress
-                    $defaultAddress->fill($request->input('defaultAddress'));
-                    $defaultAddress->save();
-                }
-                else {
-                    // Add new defaultAddress
-                    $defaultAddress = $this->addAddressToDatabase(
-                        $request,
-                        'defaultAddress',
-                        'Main Location',
-                        $userGroup
-                    );
-                }
-
-                // Add this address to list of Shopify Addresses
-                $shopifyAddress = $this->formatAddressForShopifyCustomer(
-                    $shopifyCustomerData,
-                    $validatedData['business']['name'],
-                    $defaultAddress
+                // Get Address info for this Selected Location, and save that to Shopify Customer
+                $shopifyAddresses = array_merge($shopifyAddresses, collect($locationAddresses)
+                    ->transform(function($address) use($shopifyCustomerData, $validatedData){
+                        return $this->formatAddressForShopifyCustomer(
+                            $shopifyCustomerData,
+                            $validatedData['business']['name'],
+                            $address
+                        );
+                    })
+                    ->unique()
+                    ->all()
                 );
-                if ($this->unique_address_data($shopifyAddress, $shopifyAddresses)) {
-                    $shopifyAddresses[] = $shopifyAddress;
-                    $mappedAddresses[] = (object)array_merge(
-                        (array)$shopifyAddress,
-                        ['custom_address_id' => $defaultAddress['id']]
-                    );
-                }
-                else {
-                    $this->detachShopifyAddressFromUser(
-                        $defaultAddress['id'],
-                        $shopifyAddress,
-                        $currentShopifyCustomer->addresses
-                    );
-                }
-            }
 
-            // Wholesaler Shipping Address
-            $wholesaleShippingAddress = null;
-            if(!empty($request->input('wholesale.shipping'))) {
-                $wholesaleShippingAddress = $addresses
-                    ->filter($this->_getAddressByType([4]))
-                    ->first();
+                // We will need this once attaching Shopify IDs to each Address (after the Shopify Customer gets made)
+                $mappedAddresses = collect($shopifyAddresses)
+                    ->transform(function($address, $i) use($locationAddresses){
+                        $address->custom_address_id = $locationAddresses[$i]['id'];
+                        return $address;
+                    })
+                    ->all();
 
-                if(!empty($wholesaleShippingAddress)){
-                    // Update wholesale.shipping address
-                    $wholesaleShippingAddress->fill($request->input('wholesale.shipping'));
-                    $wholesaleShippingAddress->save();
-                }
-                else {
-                    // Add new wholesale.shipping address
-                    $wholesaleShippingAddress = $this->addAddressToDatabase(
-                        $request,
-                        'wholesale.shipping',
-                        'Wholesale Shipping',
-                        $userGroup
-                    );
-                }
-
-                // Add this address to list of Shopify Addresses
-                $shopifyAddress = $this->formatAddressForShopifyCustomer(
-                    $shopifyCustomerData,
-                    $validatedData['business']['name'],
-                    $wholesaleShippingAddress
-                );
-                if ($this->unique_address_data($shopifyAddress, $shopifyAddresses)) {
-                    $shopifyAddresses[] = $shopifyAddress;
-                    $mappedAddresses[] = (object)array_merge(
-                        (array)$shopifyAddress,
-                        ['custom_address_id' => $wholesaleShippingAddress['id']]
-                    );
-                }
-                else {
-                    $this->detachShopifyAddressFromUser(
-                        $wholesaleShippingAddress['id'],
-                        $shopifyAddress,
-                        $currentShopifyCustomer->addresses
-                    );
-                }
-            }
-
-            // Wholesaler Billing Address
-            $wholesaleBillingAddress = null;
-            if(!empty($request->input('wholesale.billing'))) {
-                $wholesaleBillingAddress = $addresses
-                    ->filter($this->_getAddressByType([5]))
-                    ->first();
-
-                if(!empty($wholesaleBillingAddress)){
-                    // Update wholesale.billing address
-                    $wholesaleBillingAddress->fill($request->input('wholesale.billing'));
-                    $wholesaleBillingAddress->save();
-                }
-                else {
-                    // Add new wholesale.shipping address
-                    $wholesaleBillingAddress = $this->addAddressToDatabase(
-                        $request,
-                        'wholesale.billing',
-                        'Wholesale Billing',
-                        $userGroup
-                    );
-                }
-
-                // Add this address to list of Shopify Addresses
-                $shopifyAddress = $this->formatAddressForShopifyCustomer(
-                    $shopifyCustomerData,
-                    $validatedData['business']['name'],
-                    $wholesaleBillingAddress
-                );
-                if ($this->unique_address_data($shopifyAddress, $shopifyAddresses)) {
-                    $shopifyAddresses[] = $shopifyAddress;
-                    $mappedAddresses[] = (object)array_merge(
-                        (array)$shopifyAddress,
-                        ['custom_address_id' => $wholesaleBillingAddress['id']]
-                    );
-                }
-                else {
-                    $this->detachShopifyAddressFromUser(
-                        $wholesaleBillingAddress['id'],
-                        $shopifyAddress,
-                        $currentShopifyCustomer->addresses
-                    );
-                }
-            }
-
-            // Commission Billing address
-            $commissionBillingAddress = null;
-            if(!empty($request->input('commission.billing'))){
-                $commissionBillingAddress = $addresses
-                    ->filter($this->_getAddressByType([6]))
-                    ->first();
-
-                if(!empty($commissionBillingAddress)){
-                    // Update commission.billing address
-                    $commissionBillingAddress->fill($request->input('commission.billing'));
-                    $commissionBillingAddress->save();
-                }
-                else {
-                    // Add new commission.billing address
-                    $commissionBillingAddress = $this->addAddressToDatabase(
-                        $request,
-                        'commission.billing',
-                        'Commission Billing',
-                        $userGroup
-                    );
-                }
-
-                // Add this address to list of Shopify Addresses
-                $shopifyAddress = $this->formatAddressForShopifyCustomer(
-                    $shopifyCustomerData,
-                    $validatedData['business']['name'],
-                    $commissionBillingAddress
-                );
-                if ($this->unique_address_data($shopifyAddress, $shopifyAddresses)) {
-                    $shopifyAddresses[] = $shopifyAddress;
-                    $mappedAddresses[] = (object)array_merge(
-                        (array)$shopifyAddress,
-                        ['custom_address_id' => $commissionBillingAddress['id']]
-                    );
-                }
-                else {
-                    $this->detachShopifyAddressFromUser(
-                        $commissionBillingAddress['id'],
-                        $shopifyAddress,
-                        $currentShopifyCustomer->addresses
-                    );
-                }
-            }
-
-            // If User has addresses associated, then set the default address
-            // By default, use the Wholesale Shipping address as the default. Otherwise, just use the first in the array.
-            if (!empty($shopifyAddresses)) {
-                $defaultAddressID = collect($addresses)
-                    ->where('shopify_default',1)
-                    ->pluck('id')
-                    ->first()
-                    ?? $wholesaleShippingAddress['id']
-                    ?? false;
-
-                if ($defaultAddressID) {
-                    foreach ($mappedAddresses as $i => $address) {
-                        if ($address->custom_address_id === $defaultAddressID) {
-                            $shopifyAddresses[$i]->default = true;
-                            $mappedAddresses[$i]->default = true;
-                            break;
-                        }
-                    }
-                }
-                else {
+                // Set first address in array to be the default
+                // Note: MOST Locations should only have 1 address associated with them anyway.
+                if (!empty($shopifyAddresses)) {
                     $shopifyAddresses[0]->default = true;
                     $mappedAddresses[0]->default = true;
                 }
-            }
 
-            // Update `legacy_affiliate_id` value to User
-            $userGroup->legacy_affiliate_id = !empty($validatedData['legacyId']) ? (int)$validatedData['legacyId'] : null;
-            // Update `commission.id` value to User
-            $userGroup->commission_id = !empty($validatedData['commission']['id']) ? (int)$validatedData['commission']['id'] : null;
-            // Update `wholesaler` value to User
-            $userGroup->wholesaler = !empty($validatedData['wholesaler']) ? (bool)$validatedData['wholesaler'] : false;
-            // Save updates
-            $userGroup->save();
+                $userGroup->transferUserToAnotherUserGroup($id, $locationUserGroup->id);
+            }
+            // User is not associated to a location
+            else {
+
+                // TODO: Clean up how we handle custom address data, this is all replicated code basically... Just need time to improve this setup.
+
+                // Default Address
+                $defaultAddress = null;
+                if(!empty($request->input('defaultAddress'))) {
+                    $defaultAddress = $addresses
+                        ->filter($this->_getAddressByType([1]))
+                        ->first();
+
+                    if(!empty($defaultAddress)){
+                        // Update defaultAddress
+                        $defaultAddress->fill($request->input('defaultAddress'));
+                        $defaultAddress->save();
+                    }
+                    else {
+                        // Add new defaultAddress
+                        $defaultAddress = $this->addAddressToDatabase(
+                            $request,
+                            'defaultAddress',
+                            'Main Location',
+                            $userGroup
+                        );
+                    }
+
+                    // Add this address to list of Shopify Addresses
+                    $shopifyAddress = $this->formatAddressForShopifyCustomer(
+                        $shopifyCustomerData,
+                        $validatedData['business']['name'],
+                        $defaultAddress
+                    );
+                    if ($this->unique_address_data($shopifyAddress, $shopifyAddresses)) {
+                        $shopifyAddresses[] = $shopifyAddress;
+                        $mappedAddresses[] = (object)array_merge(
+                            (array)$shopifyAddress,
+                            ['custom_address_id' => $defaultAddress['id']]
+                        );
+                    }
+                    else {
+                        $this->detachShopifyAddressFromUser(
+                            $defaultAddress['id'],
+                            $shopifyAddress,
+                            $currentShopifyCustomer->addresses
+                        );
+                    }
+                }
+
+                // Wholesaler Shipping Address
+                $wholesaleShippingAddress = null;
+                if(!empty($request->input('wholesale.shipping'))) {
+                    $wholesaleShippingAddress = $addresses
+                        ->filter($this->_getAddressByType([4]))
+                        ->first();
+
+                    if(!empty($wholesaleShippingAddress)){
+                        // Update wholesale.shipping address
+                        $wholesaleShippingAddress->fill($request->input('wholesale.shipping'));
+                        $wholesaleShippingAddress->save();
+                    }
+                    else {
+                        // Add new wholesale.shipping address
+                        $wholesaleShippingAddress = $this->addAddressToDatabase(
+                            $request,
+                            'wholesale.shipping',
+                            'Wholesale Shipping',
+                            $userGroup
+                        );
+                    }
+
+                    // Add this address to list of Shopify Addresses
+                    $shopifyAddress = $this->formatAddressForShopifyCustomer(
+                        $shopifyCustomerData,
+                        $validatedData['business']['name'],
+                        $wholesaleShippingAddress
+                    );
+                    if ($this->unique_address_data($shopifyAddress, $shopifyAddresses)) {
+                        $shopifyAddresses[] = $shopifyAddress;
+                        $mappedAddresses[] = (object)array_merge(
+                            (array)$shopifyAddress,
+                            ['custom_address_id' => $wholesaleShippingAddress['id']]
+                        );
+                    }
+                    else {
+                        $this->detachShopifyAddressFromUser(
+                            $wholesaleShippingAddress['id'],
+                            $shopifyAddress,
+                            $currentShopifyCustomer->addresses
+                        );
+                    }
+                }
+
+                // Wholesaler Billing Address
+                $wholesaleBillingAddress = null;
+                if(!empty($request->input('wholesale.billing'))) {
+                    $wholesaleBillingAddress = $addresses
+                        ->filter($this->_getAddressByType([5]))
+                        ->first();
+
+                    if(!empty($wholesaleBillingAddress)){
+                        // Update wholesale.billing address
+                        $wholesaleBillingAddress->fill($request->input('wholesale.billing'));
+                        $wholesaleBillingAddress->save();
+                    }
+                    else {
+                        // Add new wholesale.shipping address
+                        $wholesaleBillingAddress = $this->addAddressToDatabase(
+                            $request,
+                            'wholesale.billing',
+                            'Wholesale Billing',
+                            $userGroup
+                        );
+                    }
+
+                    // Add this address to list of Shopify Addresses
+                    $shopifyAddress = $this->formatAddressForShopifyCustomer(
+                        $shopifyCustomerData,
+                        $validatedData['business']['name'],
+                        $wholesaleBillingAddress
+                    );
+                    if ($this->unique_address_data($shopifyAddress, $shopifyAddresses)) {
+                        $shopifyAddresses[] = $shopifyAddress;
+                        $mappedAddresses[] = (object)array_merge(
+                            (array)$shopifyAddress,
+                            ['custom_address_id' => $wholesaleBillingAddress['id']]
+                        );
+                    }
+                    else {
+                        $this->detachShopifyAddressFromUser(
+                            $wholesaleBillingAddress['id'],
+                            $shopifyAddress,
+                            $currentShopifyCustomer->addresses
+                        );
+                    }
+                }
+
+                // Commission Billing address
+                $commissionBillingAddress = null;
+                if(!empty($request->input('commission.billing'))){
+                    $commissionBillingAddress = $addresses
+                        ->filter($this->_getAddressByType([6]))
+                        ->first();
+
+                    if(!empty($commissionBillingAddress)){
+                        // Update commission.billing address
+                        $commissionBillingAddress->fill($request->input('commission.billing'));
+                        $commissionBillingAddress->save();
+                    }
+                    else {
+                        // Add new commission.billing address
+                        $commissionBillingAddress = $this->addAddressToDatabase(
+                            $request,
+                            'commission.billing',
+                            'Commission Billing',
+                            $userGroup
+                        );
+                    }
+
+                    // Add this address to list of Shopify Addresses
+                    $shopifyAddress = $this->formatAddressForShopifyCustomer(
+                        $shopifyCustomerData,
+                        $validatedData['business']['name'],
+                        $commissionBillingAddress
+                    );
+                    if ($this->unique_address_data($shopifyAddress, $shopifyAddresses)) {
+                        $shopifyAddresses[] = $shopifyAddress;
+                        $mappedAddresses[] = (object)array_merge(
+                            (array)$shopifyAddress,
+                            ['custom_address_id' => $commissionBillingAddress['id']]
+                        );
+                    }
+                    else {
+                        $this->detachShopifyAddressFromUser(
+                            $commissionBillingAddress['id'],
+                            $shopifyAddress,
+                            $currentShopifyCustomer->addresses
+                        );
+                    }
+                }
+
+                // If User has addresses associated, then set the default address
+                // By default, use the Wholesale Shipping address as the default. Otherwise, just use the first in the array.
+                if (!empty($shopifyAddresses)) {
+                    $defaultAddressID = collect($addresses)
+                        ->where('shopify_default',1)
+                        ->pluck('id')
+                        ->first()
+                    ?? $wholesaleShippingAddress['id']
+                    ?? false;
+
+                    if ($defaultAddressID) {
+                        foreach ($mappedAddresses as $i => $address) {
+                            if ($address->custom_address_id === $defaultAddressID) {
+                                $shopifyAddresses[$i]->default = true;
+                                $mappedAddresses[$i]->default = true;
+                                break;
+                            }
+                        }
+                    }
+                    else {
+                        $shopifyAddresses[0]->default = true;
+                        $mappedAddresses[0]->default = true;
+                    }
+                }
+
+                // Update `legacy_affiliate_id` value to User
+                $userGroup->legacy_affiliate_id = !empty($validatedData['legacyId']) ? (int)$validatedData['legacyId'] : null;
+                // Update `commission.id` value to User
+                $userGroup->commission_id = !empty($validatedData['commission']['id']) ? (int)$validatedData['commission']['id'] : null;
+                // Update `wholesaler` value to User
+                $userGroup->wholesaler = !empty($validatedData['wholesaler']) ? (bool)$validatedData['wholesaler'] : false;
+                // Save updates
+                $userGroup->save();
+            }
 
             // Update permissions (for Cognito user)
             if(isset($validatedData['permissions'])) {
