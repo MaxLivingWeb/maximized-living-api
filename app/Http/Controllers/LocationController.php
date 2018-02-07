@@ -7,6 +7,10 @@ use App\UserGroup;
 
 class LocationController extends Controller
 {
+    /**
+     * Get ALL Locations
+     * @return \Illuminate\Database\Eloquent\Collection|static[]
+     */
     public function all()
     {
         return Location::all();
@@ -24,6 +28,11 @@ class LocationController extends Controller
         return response()->json($location->listUsers());
     }
 
+    /**
+     * Get UserGroup for this Location
+     * @param $id
+     * @return \Illuminate\Database\Eloquent\Collection|\Illuminate\Database\Eloquent\Model|void
+     */
     public function getUserGroupById($id)
     {
         $location = Location::with('userGroup')->findOrFail($id);
