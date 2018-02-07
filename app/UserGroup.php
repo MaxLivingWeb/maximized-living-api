@@ -62,15 +62,21 @@ class UserGroup extends Model
         );
     }
 
-    public function transferUserToAnotherUserGroup($userID, $otherGroupID) {
+    public function deleteUser($id) {
         DB::table('usergroup_users')
             ->where([
                 'user_group_id' => $this->id,
-                'user_id' => $userID
+                'user_id' => $id
             ])
-            ->update([
-                'user_group_id' => $otherGroupID
-            ]);
+            ->delete();
+
+        // Check to see if this was a single-user group, and if so, delete the group as well since no users are apart of this anymore
+        if (strpos($this->group_name, 'user.') !== false) {
+            // Delete relations
+            DB::table('usergroup_addresses')->where('user_group_id', $this->id)->delete();
+            // Delete this UserGroup
+            $this->delete();
+        }
     }
 
     public function addresses()

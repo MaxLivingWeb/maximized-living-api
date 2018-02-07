@@ -494,6 +494,7 @@ class UserController extends Controller
 
             // Update user addresses in API database
             $userGroup = $user->group();
+
             $addresses = $userGroup->location->addresses
                 ?? $userGroup->addresses
                 ?? [];
@@ -557,7 +558,11 @@ class UserController extends Controller
                     $mappedAddresses[0]->default = true;
                 }
 
-                $userGroup->transferUserToAnotherUserGroup($id, $locationUserGroup->id);
+                // Transfer User to a different UserGroup
+                if (!empty($userGroup)) {
+                    $userGroup->deleteUser($id);
+                }
+                $locationUserGroup->addUser($id);
             }
             // User is not associated to a location
             else {

@@ -49,7 +49,6 @@ class User extends Authenticatable
 
         $shopify = new ShopifyHelper();
         $shopifyCustomer = $shopify->getCustomer($shopifyId);
-
         $shopifyCustomerCompanyName = $shopifyCustomer->default_address->company;
 
         $res->shopify_id = $shopifyCustomer->id;
