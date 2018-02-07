@@ -70,15 +70,27 @@ class Handler extends ExceptionHandler
             if(config('app.env') == 'local' && empty(env('LOCAL_ERROR_SLACK_ID'))) {
                 return;
             }
-            $code = $e->getStatusCode() ?? $e->getCode() ?? '';
+            $code = $e->getStatusCode() ?? $e->getCode() ?? NULL;
             $message = $e->getMessage();
             $application = config('app.name');
             $environment = config('app.env');
             $trace = $e->getTraceAsString();
 
+            $request = request();
+            $url = $request->fullUrl() ?? NULL;
+            $method = $request->method() ?? NULL;
+            $referer = $request->server()['HTTP_REFERER'] ?? NULL;
+            $clientIP = $request->ip() ?? NULL;
+            $data = $request->input() ?? NULL;
+
             $message = '*Application*: ' . $application . "\n" .
                 '*Environment*: ' . $environment . "\n" .
                 (!empty($code) ? '*Code*: ' . $code . "\n" : '') .
+                (!empty($url) ? '*URL*: ' . $url . "\n" : '') .
+                (!empty($method) ? '*Method*: ' . $method . "\n" : '') .
+                (!empty($referer) ? '*Referer*: ' . $referer . "\n" : '') .
+                (!empty($clientIP) ? '*Client IP*: ' . $clientIP . "\n" : '') .
+                (!empty($data) ? '*Request Data*: ' . print_r($data, TRUE) . "\n" : '') .
                 (!empty($message) ? '*Code*: ' . $message . "\n" : '') .
                 '*Trace*: ' . "\n" . $trace . "\n" .
                 "---------------------------------------------------------------------------------------------------------------------\n\n";
