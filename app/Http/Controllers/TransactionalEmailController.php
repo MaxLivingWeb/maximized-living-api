@@ -212,7 +212,8 @@ class TransactionalEmailController extends Controller
             'content' => '<span></span>',
             'template_id' => null,
             'substitutions' => [],
-            'vanity_website_id' => null
+            'vanity_website_id' => null,
+            'affiliate_id' => null
         ];
 
         $formattedArray = array_replace_recursive(
