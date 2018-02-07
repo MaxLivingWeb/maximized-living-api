@@ -337,26 +337,16 @@ class UserController extends Controller
 
             // Update Addresses saved in DB, so they are mapped to these Shopify Customer Addresses
             // Then while Editing Users, we can re-use the same Shopify Addresses than re-creating new ones
-            $addressesToUpdate = [];
-            if (isset($defaultAddress) && collect($mappedAddresses)->where('custom_address_id', $defaultAddress['id'])->isNotEmpty()) {
-                $addressesToUpdate[] = $defaultAddress;
-            }
-            if (isset($wholesaleBillingAddress) && collect($mappedAddresses)->where('custom_address_id', $wholesaleBillingAddress['id'])->isNotEmpty()) {
-                $addressesToUpdate[] = $wholesaleBillingAddress;
-            }
-            if (isset($wholesaleShippingAddress) && collect($mappedAddresses)->where('custom_address_id', $wholesaleShippingAddress['id'])->isNotEmpty()) {
-                $addressesToUpdate[] = $wholesaleShippingAddress;
-            }
-            if (isset($commissionBillingAddress) && collect($mappedAddresses)->where('custom_address_id', $commissionBillingAddress['id'])->isNotEmpty()) {
-                $addressesToUpdate[] = $commissionBillingAddress;
-            }
-            if (count($addressesToUpdate) > 0) {
-                $this->attachShopifyAttributesToAddresses(
-                    $addressesToUpdate,
-                    $shopifyCustomer->addresses,
-                    $mappedAddresses
-                );
-            }
+            $this->attachShopifyAttributesToAddresses(
+                [
+                    $defaultAddress ?? null,
+                    $wholesaleBillingAddress ?? null,
+                    $wholesaleShippingAddress ?? null,
+                    $commissionBillingAddress ?? null
+                ],
+                $shopifyCustomer->addresses,
+                $mappedAddresses
+            );
 
             return response()->json();
         }
@@ -413,7 +403,10 @@ class UserController extends Controller
     {
         if (count($addresses) > 0 && count($shopifyCustomerAddresses) > 0) {
             foreach ($addresses as $address) {
-                if (is_null($address)) {
+                if (is_null($address)
+                 || collect($mappedAddresses)->where('custom_address_id', $address['id'])->isEmpty()
+                 || !is_null($address['shopify_id'])
+                ) {
                     continue;
                 }
 
@@ -445,8 +438,6 @@ class UserController extends Controller
      */
     private function detachShopifyAddressFromUser($id, $shopifyAddress, $shopifyCustomerAddresses)
     {
-        $shopify = new ShopifyHelper();
-
         if (count($shopifyCustomerAddresses) > 0
             && (
                 isset($shopifyAddress->id) && !is_null($shopifyAddress->id)
@@ -459,6 +450,8 @@ class UserController extends Controller
             $address->resetShopifyAddressID();
             $address->resetShopifyAddressDefaultValue();
 
+            // Delete this address from being associated to this Shopify Customer
+            $shopify = new ShopifyHelper();
             $shopify->deleteCustomerAddress((array)$shopifyAddress);
         }
     }
@@ -770,38 +763,16 @@ class UserController extends Controller
 
             // Update Addresses saved in DB, so they are mapped to these Shopify Customer Addresses
             // Then while Editing Users, we can re-use the same Shopify Addresses than re-creating new ones
-            $addressesToUpdate = [];
-            if (isset($defaultAddress)
-             && collect($mappedAddresses)->where('custom_address_id', $defaultAddress['id'])->isNotEmpty()
-             && is_null($defaultAddress['shopify_id'])
-            ) {
-                $addressesToUpdate[] = $defaultAddress;
-            }
-            if (isset($wholesaleBillingAddress)
-                && collect($mappedAddresses)->where('custom_address_id', $wholesaleBillingAddress['id'])->isNotEmpty()
-                && is_null($wholesaleBillingAddress['shopify_id'])
-            ) {
-                $addressesToUpdate[] = $wholesaleBillingAddress;
-            }
-            if (isset($wholesaleShippingAddress)
-                && collect($mappedAddresses)->where('custom_address_id', $wholesaleShippingAddress['id'])->isNotEmpty()
-                && is_null($wholesaleShippingAddress['shopify_id'])
-            ) {
-                $addressesToUpdate[] = $wholesaleShippingAddress;
-            }
-            if (isset($commissionBillingAddress)
-                && collect($mappedAddresses)->where('custom_address_id', $commissionBillingAddress['id'])->isNotEmpty()
-                && is_null($commissionBillingAddress['shopify_id'])
-            ) {
-                $addressesToUpdate[] = $commissionBillingAddress;
-            }
-            if (count($addressesToUpdate) > 0) {
-                $this->attachShopifyAttributesToAddresses(
-                    $addressesToUpdate,
-                    $shopifyCustomer->addresses,
-                    $mappedAddresses
-                );
-            }
+            $this->attachShopifyAttributesToAddresses(
+                [
+                    $defaultAddress ?? null,
+                    $wholesaleBillingAddress ?? null,
+                    $wholesaleShippingAddress ?? null,
+                    $commissionBillingAddress ?? null
+                ],
+                $shopifyCustomer->addresses,
+                $mappedAddresses
+            );
 
             return response()->json();
         }
