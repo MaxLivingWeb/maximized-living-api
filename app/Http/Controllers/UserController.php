@@ -175,7 +175,7 @@ class UserController extends Controller
                     $defaultAddress = $this->addAddressToDatabase(
                         $request,
                         'defaultAddress',
-                        'Main Location',
+                        'Default Address', // Do NOT make this be "Main Location", as that will conflict with Affiliate Locations "Main Location" address data when switching usergroups (from a location usergroup to an individual usergroup)
                         $userGroup
                     );
 
@@ -483,7 +483,7 @@ class UserController extends Controller
                 $defaultAddress = null;
                 if(!empty($request->input('defaultAddress'))) {
                     $defaultAddress = $addresses
-                        ->filter($this->_getAddressByType([1]))
+                        ->filter($this->_getAddressByType([7]))
                         ->first();
 
                     if(!empty($defaultAddress)){
@@ -496,7 +496,7 @@ class UserController extends Controller
                         $defaultAddress = $this->addAddressToDatabase(
                             $request,
                             'defaultAddress',
-                            'Main Location',
+                            'Default Address', // Do NOT make this be "Main Location", as that will conflict with Affiliate Locations "Main Location" address data when switching usergroups (from a location usergroup to an individual usergroup)
                             $userGroup
                         );
                     }
@@ -733,6 +733,7 @@ class UserController extends Controller
                 }
 
                 // Attach this Address, since it was mapped to the $shopifyAddresses array that was updated for this Shopify Customer
+                // Note: Can not attach shopify address attributes on addresses related to an affiliate location
                 if ((!empty($userGroup) && empty($userGroup->location))
                     && (
                         collect($shopifyAddresses)
@@ -758,28 +759,19 @@ class UserController extends Controller
                             if (!is_null($shopifyAddress->id)) {
                                 return $shopifyAddress->id === $shopifyCustomerAddress->id;
                             }
-                            return $shopifyAddress->company === $shopifyCustomerAddress->company;
+                            return ($shopifyCustomerAddress->company === $shopifyAddress->company
+                                && $shopifyCustomerAddress->address1 === $shopifyAddress->address1
+                                && $shopifyCustomerAddress->address2 === $shopifyAddress->address2
+                                && $shopifyCustomerAddress->city === $shopifyAddress->city
+                                && $shopifyCustomerAddress->province === $shopifyAddress->province
+                                && $shopifyCustomerAddress->country === $shopifyAddress->country
+                                && $shopifyCustomerAddress->zip === $shopifyAddress->zip
+                            );
                         })
                         ->all();
                 })
                 ->each(function($shopifyCustomerAddress){
-//                    collect($customAddresses)
-//                        ->reject(function($customAddress){
-//                            return is_null($customAddress);
-//                        })
-//                        ->each(function($customAddress) use($shopifyCustomerAddress) {
-//                            $this->detachShopifyAddressFromUser($customAddress, $shopifyCustomerAddress);
-//                        });
-
-//                    $customAddress = collect($customAddresses)
-//                        ->reject(function($customAddress){
-//                            return is_null($customAddress) || is_null($customAddress['shopify_id']);
-//                        })
-//                        ->where('shopify_id', $shopifyCustomerAddress->id)
-//                        ->first();
-
                     $customAddress = Address::where('shopify_id', $shopifyCustomerAddress->id)->first();
-
                     $this->detachShopifyAddressFromUser($customAddress, $shopifyCustomerAddress);
                 });
         }
