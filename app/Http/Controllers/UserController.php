@@ -312,7 +312,7 @@ class UserController extends Controller
 
             // Update Addresses saved in DB, so they are mapped to these Shopify Customer Addresses
             // Then while Editing Users, we can re-use the same Shopify Addresses than re-creating new ones
-            $this->attachShopifyAttributesToAddresses(
+            $this->updateShopifyAttributesToAddresses(
                 [
                     $defaultAddress ?? null,
                     $wholesaleBillingAddress ?? null,
@@ -323,9 +323,7 @@ class UserController extends Controller
                 $shopifyAddresses
             );
 
-            return response()->json([
-                'ShopifyCustomer' => $shopifyCustomer
-            ]);
+            return response()->json();
         }
         catch(AwsException $e) {
             Log::error($e);
@@ -371,41 +369,77 @@ class UserController extends Controller
     }
 
     /**
-     * Attach the Shopify Address ID to our Custom Address that is saved into the API
-     * @param $addresses (List of Address objects that need to attach the Shopify Address IDs)
-     * @param $shopifyCustomerAddresses (Addresses saved to Shopify Customer)
-     * @param $shopifyAddresses
+     * Attach or Detach any address data for this Shopify Customer
+     * @param $customAddresses
+     * @param $shopifyCustomerAddresses (Addresses that are saved to the Shopify Customer)
+     * @param $shopifyAddresses (Addresses that were just updated)
      */
-    private function attachShopifyAttributesToAddresses($addresses, $shopifyCustomerAddresses, $shopifyAddresses)
+    private function updateShopifyAttributesToAddresses($customAddresses, $shopifyCustomerAddresses, $shopifyAddresses)
     {
-        if (count($addresses) > 0 && count($shopifyCustomerAddresses) > 0) {
-            foreach ($addresses as $address) {
-                if (is_null($address)
-                 || collect($shopifyAddresses)
-                        ->pluck('privatedata')
-                        ->where('custom_address_id', $address['id'])
-                        ->isEmpty()
-                 || !is_null($address['shopify_id'])
-                ) {
+        if (count($customAddresses) > 0 && count($shopifyCustomerAddresses) > 0) {
+            foreach ($customAddresses as $customAddress) {
+                if (is_null($customAddress)) {
                     continue;
                 }
 
-                $arrayIndex = (int)collect($shopifyAddresses)
-                    ->pluck('privatedata')
-                    ->where('custom_address_id', $address['id'])
-                    ->keys()
-                    ->first();
+                // Attach this Address, since it was mapped to the $shopifyAddresses array that was updated for this Shopify Customer
+                if (collect($shopifyAddresses)
+                        ->pluck('privatedata')
+                        ->where('custom_address_id', $customAddress['id'])
+                        ->isNotEmpty()
+                    && is_null($customAddress['shopify_id'])
+                ) {
+                    $this->attachShopifyAttributesToAddress($customAddress, $shopifyCustomerAddresses, $shopifyAddresses);
+                }
+            }
 
-                if (!is_null($arrayIndex)) {
-                    $shopifyAddressId = $shopifyCustomerAddresses[$arrayIndex]->id;
-                    if ($shopifyAddressId) {
-                        $address->attachShopifyAddressID($shopifyAddressId);
-                    }
+            // Detach this Address, since it was not mapped to the $shopifyAddresses array that was updated for this Shopify Customer
+            collect($shopifyCustomerAddresses)
+                ->filter(function($shopifyCustomerAddress){
+                    return !is_null($shopifyCustomerAddress->id) && !$shopifyCustomerAddress->default;
+                })
+                ->reject(function($shopifyCustomerAddress) use($shopifyAddresses){
+                    return collect($shopifyAddresses)
+                        ->pluck('publicdata')
+                        ->where('id', $shopifyCustomerAddress->id)
+                        ->all();
+                })
+                ->each(function($shopifyCustomerAddress) use($customAddresses) {
+                    $customAddress = collect($customAddresses)
+                        ->filter(function($customAddress){
+                            return !is_null($customAddress['shopify_id']);
+                        })
+                        ->where('shopify_id', $shopifyCustomerAddress->id)
+                        ->first();
+                    $this->detachShopifyAddressFromUser($customAddress, $shopifyCustomerAddress);
+                });
+        }
+    }
 
-                    $shopifyAddressDefaultValue = $shopifyCustomerAddresses[$arrayIndex]->default;
-                    if ($shopifyAddressDefaultValue) {
-                        $address->attachShopifyAddressDefaultValue($shopifyAddressDefaultValue);
-                    }
+    /**
+     * Attach the Shopify Address ID to our Custom Address that is saved into the API
+     * @param $customAddress
+     * @param $shopifyCustomerAddresses (Addresses that are saved to the Shopify Customer)
+     * @param $shopifyAddresses (Addresses that were just updated)
+     */
+    private function attachShopifyAttributesToAddress($customAddress, $shopifyCustomerAddresses, $shopifyAddresses)
+    {
+        if (!is_null($customAddress) || count($shopifyCustomerAddresses) > 0) {
+            $arrayIndex = (int)collect($shopifyAddresses)
+                ->pluck('privatedata')
+                ->where('custom_address_id', $customAddress['id'])
+                ->keys()
+                ->first();
+
+            if (!is_null($arrayIndex)) {
+                $shopifyAddressId = $shopifyCustomerAddresses[$arrayIndex]->id;
+                if ($shopifyAddressId) {
+                    $customAddress->attachShopifyAddressID($shopifyAddressId);
+                }
+
+                $shopifyAddressDefaultValue = $shopifyCustomerAddresses[$arrayIndex]->default;
+                if ($shopifyAddressDefaultValue) {
+                    $customAddress->attachShopifyAddressDefaultValue($shopifyAddressDefaultValue);
                 }
             }
         }
@@ -413,23 +447,16 @@ class UserController extends Controller
 
     /**
      * Remove the Shopify Address ID from our Custom Address that is saved into the API
-     * @param $id
+     * @param $customAddress
      * @param $shopifyAddress
-     * @param $shopifyCustomerAddresses
      */
-    private function detachShopifyAddressFromUser($id, $shopifyAddress, $shopifyCustomerAddresses)
+    private function detachShopifyAddressFromUser($customAddress, $shopifyAddress)
     {
-        if (count($shopifyCustomerAddresses) > 0
-            && (
-                isset($shopifyAddress->address->id) && !is_null($shopifyAddress->address->id)
-            )
-            && (
-                isset($shopifyAddress->address->customer_id) && !is_null($shopifyAddress->address->customer_id)
-            )
+        if ((isset($shopifyAddress->id) && !is_null($shopifyAddress->id))
+            && (isset($shopifyAddress->customer_id) && !is_null($shopifyAddress->customer_id))
         ) {
-            $address = Address::findOrFail($id);
-            $address->resetShopifyAddressID();
-            $address->resetShopifyAddressDefaultValue();
+            $customAddress->resetShopifyAddressID();
+            $customAddress->resetShopifyAddressDefaultValue();
 
             // Delete this address from being associated to this Shopify Customer
             $shopify = new ShopifyHelper();
@@ -485,9 +512,6 @@ class UserController extends Controller
             $shopifyId = collect($cognitoUser['UserAttributes'])
                 ->where('Name', env('COGNITO_SHOPIFY_CUSTOM_ATTRIBUTE'))
                 ->first()['Value'];
-
-            // Get current state for shopify customer
-            $currentShopifyCustomer = $shopify->getCustomer($shopifyId);
 
             // Basic Shopify Customer data to be updated...
             $shopifyCustomerData = [
@@ -582,13 +606,6 @@ class UserController extends Controller
                     if ($this->uniqueShopifyAddressData($shopifyAddress, $shopifyAddresses)) {
                         $shopifyAddresses[] = $shopifyAddress;
                     }
-//                    else {
-//                        $this->detachShopifyAddressFromUser(
-//                            $defaultAddress['id'],
-//                            $shopifyAddress,
-//                            $currentShopifyCustomer->addresses
-//                        );
-//                    }
                 }
 
                 // Wholesaler Shipping Address
@@ -622,13 +639,6 @@ class UserController extends Controller
                     if ($this->uniqueShopifyAddressData($shopifyAddress, $shopifyAddresses)) {
                         $shopifyAddresses[] = $shopifyAddress;
                     }
-//                    else {
-//                        $this->detachShopifyAddressFromUser(
-//                            $wholesaleShippingAddress['id'],
-//                            $shopifyAddress,
-//                            $currentShopifyCustomer->addresses
-//                        );
-//                    }
                 }
 
                 // Wholesaler Billing Address
@@ -662,13 +672,6 @@ class UserController extends Controller
                     if ($this->uniqueShopifyAddressData($shopifyAddress, $shopifyAddresses)) {
                         $shopifyAddresses[] = $shopifyAddress;
                     }
-//                    else {
-//                        $this->detachShopifyAddressFromUser(
-//                            $wholesaleBillingAddress['id'],
-//                            $shopifyAddress,
-//                            $currentShopifyCustomer->addresses
-//                        );
-//                    }
                 }
 
                 // Commission Billing address
@@ -702,13 +705,6 @@ class UserController extends Controller
                     if ($this->uniqueShopifyAddressData($shopifyAddress, $shopifyAddresses)) {
                         $shopifyAddresses[] = $shopifyAddress;
                     }
-//                    else {
-//                        $this->detachShopifyAddressFromUser(
-//                            $commissionBillingAddress['id'],
-//                            $shopifyAddress,
-//                            $currentShopifyCustomer->addresses
-//                        );
-//                    }
                 }
 
                 // If User has addresses associated, then set the default address
@@ -779,7 +775,7 @@ class UserController extends Controller
 
             // Update Addresses saved in DB, so they are mapped to these Shopify Customer Addresses
             // Then while Editing Users, we can re-use the same Shopify Addresses than re-creating new ones
-            $this->attachShopifyAttributesToAddresses(
+            $this->updateShopifyAttributesToAddresses(
                 [
                     $defaultAddress ?? null,
                     $wholesaleBillingAddress ?? null,
@@ -790,10 +786,7 @@ class UserController extends Controller
                 $shopifyAddresses
             );
 
-            return response()->json([
-                'ShopifyCustomer' => $shopifyCustomer,
-                'ShopifyAddresses' => $shopifyAddresses
-            ]);
+            return response()->json();
         }
         catch(AwsException $e) {
             return response()->json([$e->getAwsErrorMessage()], 500);
