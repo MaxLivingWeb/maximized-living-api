@@ -20,6 +20,7 @@ class Location extends Model
         'email',
         'vanity_website_url',
         'vanity_website_id',
+        'whitelabel',
         'slug',
         'pre_open_display_date',
         'opening_date',

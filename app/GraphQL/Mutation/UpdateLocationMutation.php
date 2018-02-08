@@ -48,6 +48,7 @@ class UpdateLocationMutation extends Mutation
                 'fax'                       => $args['fax'],
                 'email'                     => $args['email'],
                 'vanity_website_url'        => $args['vanity_website_url'],
+                'whitelabel'                => $args['whitelabel'],
                 'pre_open_display_date'     => $args['pre_open_display_date'],
                 'opening_date'              => $args['opening_date'],
                 'closing_date'              => $args['closing_date'],
