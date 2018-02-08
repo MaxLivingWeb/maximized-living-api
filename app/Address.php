@@ -170,4 +170,16 @@ class Address extends Model
         $this->shopify_default = (bool)$shopify_default;
         $this->save();
     }
+
+    public function resetShopifyAddressID()
+    {
+        $this->shopify_id = null;
+        $this->save();
+    }
+
+    public function resetShopifyAddressDefaultValue()
+    {
+        $this->shopify_default = false;
+        $this->save();
+    }
 }
