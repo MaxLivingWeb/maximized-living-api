@@ -14,7 +14,7 @@ class AddWhitelabelToLocationsTable extends Migration
     public function up()
     {
         Schema::table('locations', function (Blueprint $table) {
-            $table->boolean('whitelabel')->default(0)->after('vanity_website_id');
+            $table->integer('whitelabel')->default(0)->after('vanity_website_id');
         });
     }
 
