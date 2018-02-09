@@ -2,7 +2,6 @@
 
 namespace App\GraphQL\Mutation;
 
-use App\GraphQL\Type\AddressType;
 use GraphQL;
 use Folklore\GraphQL\Support\Mutation;
 use App\Location;
