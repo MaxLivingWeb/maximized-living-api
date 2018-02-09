@@ -460,9 +460,9 @@ class UserController extends Controller
             else {
                 // Transfer User to a different UserGroup (if previously in a Location UserGroup)
                 if (!empty($userGroup->location)) {
-                    if (!empty($userGroup)) {
-                        $userGroup->deleteUser($id);
-                    }
+                    $userGroup->deleteUser($id);
+
+                    // Create new userGroup and add user here
                     $userGroup = UserGroup::create([
                         'group_name' => 'user.' . $email,
                         'group_name_display' => $validatedData['first_name'].' '.$validatedData['last_name']
