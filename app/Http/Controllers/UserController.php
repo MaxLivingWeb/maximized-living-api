@@ -469,8 +469,7 @@ class UserController extends Controller
                     ]);
                     $userGroup->addUser($id);
                 }
-
-                // TODO: Clean up how we handle custom address data, this is all replicated code basically... Just need time to improve this setup.
+                
                 // Default Address
                 $defaultAddress = null;
                 if(!empty($request->input('defaultAddress'))) {
