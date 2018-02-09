@@ -49,7 +49,7 @@ class User extends Authenticatable
 
         $shopify = new ShopifyHelper();
         $shopifyCustomer = $shopify->getCustomer($shopifyId);
-        $shopifyCustomerCompanyName = $shopifyCustomer->default_address->company;
+        $shopifyCustomerCompanyName = $shopifyCustomer->default_address->company ?? 'N/A';
 
         $res->shopify_id = $shopifyCustomer->id;
         $res->referred_affiliate_id = is_null($affiliateId) ? $affiliateId : intval($affiliateId);
