@@ -122,6 +122,7 @@ class CognitoHelper
 
     public function createUser($username, $password)
     {
+        $username = strtolower($username);
         return $this->client->adminCreateUser([
             'TemporaryPassword' => $password,
             'UserPoolId' => env('AWS_COGNITO_USER_POOL_ID'),
