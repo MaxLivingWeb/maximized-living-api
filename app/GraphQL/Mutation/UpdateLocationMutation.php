@@ -2,6 +2,7 @@
 
 namespace App\GraphQL\Mutation;
 
+use App\GraphQL\Type\AddressType;
 use GraphQL;
 use Folklore\GraphQL\Support\Mutation;
 use App\Location;
@@ -61,6 +62,24 @@ class UpdateLocationMutation extends Mutation
             ->first();
     
         $addresses = $args['addresses'];
+
+        if(empty($addresses)) {
+            return $args;
+        }
+
+        $address_exists = Address
+            ::where([
+                'address_1'         => $addresses[0]['address_1'],
+                'address_2'         => $addresses[0]['address_2'],
+                'latitude'          => $addresses[0]['latitude'],
+                'longitude'         => $addresses[0]['longitude'],
+                'zip_postal_code'   => $addresses[0]['zip_postal_code']
+            ])->first();
+
+        //if the address exists, just get out
+        if(!empty($address_exists)) {
+            return $args;
+        }
 
         //detach before add the new addresses
         $updated_location->addresses()->detach();
