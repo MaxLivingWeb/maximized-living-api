@@ -123,7 +123,7 @@ class UserController extends Controller
             if(isset($validatedData['selectedLocation']['id'])) {
                 $locationId = (int)$validatedData['selectedLocation']['id'];
                 $location = Location::with('userGroup')->findOrFail($locationId);
-                $locationUserGroup = UserGroup::with(['commission', 'location'])->findOrFail($location->userGroup->id);
+                $userGroup = UserGroup::with(['commission', 'location'])->findOrFail($location->userGroup->id);
                 $locationAddresses = $location->addresses()->get()->toArray();
 
                 // Get Address info for this Selected Location, and save that to Shopify Customer
@@ -145,7 +145,7 @@ class UserController extends Controller
                     $shopifyAddresses[0]->publicdata->default = true;
                 }
 
-                $locationUserGroup->addUser($cognitoUser->get('User')['Username']);
+                $userGroup->addUser($cognitoUser->get('User')['Username']);
             }
             // User is not associated to a location
             else {
@@ -324,15 +324,7 @@ class UserController extends Controller
                 $userGroup
             );
 
-            return response()->json([
-                'ShopifyCustomer' => $shopifyCustomer,
-                'ShopifyAddresses' => $shopifyAddresses,
-                'UserGroup' => $userGroup,
-                'DefaultAddress' => $defaultAddress ?? null,
-                'WholesaleBillingAddress' => $wholesaleBillingAddress ?? null,
-                'WholesaleShippingAddress' => $wholesaleShippingAddress ?? null,
-                'CommissionBillingAddress' => $commissionBillingAddress ?? null
-            ]);
+            return response()->json();
         }
         catch(AwsException $e) {
             Log::error($e);
@@ -679,7 +671,6 @@ class UserController extends Controller
 
             // Update Addresses saved in DB, so they are mapped to these Shopify Customer Addresses
             // Then while Editing Users, we can re-use the same Shopify Addresses than re-creating new ones
-            //TODO: be able to detach shopify addresses (that were added via being added as a location usergroup), but do not attach shopify ids on those addresses
             $addressesToUpdate = (isset($locationAddresses) && !empty($locationAddresses))
                 ? $locationAddresses
                 : [
@@ -696,11 +687,7 @@ class UserController extends Controller
                 $userGroup
             );
 
-            return response()->json([
-                'ShopifyCustomer' => $shopifyCustomer,
-                'ShopifyAddresses' => $shopifyAddresses,
-                'AddressesToUpdate' => $addressesToUpdate
-            ]);
+            return response()->json();
         }
         catch(AwsException $e) {
             return response()->json([$e->getAwsErrorMessage()], 500);
