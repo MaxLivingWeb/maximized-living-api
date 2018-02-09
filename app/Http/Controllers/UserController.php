@@ -469,7 +469,7 @@ class UserController extends Controller
                     ]);
                     $userGroup->addUser($id);
                 }
-                
+
                 // Default Address
                 $defaultAddress = null;
                 if(!empty($request->input('defaultAddress'))) {
@@ -701,7 +701,7 @@ class UserController extends Controller
 
     /**
      * Attach or Detach any address data for this Shopify Customer
-     * @param $customAddresses
+     * @param $customAddresses (Custom Addresses saved to the API)
      * @param $shopifyCustomerAddresses (Addresses that are saved to the Shopify Customer)
      * @param $shopifyAddresses (Addresses that were just updated)
      * @param $userGroup (Can not attach Shopify Address IDs on addresses associated to a Location)
@@ -765,7 +765,7 @@ class UserController extends Controller
 
     /**
      * Attach the Shopify Address ID to our Custom Address that is saved into the API
-     * @param $customAddress
+     * @param $customAddresses (Custom Addresses saved to the API)
      * @param $shopifyCustomerAddresses (Addresses that are saved to the Shopify Customer)
      * @param $shopifyAddresses (Addresses that were just updated)
      */
@@ -806,8 +806,8 @@ class UserController extends Controller
 
     /**
      * Remove the Shopify Address ID from our Custom Address that is saved into the API
-     * @param $customAddress
-     * @param $shopifyAddress
+     * @param $customAddress (Custom Address saved to the API)
+     * @param $shopifyAddress (Address that was just updated to Shopify)
      */
     private function detachShopifyAddressFromUser($customAddress, $shopifyAddress)
     {
