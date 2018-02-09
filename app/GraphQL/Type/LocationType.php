@@ -51,8 +51,8 @@ class LocationType extends GraphQLType
                 'description' => 'Vanity ID of the location'
             ],
             'whitelabel' => [
-                'type' => Type::boolean(),
-                'description' => 'Boolean if the site is whitelabel status'
+                'type' => Type::int(),
+                'description' => 'Flag if the site is whitelabel status'
             ],
             'slug' => [
                 'type' => Type::string(),

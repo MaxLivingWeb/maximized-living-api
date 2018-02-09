@@ -93,7 +93,8 @@ return [
             'mutation' => [
                 'addLocation' => 'App\GraphQL\Mutation\AddLocationMutation',
                 'updateLocation' => 'App\GraphQL\Mutation\UpdateLocationMutation',
-                'deleteLocation' => 'App\GraphQL\Mutation\DeleteLocationMutation',
+                'updateLocationWhitelabel' => 'App\GraphQL\Mutation\UpdateLocationWhitelabelMutation',
+                'deleteLocation' => 'App\GraphQL\Mutation\DeleteLocationMutation'
             ]
         ],
     ],
