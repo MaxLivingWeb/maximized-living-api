@@ -825,21 +825,18 @@ class UserController extends Controller
      */
     private function detachShopifyAddressFromUser($customAddress, $shopifyAddress)
     {
-        if (!is_null($customAddress)
-            && (
-                !is_null($customAddress['shopify_id'])
-            )
-            && (
-                (isset($shopifyAddress->id) && !is_null($shopifyAddress->id))
-                && (isset($shopifyAddress->customer_id) && !is_null($shopifyAddress->customer_id))
-            )
+        if ((isset($shopifyAddress->id) && !is_null($shopifyAddress->id))
+            && (isset($shopifyAddress->customer_id) && !is_null($shopifyAddress->customer_id))
         ) {
-            $customAddress->resetShopifyAddressID();
-            $customAddress->resetShopifyAddressDefaultValue();
-
             // Delete this address from being associated to this Shopify Customer
             $shopify = new ShopifyHelper();
             $shopify->deleteCustomerAddress((array)$shopifyAddress);
+
+            // Detach saved ShopifyAddress ID from Custom Address
+            if (!is_null($customAddress)) {
+                $customAddress->resetShopifyAddressID();
+                $customAddress->resetShopifyAddressDefaultValue();
+            }
         }
     }
 
