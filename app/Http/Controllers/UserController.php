@@ -743,9 +743,9 @@ class UserController extends Controller
             }
 
             // Save updates for Shopify Customer
-            $shopifyCustomer = $shopify->updateCustomer();
+            $shopify->updateCustomer($shopifyCustomerData);
 
-            return response()->json($shopifyCustomer);
+            return response()->json();
         }
         catch(AwsException $e) {
             return response()->json([$e->getAwsErrorMessage()], 500);
