@@ -178,9 +178,9 @@ class LocationQuery extends Query
 
         if (isset($args['slug'])) {
             return Location::where([
-                'slug' => $args['slug'],
-                'whitelabel' => 0
-            ])->get();
+                'slug' => $args['slug']
+            ])->whereBetween('whitelabel', $whitelabelValues)
+            ->get();
         }
 
         if (isset($args['vanity_website_id'])) {
