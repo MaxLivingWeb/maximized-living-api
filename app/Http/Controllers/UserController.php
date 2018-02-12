@@ -735,12 +735,9 @@ class UserController extends Controller
             $shopifyCustomerData = [
                 'id'         => $shopifyId,
                 'first_name' => $validatedData['first_name'],
-                'last_name'  => $validatedData['last_name']
+                'last_name'  => $validatedData['last_name'],
+                'phone'      => $validatedData['phone'] ?? ''
             ];
-
-            if(!is_null($validatedData['phone'])) {
-                $shopifyCustomerData['phone'] = $validatedData['phone'];
-            }
 
             // Save updates for Shopify Customer
             $shopify->updateCustomer($shopifyCustomerData);
