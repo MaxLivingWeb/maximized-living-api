@@ -375,6 +375,15 @@ class UserController extends Controller
         $shopify = new ShopifyHelper();
 
         try {
+            // Update only specific data sets based on passed query params
+            // TODO: Probably update this logic, so this can all just be handled in the one updateUser() method
+            $queryParams = $request->query();
+            if (isset($queryParams['datagroup']) && $queryParams['datagroup'] === 'basic_details') {
+                return $this->updateUserBasicDetails($request, $id);
+            }
+
+            // No specific data groups were specified, so update all user data...
+            // Continue validation as usual
             $validatedData = $request->validate([
                 'first_name'          => 'required',
                 'last_name'           => 'required',
@@ -687,6 +696,56 @@ class UserController extends Controller
             );
 
             return response()->json();
+        }
+        catch(AwsException $e) {
+            return response()->json([$e->getAwsErrorMessage()], 500);
+        }
+        catch (ValidationException $e) {
+            return response()->json($e->errors(), 400);
+        }
+        catch (\Exception $e) {
+            return response()->json($e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Update only basic user details
+     * @param Request $request
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function updateUserBasicDetails(Request $request, $id)
+    {
+        $cognito = new CognitoHelper();
+        $shopify = new ShopifyHelper();
+
+        try {
+            $validatedData = $request->validate([
+                'first_name' => 'required',
+                'last_name'  => 'required',
+                'phone'      => 'nullable'
+            ]);
+
+            $cognitoUser = $cognito->getUser($id);
+            $shopifyId = (int)collect($cognitoUser['UserAttributes'])
+                ->where('Name', env('COGNITO_SHOPIFY_CUSTOM_ATTRIBUTE'))
+                ->first()['Value'];
+
+            // Basic Shopify Customer data to be updated...
+            $shopifyCustomerData = [
+                'id'         => $shopifyId,
+                'first_name' => $validatedData['first_name'],
+                'last_name'  => $validatedData['last_name']
+            ];
+
+            if(!is_null($validatedData['phone'])) {
+                $shopifyCustomerData['phone'] = $validatedData['phone'];
+            }
+
+            // Save updates for Shopify Customer
+            $shopifyCustomer = $shopify->updateCustomer();
+
+            return response()->json($shopifyCustomer);
         }
         catch(AwsException $e) {
             return response()->json([$e->getAwsErrorMessage()], 500);
