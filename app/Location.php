@@ -123,7 +123,8 @@ class Location extends Model
               ON addresses.id = la.address_id
             JOIN locations l ON la.location_id = l.id
             LEFT JOIN user_groups ug ON ug.location_id = l.id
-            WHERE l.deleted_at IS NULL) AS query
+            WHERE l.deleted_at IS NULL AND
+            l.whitelabel = 0) AS query
             WHERE distance <= :distance
             ORDER BY distance ASC";
 
