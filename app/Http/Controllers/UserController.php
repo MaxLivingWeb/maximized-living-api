@@ -375,6 +375,15 @@ class UserController extends Controller
         $shopify = new ShopifyHelper();
 
         try {
+            // Update only specific data sets based on passed query params
+            // TODO: Probably update this logic, so this can all just be handled in the one updateUser() method
+            $queryParams = $request->query();
+            if (isset($queryParams['datagroup']) && $queryParams['datagroup'] === 'basic_details') {
+                return $this->updateUserBasicDetails($request, $id);
+            }
+
+            // No specific data groups were specified, so update all user data...
+            // Continue validation as usual
             $validatedData = $request->validate([
                 'first_name'          => 'required',
                 'last_name'           => 'required',
@@ -392,7 +401,6 @@ class UserController extends Controller
 
             // Update user addresses in API database
             $userGroup = $user->group();
-
             $addresses = $userGroup->location->addresses
                 ?? $userGroup->addresses
                 ?? collect();
@@ -415,6 +423,12 @@ class UserController extends Controller
 
             if(!is_null($validatedData['phone'])) {
                 $shopifyCustomerData['phone'] = $validatedData['phone'];
+            }
+
+            // Double check this user is apart of the AffiliateUsers Cognito user-group
+            $cognitoUserGroups = $cognito->getGroupsForUser($id);
+            if (!collect($cognitoUserGroups)->pluck('GroupName')->contains(env('AWS_COGNITO_AFFILIATE_USER_GROUP_NAME'))) {
+                $cognito->addUserToGroup($id, env('AWS_COGNITO_AFFILIATE_USER_GROUP_NAME'));
             }
 
             // Get User Addresses (which will be saved to Shopify Customer account)
@@ -700,6 +714,53 @@ class UserController extends Controller
     }
 
     /**
+     * Update only basic user details
+     * @param Request $request
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function updateUserBasicDetails(Request $request, $id)
+    {
+        $cognito = new CognitoHelper();
+        $shopify = new ShopifyHelper();
+
+        try {
+            $validatedData = $request->validate([
+                'first_name' => 'required',
+                'last_name'  => 'required',
+                'phone'      => 'nullable'
+            ]);
+
+            $cognitoUser = $cognito->getUser($id);
+            $shopifyId = (int)collect($cognitoUser['UserAttributes'])
+                ->where('Name', env('COGNITO_SHOPIFY_CUSTOM_ATTRIBUTE'))
+                ->first()['Value'];
+
+            // Basic Shopify Customer data to be updated...
+            $shopifyCustomerData = [
+                'id'         => $shopifyId,
+                'first_name' => $validatedData['first_name'],
+                'last_name'  => $validatedData['last_name'],
+                'phone'      => $validatedData['phone'] ?? ''
+            ];
+
+            // Save updates for Shopify Customer
+            $shopify->updateCustomer($shopifyCustomerData);
+
+            return response()->json();
+        }
+        catch(AwsException $e) {
+            return response()->json([$e->getAwsErrorMessage()], 500);
+        }
+        catch (ValidationException $e) {
+            return response()->json($e->errors(), 400);
+        }
+        catch (\Exception $e) {
+            return response()->json($e->getMessage(), 500);
+        }
+    }
+
+    /**
      * Attach or Detach any address data for this Shopify Customer
      * @param $customAddresses (Custom Addresses saved to the API)
      * @param $shopifyCustomerAddresses (Addresses that are saved to the Shopify Customer)
@@ -736,7 +797,7 @@ class UserController extends Controller
             // Detach this Address, since it was not mapped to the $shopifyAddresses array that was updated for this Shopify Customer
             collect($shopifyCustomerAddresses)
                 ->filter(function($shopifyCustomerAddress){
-                    return !is_null($shopifyCustomerAddress->id) && !$shopifyCustomerAddress->default;
+                    return !$shopifyCustomerAddress->default;
                 })
                 ->reject(function($shopifyCustomerAddress) use($shopifyAddresses){
                     return collect($shopifyAddresses)
@@ -751,7 +812,7 @@ class UserController extends Controller
                                 && $shopifyCustomerAddress->city === $shopifyAddress->city
                                 && $shopifyCustomerAddress->province === $shopifyAddress->province
                                 && $shopifyCustomerAddress->country === $shopifyAddress->country
-                                && $shopifyCustomerAddress->zip === $shopifyAddress->zip
+                                && str_replace(' ', '',$shopifyCustomerAddress->zip) === str_replace(' ', '', $shopifyAddress->zip)
                             );
                         })
                         ->all();
@@ -774,21 +835,20 @@ class UserController extends Controller
         if (!is_null($customAddress) && count($shopifyCustomerAddresses) > 0 && count($shopifyAddresses) > 0) {
             foreach ($shopifyCustomerAddresses as $shopifyCustomerAddress) {
                 $shopifyCustomerAddressToUpdate = collect($shopifyAddresses)
-                    ->pluck('publicdata')
+                    ->filter(function($shopifyAddress) use($customAddress) {
+                        return $shopifyAddress->privatedata->custom_address_id === $customAddress['id'];
+                    })
                     ->transform(function($shopifyAddress) use($shopifyCustomerAddress){
-                        if ($shopifyCustomerAddress->company === $shopifyAddress->company
-                            && $shopifyCustomerAddress->address1 === $shopifyAddress->address1
-                            && $shopifyCustomerAddress->address2 === $shopifyAddress->address2
-                            && $shopifyCustomerAddress->city === $shopifyAddress->city
-                            && $shopifyCustomerAddress->province === $shopifyAddress->province
-                            && $shopifyCustomerAddress->country === $shopifyAddress->country
-                            && $shopifyCustomerAddress->zip === $shopifyAddress->zip
+                        if ($shopifyCustomerAddress->company === $shopifyAddress->publicdata->company
+                            && $shopifyCustomerAddress->address1 === $shopifyAddress->publicdata->address1
+                            && $shopifyCustomerAddress->address2 === $shopifyAddress->publicdata->address2
+                            && $shopifyCustomerAddress->city === $shopifyAddress->publicdata->city
+                            && $shopifyCustomerAddress->province === $shopifyAddress->publicdata->province
+                            && $shopifyCustomerAddress->country === $shopifyAddress->publicdata->country
+                            && str_replace(' ', '',$shopifyCustomerAddress->zip) === str_replace(' ', '', $shopifyAddress->publicdata->zip)
                         ) {
                             return $shopifyCustomerAddress;
                         }
-                    })
-                    ->filter(function($shopifyCustomerAddress){
-                        return !is_null($shopifyCustomerAddress);
                     })
                     ->first();
 
