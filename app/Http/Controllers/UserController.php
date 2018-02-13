@@ -792,7 +792,7 @@ class UserController extends Controller
             // Detach this Address, since it was not mapped to the $shopifyAddresses array that was updated for this Shopify Customer
             collect($shopifyCustomerAddresses)
                 ->filter(function($shopifyCustomerAddress){
-                    return !is_null($shopifyCustomerAddress->id) && !$shopifyCustomerAddress->default;
+                    return !$shopifyCustomerAddress->default;
                 })
                 ->reject(function($shopifyCustomerAddress) use($shopifyAddresses){
                     return collect($shopifyAddresses)
@@ -807,7 +807,7 @@ class UserController extends Controller
                                 && $shopifyCustomerAddress->city === $shopifyAddress->city
                                 && $shopifyCustomerAddress->province === $shopifyAddress->province
                                 && $shopifyCustomerAddress->country === $shopifyAddress->country
-                                && $shopifyCustomerAddress->zip === $shopifyAddress->zip
+                                && str_replace(' ', '',$shopifyCustomerAddress->zip) === str_replace(' ', '', $shopifyAddress->zip)
                             );
                         })
                         ->all();
@@ -830,21 +830,20 @@ class UserController extends Controller
         if (!is_null($customAddress) && count($shopifyCustomerAddresses) > 0 && count($shopifyAddresses) > 0) {
             foreach ($shopifyCustomerAddresses as $shopifyCustomerAddress) {
                 $shopifyCustomerAddressToUpdate = collect($shopifyAddresses)
-                    ->pluck('publicdata')
+                    ->filter(function($shopifyAddress) use($customAddress) {
+                        return $shopifyAddress->privatedata->custom_address_id === $customAddress['id'];
+                    })
                     ->transform(function($shopifyAddress) use($shopifyCustomerAddress){
-                        if ($shopifyCustomerAddress->company === $shopifyAddress->company
-                            && $shopifyCustomerAddress->address1 === $shopifyAddress->address1
-                            && $shopifyCustomerAddress->address2 === $shopifyAddress->address2
-                            && $shopifyCustomerAddress->city === $shopifyAddress->city
-                            && $shopifyCustomerAddress->province === $shopifyAddress->province
-                            && $shopifyCustomerAddress->country === $shopifyAddress->country
-                            && $shopifyCustomerAddress->zip === $shopifyAddress->zip
+                        if ($shopifyCustomerAddress->company === $shopifyAddress->publicdata->company
+                            && $shopifyCustomerAddress->address1 === $shopifyAddress->publicdata->address1
+                            && $shopifyCustomerAddress->address2 === $shopifyAddress->publicdata->address2
+                            && $shopifyCustomerAddress->city === $shopifyAddress->publicdata->city
+                            && $shopifyCustomerAddress->province === $shopifyAddress->publicdata->province
+                            && $shopifyCustomerAddress->country === $shopifyAddress->publicdata->country
+                            && str_replace(' ', '',$shopifyCustomerAddress->zip) === str_replace(' ', '', $shopifyAddress->publicdata->zip)
                         ) {
                             return $shopifyCustomerAddress;
                         }
-                    })
-                    ->filter(function($shopifyCustomerAddress){
-                        return !is_null($shopifyCustomerAddress);
                     })
                     ->first();
 
