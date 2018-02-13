@@ -427,7 +427,7 @@ class UserController extends Controller
 
             // Double check this user is apart of the AffiliateUsers Cognito user-group
             $cognitoUserGroups = $cognito->getGroupsForUser($id);
-            if (!collect($cognitoUserGroups)->pluck('GroupName')->contains('AffiliateUsers')) {
+            if (!collect($cognitoUserGroups)->pluck('GroupName')->contains(env('AWS_COGNITO_AFFILIATE_USER_GROUP_NAME'))) {
                 $cognito->addUserToGroup($id, env('AWS_COGNITO_AFFILIATE_USER_GROUP_NAME'));
             }
 
