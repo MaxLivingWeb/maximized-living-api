@@ -178,6 +178,16 @@ class CognitoHelper
         ]);
     }
 
+    public function getGroupsForUser($username)
+    {
+        $result = $this->client->adminListGroupsForUser([
+            'Username' => $username,
+            'UserPoolId' => env('AWS_COGNITO_USER_POOL_ID')
+        ]);
+
+        return $result->get('Groups');
+    }
+
     public function createGroup($name, $desc, $precedence = null)
     {
         $params = [
