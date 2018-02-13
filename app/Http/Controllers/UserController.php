@@ -401,7 +401,6 @@ class UserController extends Controller
 
             // Update user addresses in API database
             $userGroup = $user->group();
-
             $addresses = $userGroup->location->addresses
                 ?? $userGroup->addresses
                 ?? collect();
@@ -424,6 +423,12 @@ class UserController extends Controller
 
             if(!is_null($validatedData['phone'])) {
                 $shopifyCustomerData['phone'] = $validatedData['phone'];
+            }
+
+            // Double check this user is apart of the AffiliateUsers Cognito user-group
+            $cognitoUserGroups = $cognito->getGroupsForUser($id);
+            if (!collect($cognitoUserGroups)->pluck('GroupName')->contains(env('AWS_COGNITO_AFFILIATE_USER_GROUP_NAME'))) {
+                $cognito->addUserToGroup($id, env('AWS_COGNITO_AFFILIATE_USER_GROUP_NAME'));
             }
 
             // Get User Addresses (which will be saved to Shopify Customer account)
