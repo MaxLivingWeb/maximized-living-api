@@ -70,7 +70,7 @@ class CognitoHelper
             ]);
         }
         catch(AwsException $e) {
-            if($e->getStatusCode() !== 400) { // group not found
+            if($e->getStatusCode() !== 400) { // user not found
                 abort(
                     $e->getStatusCode(),
                     $e->getAwsErrorMessage()
