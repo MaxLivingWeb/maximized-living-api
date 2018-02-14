@@ -96,14 +96,13 @@ class UserGroup extends Model
             ->unique();
 
         $users = [];
-
         if (count($userIds) > 0) {
             foreach ($userIds as $userId){
                 $user = $cognito->getUser($userId);
                 if (empty($user)) {
                     continue;
                 }
-                array_push($users, User::structureUser($user));
+                $users[] = User::structureUser($user);
             }
         }
 
