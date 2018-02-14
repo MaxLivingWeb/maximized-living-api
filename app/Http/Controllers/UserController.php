@@ -49,10 +49,10 @@ class UserController extends Controller
         $duplicateUsers = $this->findDuplicateCognitoUserInstances($users);
 
         return [
-            'ALL_USERS' => [
-                'count' => count($users),
-                'results' => $users
-            ],
+//            'ALL_USERS' => [
+//                'count' => count($users),
+//                'results' => $users
+//            ],
             'DUPLICATE_USERS' => [
                 'count' => count($duplicateUsers),
                 'results' => $duplicateUsers
