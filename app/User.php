@@ -30,6 +30,10 @@ class User extends Authenticatable
 
     public static function structureUser($cognitoUser)
     {
+        if (empty($cognitoUser)) {
+            return;
+        }
+
         $attributes = $cognitoUser['UserAttributes'] ?? $cognitoUser['Attributes'] ?? []; //depending on the endpoint used to get user data, this may differentiate (adminGetUser vs listUsers)
 
         $res = (object) [
