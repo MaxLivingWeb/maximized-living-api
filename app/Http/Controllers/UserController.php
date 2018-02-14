@@ -38,28 +38,6 @@ class UserController extends Controller
         }
     }
 
-    public function listAllUsers()
-    {
-        return $this->listUsers('ALL_COGNITO_USERS');
-    }
-
-    public function listDuplicateUsers()
-    {
-        $users = $this->listAllUsers()->original;
-        $duplicateUsers = $this->findDuplicateCognitoUserInstances($users);
-
-        return [
-//            'ALL_USERS' => [
-//                'count' => count($users),
-//                'results' => $users
-//            ],
-            'DUPLICATE_USERS' => [
-                'count' => count($duplicateUsers),
-                'results' => $duplicateUsers
-            ]
-        ];
-    }
-
     public function addUser(Request $request)
     {
         $cognito = new CognitoHelper();
@@ -1080,36 +1058,5 @@ class UserController extends Controller
         }
 
         return $matches === 0;
-    }
-
-    private function findDuplicateCognitoUserInstances($users)
-    {
-        $emails = [];
-        $duplicateUsers = [];
-
-        foreach ($users as $currentUser) {
-            // Duplicate Found, add all user instances to duplicates array
-            if (in_array(strtolower($currentUser['email']), $emails)) {
-                $email = strtolower($currentUser['email']);
-
-                $duplicateUsersForEmail = collect($users)
-                    ->filter(function($user) use($email) {
-                        return strtolower($user['email']) === $email;
-                    })
-                    ->sortBy('created')
-                    ->values()
-                    ->all();
-
-                $duplicateUsers[$email] = (object)[
-                    'user_instances' => $duplicateUsersForEmail,
-                    'shopify_ids_match' => collect($duplicateUsersForEmail)->every('shopify_id', $currentUser['shopify_id'])
-                ];
-            }
-
-            // Push this email to the list of possible duplicates
-            $emails[] = strtolower($currentUser['email']);
-        }
-
-        return $duplicateUsers;
     }
 }

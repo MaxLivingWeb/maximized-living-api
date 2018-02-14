@@ -38,11 +38,7 @@ Route::group(['prefix' => 'user'], function() {
     Route::delete('/{id}', 'UserController@delete');
 });
 
-Route::group(['prefix' => 'users'], function() {
-    Route::get('/', 'UserController@listUsers');
-    Route::get('/all', 'UserController@listAllUsers');
-    Route::get('/duplicates', 'UserController@listDuplicateUsers');
-});
+Route::get('/users', 'UserController@listUsers');
 
 // Locations
 Route::group(['prefix' => 'location'], function() {

@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Foundation\Inspiring;
+use App\Helpers\CognitoUserReportingHelper;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,6 +17,36 @@ use Illuminate\Foundation\Inspiring;
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->describe('Display an inspiring quote');
+
+Artisan::command('get/duplicate/users', function () {
+    $cognitoUserReportingHelper = new CognitoUserReportingHelper();
+    $duplicateUsers = $cognitoUserReportingHelper->listDuplicateUserInstances();
+
+    $response = $this->info('Total Duplicate User Instances Found: ' . count($duplicateUsers));
+    if (count($duplicateUsers) > 0) {
+        foreach ($duplicateUsers as $email => $results) {
+            $response .= $this->line('----');
+            $response .= $this->line(count($results->user_instances).' Users with the Email Address ['.$email.']');
+            $response .= $this->line('Shopify IDs Match: ' . ($results->shopify_ids_match ? 'Yes' : 'No'));
+            $response .= $this->table(
+                ['Cognito ID', 'Email', 'User Status', 'Created', 'Shopify ID'],
+                collect($results->user_instances)->transform(function($user){
+                    return [
+                        $user['id'],
+                        $user['email'],
+                        $user['user_status'],
+                        $user['created'],
+                        $user['shopify_id']
+                    ];
+                })
+            );
+        }
+    }
+    $response .= $this->line('----');
+    $response .= $this->info('Done Finding Duplicate Cognito Users');
+
+    return $response;
+})->describe('Return all duplicate Cognito User Instances');
 
 Artisan::command('wholesale {file}', function ($file) {
     try {
