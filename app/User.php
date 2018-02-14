@@ -34,7 +34,10 @@ class User extends Authenticatable
             return;
         }
 
-        $attributes = $cognitoUser['UserAttributes'] ?? $cognitoUser['Attributes'] ?? []; //depending on the endpoint used to get user data, this may differentiate (adminGetUser vs listUsers)
+        //depending on the endpoint used to get user data, this may differentiate (adminGetUser vs listUsers)
+        $attributes = $cognitoUser['UserAttributes']
+            ?? $cognitoUser['Attributes']
+            ?? [];
 
         $res = (object) [
             'id'    => $cognitoUser['Username'],
