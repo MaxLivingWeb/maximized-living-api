@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use App\User;
 use Aws\Sdk;
 use Aws\Exception\AwsException;
 use Illuminate\Support\Facades\Cache;
@@ -62,10 +63,22 @@ class CognitoHelper
      */
     public function getUser($id)
     {
-        return $this->client->adminGetUser([
-            'UserPoolId' => env('AWS_COGNITO_USER_POOL_ID'),
-            'Username' => $id
-        ]);
+        try {
+            return $this->client->adminGetUser([
+                'UserPoolId' => env('AWS_COGNITO_USER_POOL_ID'),
+                'Username' => $id
+            ]);
+        }
+        catch(AwsException $e) {
+            if($e->getStatusCode() !== 400) { // user not found
+                abort(
+                    $e->getStatusCode(),
+                    $e->getAwsErrorMessage()
+                );
+            }
+
+            return;
+        }
     }
 
     /**
@@ -98,7 +111,7 @@ class CognitoHelper
                 $result = $this->getCached('listUsersInGroup', $params);
 
                 $users = $users->merge(collect($result->get('Users'))->transform(function($user) {
-                    return self::formatUserData($user);
+                    return User::structureUser($user);
                 }));
                 if($count % $this->listUsersQueryGroupSize === 0) {
                     sleep($this->listUsersSleepTime);
@@ -244,9 +257,10 @@ class CognitoHelper
             'UserPoolId' => env('AWS_COGNITO_USER_POOL_ID'),
         ]);
 
-        return collect($result->get('Users'))->transform(function($user) {
-            return self::formatUserData($user);
-        });
+        return collect($result->get('Users'))
+            ->transform(function($user) {
+                return User::structureUser($user);
+            });
     }
 
     public function removeUserAttribute($attributes, $username)
@@ -295,17 +309,5 @@ class CognitoHelper
     {
         $this->cacheTime = (int)$cacheTime;
         return TRUE;
-    }
-
-    public static function formatUserData($user)
-    {
-        $attributes = collect($user['Attributes']);
-        return [
-            'id'            => $user['Username'],
-            'user_status'    => $user['UserStatus'],
-            'email'         => $attributes->where('Name', 'email')->first()['Value'],
-            'created'       => $user['UserCreateDate'],
-            'shopify_id'     => intval($attributes->where('Name', env('COGNITO_SHOPIFY_CUSTOM_ATTRIBUTE'))->first()['Value'])
-        ];
     }
 }

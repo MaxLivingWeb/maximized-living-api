@@ -34,6 +34,12 @@ class GroupController extends Controller
         return UserGroup::with('commission')->findOrFail($id);
     }
 
+    public function getUsersById($id)
+    {
+        $userGroup = UserGroup::findorFail($id);
+        return $userGroup->listUsers();
+    }
+
     public function allWithCommission(Request $request)
     {
         $userGroups = UserGroup::with(['commission', 'location'])

@@ -27,6 +27,9 @@ class ShopifyHelper extends CacheableApi
             $result = $this->get('customers/' . $id . '.json', TRUE);
             return json_decode($result)->customer;
         }
+        catch(ClientException $e) {
+            return $e;
+        }
         catch(\Exception $e) {
             throw $e;
         }

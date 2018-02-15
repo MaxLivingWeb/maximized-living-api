@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Helpers\CognitoHelper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
@@ -84,6 +85,29 @@ class UserGroup extends Model
         return $this->belongsToMany('App\Address', 'usergroup_addresses');
     }
 
+    public function listUsers()
+    {
+        $cognito = new CognitoHelper();
+
+        $userIds = DB::table('usergroup_users')
+            ->where('user_group_id', '=', $this->id)
+            ->get()
+            ->pluck('user_id')
+            ->unique();
+
+        $users = [];
+        if (count($userIds) > 0) {
+            foreach ($userIds as $userId){
+                $user = $cognito->getUser($userId);
+                if (empty($user)) {
+                    continue;
+                }
+                $users[] = User::structureUser($user);
+            }
+        }
+
+        return $users;
+    }
     public function loadUsers($allUsers, $shopifyUsers) {
         // this logic seems to take a long time to run, so we'll cache it as well
         $cacheName = 'location_' . $this->id . '_all_users';
