@@ -38,14 +38,14 @@ class CognitoUserReportingHelper
     private function findDuplicateCognitoUserInstances($users)
     {
         $emails = [];
-        $duplicateUsers = [];
+        $duplicateUserInstances = [];
 
         foreach ($users as $currentUser) {
             // Duplicate Found, add all user instances to duplicates array
             if (in_array(strtolower($currentUser['email']), $emails)) {
                 $email = strtolower($currentUser['email']);
 
-                $duplicateUsersForEmail = collect($users)
+                $duplicateUsers = collect($users)
                     ->filter(function($user) use($email) {
                         return strtolower($user['email']) === $email;
                     })
@@ -53,9 +53,9 @@ class CognitoUserReportingHelper
                     ->values()
                     ->all();
 
-                $duplicateUsers[$email] = (object)[
-                    'user_instances' => $duplicateUsersForEmail,
-                    'shopify_ids_match' => collect($duplicateUsersForEmail)->every('shopify_id', $currentUser['shopify_id'])
+                $duplicateUserInstances[$email] = (object)[
+                    'user_instances' => $duplicateUsers,
+                    'shopify_ids_match' => collect($duplicateUsers)->every('shopify_id', $currentUser['shopify_id'])
                 ];
             }
 
@@ -63,7 +63,7 @@ class CognitoUserReportingHelper
             $emails[] = strtolower($currentUser['email']);
         }
 
-        return $duplicateUsers;
+        return $duplicateUserInstances;
     }
 
 }
