@@ -95,18 +95,18 @@ class UserGroup extends Model
             ->pluck('user_id')
             ->unique();
 
-        $users = [];
-        if (count($userIds) > 0) {
-            foreach ($userIds as $userId){
+        return collect($userIds)
+            ->transform(function($userId) use($cognito){
                 $user = $cognito->getUser($userId);
-                if (empty($user)) {
-                    continue;
+                if (!empty($user)) {
+                    return User::structureUser($user);
                 }
-                $users[] = User::structureUser($user);
-            }
-        }
-
-        return $users;
+            })
+            ->reject(function($user){
+                return is_null($user);
+            })
+            ->values()
+            ->all();
     }
     public function loadUsers($allUsers, $shopifyUsers) {
         // this logic seems to take a long time to run, so we'll cache it as well
