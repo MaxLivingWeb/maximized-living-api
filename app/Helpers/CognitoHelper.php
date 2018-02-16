@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use App\CognitoUser;
 use App\User;
 use Aws\Sdk;
 use Aws\Exception\AwsException;
@@ -125,7 +126,7 @@ class CognitoHelper
 
                 $users = $users->merge(collect($result->get('Users'))
                     ->transform(function($user) {
-                        return User::structureUser($user);
+                        return self::formatUserData($user);
                     })
                 );
 
@@ -276,7 +277,7 @@ class CognitoHelper
 
         return collect($result->get('Users'))
             ->transform(function($user) {
-                return User::structureUser($user);
+                return self::formatUserData($user);
             });
     }
 
@@ -326,5 +327,30 @@ class CognitoHelper
     {
         $this->cacheTime = (int)$cacheTime;
         return TRUE;
+    }
+
+    public static function formatUserData($cognitoUser)
+    {
+        $attributes = collect($cognitoUser['Attributes']);
+
+        $shopifyId = (int)$attributes
+            ->where('Name', env('COGNITO_SHOPIFY_CUSTOM_ATTRIBUTE'))
+            ->first()['Value'];
+
+        $user = new CognitoUser($cognitoUser['Username']);
+        $userGroup = $user->group();
+        $affiliate = null;
+        if(!is_null($userGroup)) {
+            $affiliate = $userGroup;
+        }
+
+        return [
+            'id'           => $cognitoUser['Username'],
+            'user_status'  => $cognitoUser['UserStatus'],
+            'email'        => $attributes->where('Name', 'email')->first()['Value'],
+            'created'      => $cognitoUser['UserCreateDate'],
+            'shopify_id'   => $shopifyId,
+            'affiliate'    => $affiliate
+        ];
     }
 }
