@@ -84,7 +84,7 @@ class CognitoHelper
     /**
      * Returns an array of users from Cognito.
      *
-     * @param string|null $groupName The name of the group to get users for. If no group name is provided, will default to the .env affiliate group name.
+     * @param string|null $groupName The name of the group to get users for. If no group name is provided, will default to the .env affiliate group name. To return all users - pass the value 'ALL_COGNITO_USERS'
      * @return \Illuminate\Support\Collection
      */
     public function listUsers($groupName = NULL)
@@ -94,30 +94,49 @@ class CognitoHelper
         }
 
         try {
-
             $users = collect();
 
             $count = 0;
-            while(!isset($result) || $result->hasKey('NextToken')) {
-                $params = [
-                    'GroupName' => $groupName,
-                    'UserPoolId' => env('AWS_COGNITO_USER_POOL_ID')
-                ];
+            while(!isset($result) || $result->hasKey('NextToken') || $result->hasKey('PaginationToken')) {
 
-                if(isset($result)) {
-                    $params['NextToken'] = $result->get('NextToken');
+                if ($groupName !== 'ALL_COGNITO_USERS') {
+                    $params = [
+                        'GroupName' => $groupName,
+                        'UserPoolId' => env('AWS_COGNITO_USER_POOL_ID')
+                    ];
+
+                    if(isset($result)) {
+                        $params['NextToken'] = $result->get('NextToken');
+                    }
+
+                    $result = $this->getCached('listUsersInGroup', $params);
+                }
+                else {
+                    $params = [
+                        'UserPoolId' => env('AWS_COGNITO_USER_POOL_ID')
+                    ];
+
+                    if(isset($result)) {
+                        $params['PaginationToken'] = $result->get('PaginationToken');
+                    }
+
+                    $result = $this->getCached('listUsers', $params);
                 }
 
-                $result = $this->getCached('listUsersInGroup', $params);
+                $users = $users->merge(collect($result->get('Users'))
+                    ->transform(function($user) {
+                        return User::structureUser($user);
+                    })
+                );
 
-                $users = $users->merge(collect($result->get('Users'))->transform(function($user) {
-                    return User::structureUser($user);
-                }));
                 if($count % $this->listUsersQueryGroupSize === 0) {
                     sleep($this->listUsersSleepTime);
                 }
+
                 $count++;
             }
+
+            return $users->toArray();
         }
         catch(AwsException $e) {
             if($e->getStatusCode() !== 400) { // group not found
@@ -129,8 +148,6 @@ class CognitoHelper
 
             return collect([]);
         }
-
-        return $users->toArray();
     }
 
     public function createUser($username, $password)
