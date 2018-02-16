@@ -13,7 +13,12 @@ class LocationController extends Controller
      */
     public function all()
     {
-        return Location::all();
+        $locations = Location::all();
+
+        return collect($locations)
+            ->each(function($location){
+                $location->user_group = $location->userGroup;
+            });
     }
 
     /**

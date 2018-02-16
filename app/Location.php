@@ -143,27 +143,10 @@ class Location extends Model
      */
     public function listUsers()
     {
-        if(empty($this->userGroup)) {
+        if (empty($this->userGroup)) {
             return [];
         }
 
-        $user_ids = \DB::table('usergroup_users')
-            ->select('user_id')
-            ->where('user_group_id', '=', $this->userGroup->id)
-            ->get()
-            ->pluck('user_id');
-
-        $cognito = new CognitoHelper();
-        $users = [];
-        foreach($user_ids as $id) {
-            try {
-                $users[] = User::structureUser($cognito->getUser($id));
-            }
-            catch(AwsException $e) {
-                // do nothing, we don't want the whole process to fail if a user doesn't exist
-            }
-        }
-
-        return $users;
+        return $this->userGroup->listUsers();
     }
 }
