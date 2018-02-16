@@ -461,13 +461,12 @@ class UserController extends Controller
                 }
 
                 // Transfer User to a different UserGroup
-                if (empty($userGroup->location)) {
-                    if (!empty($userGroup)) {
-                        $userGroup->deleteUser($id);
-                    }
-                    $locationUserGroup->addUser($id);
+                if (!empty($userGroup)) {
+                    $userGroup->deleteUser($id);
                 }
+                $locationUserGroup->addUser($id);
 
+                // $userGroup variable value has been updated to be the new LocationUserGroup
                 $userGroup = $locationUserGroup;
             }
             // User is not associated to a location
