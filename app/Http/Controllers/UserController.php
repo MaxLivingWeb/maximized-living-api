@@ -8,7 +8,9 @@ use App\CognitoUser;
 use App\Location;
 use App\UserGroup;
 use App\User;
+use App\Helpers\CognitoUserReportingHelper;
 use App\Helpers\CognitoHelper;
+use App\Helpers\ExportHelper;
 use App\Helpers\ShopifyHelper;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Http\Request;
@@ -18,11 +20,11 @@ use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
 {
-    public function listUsers()
+    public function listUsers($groupName = NULL)
     {
         $cognito = new CognitoHelper();
         try {
-            $result = $cognito->listUsers();
+            $result = $cognito->listUsers($groupName);
 
             if(is_null($result)) {
                 return response()->json('no users', 404);
@@ -36,7 +38,46 @@ class UserController extends Controller
         catch (\Exception $e) {
             return response()->json($e->getMessage(), 500);
         }
+    }
 
+    public function exportDuplicateUsersToCSV()
+    {
+        $exportHelper = new ExportHelper();
+        $cognitoUserReportingHelper = new CognitoUserReportingHelper();
+
+        $duplicateUserInstances = $cognitoUserReportingHelper->listDuplicateUserInstances();
+
+        // CSV Rows
+        $rows = [];
+
+        // Insert CSV Headers
+        $rows[] = [
+            'Duplicate Email Comparison',
+            'Shopify IDs Match',
+            'Cognito ID',
+            'Email',
+            'User Status',
+            'Created',
+            'Shopify ID'
+        ];
+
+        foreach ($duplicateUserInstances as $email => $duplicateUsers) {
+            foreach ($duplicateUsers->user_instances as $user) {
+                $rows[] = [
+                    'DuplicateEmailComparison' => $email,
+                    'ShopifyIDsMatch' => $duplicateUsers->shopify_ids_match ? 'Yes' : 'No',
+                    'CognitoID' => $user['id'],
+                    'Email' => $user['email'],
+                    'UserStatus' => $user['user_status'],
+                    'Created' => $user['created']->format('Y-m-d h:ia'),
+                    'ShopifyID' => '"='.$user['shopify_id'].'"'
+                ];
+            }
+        }
+
+        $csv = $exportHelper->exportCsv($rows, 'ListDuplicateUserInstances');
+
+        return $csv;
     }
 
     public function addUser(Request $request)

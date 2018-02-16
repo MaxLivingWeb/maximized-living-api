@@ -84,6 +84,9 @@ Route::group(['prefix' => 'reporting'], function() {
     });
 });
 
+// Csv Exports
+Route::get('/export/users/duplicates', 'UserController@exportDuplicateUsersToCSV');
+
 Route::get('/store/update-products', function () {
     $products = (new ShopifyHelper())
         ->getProducts([], FALSE);
