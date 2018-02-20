@@ -84,6 +84,6 @@ Route::group(['prefix' => 'reporting'], function() {
 
 //Google My Business
 Route::group(['prefix' => 'gmb'], function() {
-    Route::get('/test', 'GmbController@get_all');
-
+    Route::get('/get_all', 'GmbController@get_all');
+    Route::get('/get/{gmb_id}', 'GmbController@get');
 });

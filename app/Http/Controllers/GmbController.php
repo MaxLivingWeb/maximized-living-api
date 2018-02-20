@@ -56,7 +56,7 @@ class GmbController extends Controller
      */
     public function update($location = null) {
 
-        if(empty($this->access_token) ) {
+        if(empty($this->access_token) || empty($location) ) {
             return;
         }
 
@@ -64,6 +64,23 @@ class GmbController extends Controller
 
         //send that formatted gmb_data to gmb
         //https://mybusiness.googleapis.com/v3/accounts/account_name/locations/locationId?languageCode=language&validateOnly=True|False&fieldMask=field1,field2,etc.
+        //it will look something like this
+        try {
+            $response = $this->client->request(
+                'PATCH',
+                'https://mybusiness.googleapis.com/v3/accounts/109466447190993053012/locations/'.$location->gmb_id,
+                array(
+                    'headers' => array(
+                        'Authorization' => "Bearer $this->access_token"
+                    ),
+                    'body' => $gmb_data,
+                    'http_errors' => false
+                )
+            );
+
+        } catch (Exception $e) { }
+
+        return $response->getBody()->getContents();
     }
 
     /**
@@ -75,9 +92,25 @@ class GmbController extends Controller
         //query API based on its $gmb_locations_id
         //https://mybusiness.googleapis.com/v3/accounts/account_name/locations/locationId
 
-        if(empty($this->access_token) ) {
+        if (empty($this->access_token)) {
             return;
         }
+
+        //it will look something like this
+        try {
+            $response = $this->client->request(
+                'GET',
+                'https://mybusiness.googleapis.com/v3/accounts/109466447190993053012/locations/'.$gmb_location_id,
+                array(
+                    'headers' => array(
+                        'Authorization' => "Bearer $this->access_token"
+                    )
+                )
+            );
+
+        } catch (Exception $e) { }
+
+        return $response->getBody()->getContents();
     }
 
     /**
@@ -88,25 +121,26 @@ class GmbController extends Controller
         //query API based on its $gmb_locations_id
         //https://mybusiness.googleapis.com/v3/{name=accounts/*}/locations:batchGet
 
-        if(empty($this->access_token) ) {
+        if (empty($this->access_token)) {
             return;
         }
 
         //it will look something like this
         try {
-            $g_response = $this->client->request(
+            $response = $this->client->request(
                 'GET',
-                'https://mybusiness.googleapis.com/v4/accounts',
+                'https://mybusiness.googleapis.com/v3/accounts/109466447190993053012/locations',
                 array(
                     'headers' => array(
                         'Authorization' => "Bearer $this->access_token"
                     )
                 )
             );
-            dd($g_response);
-        } catch(Exception $e) {
 
-        }
+        } catch (Exception $e) { }
+
+        return $response->getBody()->getContents();
+
     }
 
     /**
@@ -121,10 +155,19 @@ class GmbController extends Controller
             return;
         }
 
+        //get the gmb store code
+        $gmb_entry = json_decode($this->get($location->gmb_id) );
+
+        if($gmb_entry === false) {
+            return;
+        }
+
         $gmb_data = '{';
 
+        $gmb_data .= '"languageCode" : "EN",';
+
         //store_code
-        $gmb_data .= '"storeCode" : "'.$location->gmb_id.'",';
+        $gmb_data .= '"storeCode" : "'.$gmb_entry->storeCode.'",';
 
         //location name
         $gmb_data .= '"locationName" : "'.$location->name.'",';
@@ -163,7 +206,7 @@ class GmbController extends Controller
         $gmb_data .= $this->format_business_hours($location->business_hours);
 
         //primary category
-        $gmb_data .= '"primaryCategory" : { "categoryId": "gcid:chiropractor" }';
+        $gmb_data .= '"primaryCategory" : { "name":"Chiropractor", "categoryId": "gcid:chiropractor" }';
 
         $gmb_data .= '}';
 

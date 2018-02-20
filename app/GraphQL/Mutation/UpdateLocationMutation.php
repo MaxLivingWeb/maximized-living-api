@@ -2,7 +2,7 @@
 
 namespace App\GraphQL\Mutation;
 
-use App\Http\Controllers\GmbController;
+use App\Http\Controllers\GmbController as GMB;
 use GraphQL;
 use Folklore\GraphQL\Support\Mutation;
 use App\Location;
@@ -35,7 +35,7 @@ class UpdateLocationMutation extends Mutation
                 $args[$key] = filter_var($var, FILTER_SANITIZE_STRING);
             }
         }
-        
+
         $location = Location
             ::where(
                 'id', $args['id']
@@ -71,6 +71,10 @@ class UpdateLocationMutation extends Mutation
         foreach($addresses as $address) {
             Address::attachAddress($updated_location->id, $address);
         }
+
+        //update the gmb record
+        $gmb = new GMB();
+        $gmb->update($updated_location);
 
         if ($location === 1) {
             return $args;
