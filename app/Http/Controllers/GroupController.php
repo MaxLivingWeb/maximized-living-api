@@ -72,6 +72,9 @@ class GroupController extends Controller
             $shopifyUsers = (new ShopifyHelper(1440))
                 ->getCustomers(
                     collect($allUsers)
+                        ->filter(function($user) {
+                            return !empty($user['shopify_id']);
+                        })
                         ->pluck('shopify_id')
                 );
 
