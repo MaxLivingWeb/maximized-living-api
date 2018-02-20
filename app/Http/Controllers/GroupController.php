@@ -230,21 +230,27 @@ class GroupController extends Controller
     {
         $group = UserGroup::findOrFail($id);
 
+        $wholesaler = false;
+        if (!is_null($request->input('wholesaler'))) {
+            $wholesaler = (bool)$request->input('wholesaler');
+        }
+
         $premium = false;
         if (!is_null($request->input('premium'))) {
-            $premium = boolval($request->input('premium'));
+            $premium = (bool)$request->input('premium');
         }
 
         $event_promoter = false;
         if (!is_null($request->input('event_promoter'))) {
-            $event_promoter = boolval($request->input('event_promoter'));
+            $event_promoter = (bool)$request->input('event_promoter');
         }
 
         $commission_id = null;
         if (!is_null($request->input('commission.id'))) {
-            $commission_id = intval($request->input('commission.id'));
+            $commission_id = (int)$request->input('commission.id');
         }
 
+        $group->wholesaler = $wholesaler;
         $group->premium = $premium;
         $group->event_promoter = $event_promoter;
         $group->commission_id = $commission_id;
