@@ -219,7 +219,7 @@ class GmbController extends Controller
      */
     private function format_business_hours($business_hours) {
 
-        $f_business_hours = '"businessHours": {';
+        $f_business_hours = '"regularHours": {';
         $f_business_hours .= '"periods": [';
 
         $business_hours_array = json_decode(html_entity_decode($business_hours) );
