@@ -8,7 +8,7 @@ use GuzzleHttp;
 use Mockery\Exception;
 use GuzzleHttp\Exception\RequestException;
 use Symfony\Component\Process\Process;
-use App\Location;
+use Illuminate\Support\Facades\Log as Log;
 
 class GmbController extends Controller
 {
@@ -27,7 +27,6 @@ class GmbController extends Controller
         $this->client_id = env('GOOGLE_CLIENT_ID');
         $this->client_secret = env('GOOGLE_CLIENT_SECRET');
         $this->refresh_token = env('GOOGLE_REFRESH_TOKEN');
-
 
         $this->client = new \GuzzleHttp\Client();
 
@@ -78,7 +77,9 @@ class GmbController extends Controller
                 )
             );
 
-        } catch (Exception $e) { }
+        } catch (Exception $e) {
+            Log::error($e);
+        }
 
         return $response->getBody()->getContents();
     }
@@ -108,7 +109,9 @@ class GmbController extends Controller
                 )
             );
 
-        } catch (Exception $e) { }
+        } catch (Exception $e) {
+            Log::error($e);
+        }
 
         return $response->getBody()->getContents();
     }
@@ -137,10 +140,11 @@ class GmbController extends Controller
                 )
             );
 
-        } catch (Exception $e) { }
+        } catch (Exception $e) {
+            Log::error($e);
+        }
 
         return $response->getBody()->getContents();
-
     }
 
     /**
