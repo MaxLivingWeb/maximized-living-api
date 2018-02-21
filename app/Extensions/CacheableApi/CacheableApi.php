@@ -117,7 +117,7 @@ class CacheableApi
 
             try {
                 $callLimit = $result->getHeader('HTTP_X_SHOPIFY_SHOP_API_CALL_LIMIT')[0];
-                if (!empty($callLimit) && substr($callLimit, 0, 2) > 70) {
+                if (!empty($callLimit) && substr($callLimit, 0, 2) > 99) {
                     SlackHelper::slackNotification('*Error:* Shopify API close to limit. ' . $callLimit);
                 }
             }
