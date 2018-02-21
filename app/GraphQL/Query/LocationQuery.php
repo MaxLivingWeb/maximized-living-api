@@ -89,8 +89,8 @@ class LocationQuery extends Query
                 'name' => 'citySlug',
                 'type' => Type::string()
             ],
-            'gmbId' => [
-                'name' => 'gmbId',
+            'hasGmbId' => [
+                'name' => 'hasGmbId',
                 'type' => Type::boolean()
             ]
         ];
@@ -148,8 +148,8 @@ class LocationQuery extends Query
             return Location::filterByRadius($args['latitude'], $args['longitude'], $args['distance']);
         }
 
-        if (isset($args['gmbId'])) {
-            if($args['gmbId'] === true) {
+        if (isset($args['hasGmbId'])) {
+            if($args['hasGmbId'] === true) {
                 return Location::where('gmb_id', '!=', '')->get();
             }
 
