@@ -497,10 +497,7 @@ class UserController extends Controller
 
             // Get User Addresses (which will be saved to Shopify Customer account)
             $shopifyAddresses = [];
-
-
-
-
+            
             // User is associated to a location
             if(isset($validatedData['selectedLocation']['id'])) {
                 $locationId = (int)$validatedData['selectedLocation']['id'];
