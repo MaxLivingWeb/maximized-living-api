@@ -190,25 +190,10 @@ class UserController extends Controller
             }
             // User is not associated to a location
             else {
-                $userGroupData = [
-                    'group_name' => 'user.' . $validatedData['email'],
-                    'group_name_display' => $validatedData['firstName'].' '.$validatedData['lastName']
-                ];
-
-                if(isset($validatedData['legacyId'])) {
-                    $userGroupData['legacy_affiliate_id'] = $validatedData['legacyId'];
-                }
-
-                if(isset($validatedData['commission']['id'])) {
-                    $userGroupData['commission_id'] = $validatedData['commission']['id'];
-                }
-
-                if(isset($validatedData['wholesaler'])) {
-                    $userGroupData['wholesaler'] = $validatedData['wholesaler'];
-                }
-
-                $userGroup = UserGroup::create($userGroupData);
-                $userGroup->addUser($cognitoUser->get('User')['Username']);
+                $userGroup = UserGroup::createGroupForUser(
+                    $validatedData,
+                    $cognitoUser->get('User')['Username']
+                );
 
                 // Attach default address
                 $defaultAddress = null;
@@ -440,35 +425,6 @@ class UserController extends Controller
 
             $user = new CognitoUser($id);
 
-            $userGroup = $user->group();
-            if(empty($userGroup)) {
-                // add the user to their own user group if they don't have one
-                $userGroupData = [
-                    'group_name' => 'user.' . $email,
-                    'group_name_display' => $validatedData['first_name'].' '.$validatedData['last_name']
-                ];
-
-                if(isset($validatedData['legacyId'])) {
-                    $userGroupData['legacy_affiliate_id'] = $validatedData['legacyId'];
-                }
-
-                if(isset($validatedData['commission']['id'])) {
-                    $userGroupData['commission_id'] = $validatedData['commission']['id'];
-                }
-
-                if(isset($validatedData['wholesaler'])) {
-                    $userGroupData['wholesaler'] = $validatedData['wholesaler'];
-                }
-
-                $userGroup = UserGroup::create($userGroupData);
-                $userGroup->addUser($id);
-            }
-
-            // Update user addresses in API database
-            $addresses = $userGroup->location->addresses
-                ?? $userGroup->addresses
-                ?? collect();
-
             // Get Shopify ID from Cognito user
             $cognitoUser = $cognito->getUser($id);
             $email = collect($cognitoUser['UserAttributes'])
@@ -477,6 +433,20 @@ class UserController extends Controller
             $shopifyId = (int)collect($cognitoUser['UserAttributes'])
                 ->where('Name', env('COGNITO_SHOPIFY_CUSTOM_ATTRIBUTE'))
                 ->first()['Value'];
+
+            // create a usergroup for this user if it does not exist
+            $userGroup = $user->group();
+            if(empty($userGroup)) {
+                $userGroup = UserGroup::createGroupForUser(
+                    array_merge($validatedData, ['email' => $email]),
+                    $id
+                );
+            }
+
+            // Update user addresses in API database
+            $addresses = $userGroup->location->addresses
+                ?? $userGroup->addresses
+                ?? collect();
 
             // Basic Shopify Customer data to be updated...
             $shopifyCustomerData = [
@@ -497,7 +467,7 @@ class UserController extends Controller
 
             // Get User Addresses (which will be saved to Shopify Customer account)
             $shopifyAddresses = [];
-            
+
             // User is associated to a location
             if(isset($validatedData['selectedLocation']['id'])) {
                 $locationId = (int)$validatedData['selectedLocation']['id'];

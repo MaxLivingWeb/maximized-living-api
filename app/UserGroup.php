@@ -143,4 +143,37 @@ class UserGroup extends Model
             Cache::put($cacheName, json_encode($this->users), 1440);
         }
     }
+
+    /**
+     * Creates a new 'single user' usergroup for the given user.
+     *
+     * @param array $data An array containing the data for the usergroup.
+     * @param string $id The ID of the user to create a usergroup for.
+     * @return \App\UserGroup
+     */
+    public static function createGroupForUser(array $data, string $id)
+    {
+        // add the user to their own user group if they don't have one
+        $userGroupData = [
+            'group_name' => 'user.' . $data['email'],
+            'group_name_display' => $data['first_name'].' '.$data['last_name']
+        ];
+
+        if(isset($validatedData['legacyId'])) {
+            $userGroupData['legacy_affiliate_id'] = $data['legacyId'];
+        }
+
+        if(isset($validatedData['commission']['id'])) {
+            $userGroupData['commission_id'] = $data['commission']['id'];
+        }
+
+        if(isset($validatedData['wholesaler'])) {
+            $userGroupData['wholesaler'] = $data['wholesaler'];
+        }
+
+        $userGroup = UserGroup::create($userGroupData);
+        $userGroup->addUser($id);
+
+        return $userGroup;
+    }
 }
