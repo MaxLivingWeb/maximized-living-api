@@ -151,27 +151,27 @@ class UserGroup extends Model
      * @param string $id The ID of the user to create a usergroup for.
      * @return \App\UserGroup
      */
-    public static function createGroupForUser(array $data, string $id)
+    public static function createGroupForUser(array $user, string $id)
     {
         // add the user to their own user group if they don't have one
-        $userGroupData = [
-            'group_name' => 'user.' . $data['email'],
-            'group_name_display' => $data['first_name'].' '.$data['last_name']
+        $params = [
+            'group_name' => 'user.' . $user['email'],
+            'group_name_display' => $user['first_name'].' '.$user['last_name']
         ];
 
-        if(isset($validatedData['legacyId'])) {
-            $userGroupData['legacy_affiliate_id'] = $data['legacyId'];
+        if(isset($user['legacyId'])) {
+            $params['legacy_affiliate_id'] = $user['legacyId'];
         }
 
-        if(isset($validatedData['commission']['id'])) {
-            $userGroupData['commission_id'] = $data['commission']['id'];
+        if(isset($user['commission']['id'])) {
+            $params['commission_id'] = $user['commission']['id'];
         }
 
-        if(isset($validatedData['wholesaler'])) {
-            $userGroupData['wholesaler'] = $data['wholesaler'];
+        if(isset($user['wholesaler'])) {
+            $params['wholesaler'] = $user['wholesaler'];
         }
 
-        $userGroup = UserGroup::create($userGroupData);
+        $userGroup = UserGroup::create($params);
         $userGroup->addUser($id);
 
         return $userGroup;
