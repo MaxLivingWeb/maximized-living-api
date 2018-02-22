@@ -415,7 +415,7 @@ class UserController extends Controller
         $cognito = new CognitoHelper();
         $shopify = new ShopifyHelper();
 
-        //try {
+        try {
             // Update only specific data sets based on passed query params
             // TODO: Probably update this logic, so this can all just be handled in the one updateUser() method
             $queryParams = $request->query();
@@ -767,7 +767,7 @@ class UserController extends Controller
             );
 
             return response()->json();
-        /*}
+        }
         catch(AwsException $e) {
             return response()->json([$e->getAwsErrorMessage()], 500);
         }
@@ -776,7 +776,7 @@ class UserController extends Controller
         }
         catch (\Exception $e) {
             return response()->json($e->getMessage(), 500);
-        }*/
+        }
     }
 
     /**
