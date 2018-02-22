@@ -415,7 +415,7 @@ class UserController extends Controller
         $cognito = new CognitoHelper();
         $shopify = new ShopifyHelper();
 
-        try {
+        //try {
             // Update only specific data sets based on passed query params
             // TODO: Probably update this logic, so this can all just be handled in the one updateUser() method
             $queryParams = $request->query();
@@ -440,8 +440,31 @@ class UserController extends Controller
 
             $user = new CognitoUser($id);
 
-            // Update user addresses in API database
             $userGroup = $user->group();
+            if(empty($userGroup)) {
+                // add the user to their own user group if they don't have one
+                $userGroupData = [
+                    'group_name' => 'user.' . $email,
+                    'group_name_display' => $validatedData['first_name'].' '.$validatedData['last_name']
+                ];
+
+                if(isset($validatedData['legacyId'])) {
+                    $userGroupData['legacy_affiliate_id'] = $validatedData['legacyId'];
+                }
+
+                if(isset($validatedData['commission']['id'])) {
+                    $userGroupData['commission_id'] = $validatedData['commission']['id'];
+                }
+
+                if(isset($validatedData['wholesaler'])) {
+                    $userGroupData['wholesaler'] = $validatedData['wholesaler'];
+                }
+
+                $userGroup = UserGroup::create($userGroupData);
+                $userGroup->addUser($id);
+            }
+
+            // Update user addresses in API database
             $addresses = $userGroup->location->addresses
                 ?? $userGroup->addresses
                 ?? collect();
@@ -474,6 +497,9 @@ class UserController extends Controller
 
             // Get User Addresses (which will be saved to Shopify Customer account)
             $shopifyAddresses = [];
+
+
+
 
             // User is associated to a location
             if(isset($validatedData['selectedLocation']['id'])) {
@@ -741,7 +767,7 @@ class UserController extends Controller
             );
 
             return response()->json();
-        }
+        /*}
         catch(AwsException $e) {
             return response()->json([$e->getAwsErrorMessage()], 500);
         }
@@ -750,7 +776,7 @@ class UserController extends Controller
         }
         catch (\Exception $e) {
             return response()->json($e->getMessage(), 500);
-        }
+        }*/
     }
 
     /**
