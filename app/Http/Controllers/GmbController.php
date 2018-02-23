@@ -165,87 +165,64 @@ class GmbController extends Controller
             return;
         }
 
-        $gmb_data = '{';
+        $json_gmb_data = json_encode([
+            "languageCode"  => "EN",
+            "storeCode"     => $gmb_entry->storeCode,
+            "locationName"  => $location->name,
+            "primaryPhone"  => $location->telephone.' '.$location->telephone_ext,
+            "address"       => [
+                "addressLines" => [
+                    $location->addresses[0]->address_1,
+                    $location->addresses[0]->address_2
+                ],
+                "locality"              => $location->addresses[0]->city->name,
+                "postalCode"            => $location->addresses[0]->zip_postal_code,
+                "administrativeArea"    => $location->addresses[0]->city->region->abbreviation,
+                "country"               => $location->addresses[0]->city->region->country->abbreviation
+            ],
+            "websiteUrl"        => $location->vanity_website_url,
+            "regularHours"      => $this->format_business_hours($location->business_hours),
+            "primaryCategory"   => [
+                "name"          => "Chiropractor",
+                "categoryId"    => "gcid:chiropractor"
+            ]
+        ]);
 
-        $gmb_data .= '"languageCode" : "EN",';
-
-        //store_code
-        $gmb_data .= '"storeCode" : "'.$gmb_entry->storeCode.'",';
-
-        //location name
-        $gmb_data .= '"locationName" : "'.$location->name.'",';
-
-        //primary phone
-        $gmb_data .= '"primaryPhone" : "'.$location->telephone.' '.$location->telephone_ext.'",';
-
-        //address
-        $gmb_data .= '"address": {';
-
-        //address lines
-        $gmb_data .= '"addressLines": [';
-        $gmb_data .= '"'.$location->addresses[0]->address_1.'",';
-        $gmb_data .= '"'.$location->addresses[0]->address_2.'"';
-        $gmb_data .= '],';
-
-        //locality
-        $gmb_data .= '"locality" : "'.$location->addresses[0]->city->name.'",';
-
-        //postal code
-        $gmb_data .= '"postalCode" : "'.$location->addresses[0]->zip_postal_code.'",';
-
-        //administrative area (which I'm pretty sure corresponds to regions)
-        $gmb_data .= '"administrativeArea" : "'.$location->addresses[0]->city->region->abbreviation.'",';
-
-        //country
-        $gmb_data .= '"country" : "'.$location->addresses[0]->city->region->country->abbreviation.'"';
-
-        //close address
-        $gmb_data .= '},';
-
-        //website url
-        $gmb_data .= '"websiteUrl" : "'.$location->vanity_website_url.'",';
-
-        //business hours
-        $gmb_data .= $this->format_business_hours($location->business_hours);
-
-        //primary category
-        $gmb_data .= '"primaryCategory" : { "name":"Chiropractor", "categoryId": "gcid:chiropractor" }';
-
-        $gmb_data .= '}';
-
-        return $gmb_data;
+        return $json_gmb_data;
     }
 
     /**
      * @param $business_hours
-     * @return string
+     * @return array
      */
     private function format_business_hours($business_hours) {
-
-        $f_business_hours = '"regularHours": {';
-        $f_business_hours .= '"periods": [';
-
         $business_hours_array = json_decode(html_entity_decode($business_hours) );
+        $f_business_hours = [];
 
         foreach($business_hours_array as $bh) {
             if($bh[1] !== "open") {
+
                 continue;
             }
 
             foreach($bh[2] as $time) {
-                $f_business_hours .= '{';
-                $f_business_hours .= '"openDay": "'.strtoupper($bh[0]).'",';
-                $f_business_hours .= '"closeDay": "'.strtoupper($bh[0]).'",';
-                $f_business_hours .= '"openTime": "'.$this->to_twenty_four_hour($time->open).'",';
-                $f_business_hours .= '"closeTime": "'.$this->to_twenty_four_hour($time->closed).'"';
-                $f_business_hours .= '},';
+
+                $day_hours = [
+                    "openDay"   => strtoupper($bh[0]),
+                    "closeDay"  => strtoupper($bh[0]),
+                    "openTime"  => $this->to_twenty_four_hour($time->open),
+                    "closeTime" => $this->to_twenty_four_hour($time->closed)
+                ];
+
+                array_push($f_business_hours, $day_hours);
             }
         }
 
-        $f_business_hours .= ']';
-        $f_business_hours .= '},';
+        $formatted_bh = [
+                "periods" => $f_business_hours
+        ];
 
-        return $f_business_hours;
+        return (array) $formatted_bh;
     }
 
     /**
