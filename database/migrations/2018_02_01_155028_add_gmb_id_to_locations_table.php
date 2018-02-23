@@ -15,7 +15,7 @@ class AddGmbIdToLocationsTable extends Migration
     {
         Schema::table('locations', function (Blueprint $table) {
             //making a string because based on example provided by google this can contain string characters
-            $table->string('gmb_id')->after('business_hours');
+            $table->string('gmb_id')->nullable()->after('business_hours');
         });
     }
 
