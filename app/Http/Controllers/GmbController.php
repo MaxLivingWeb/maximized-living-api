@@ -53,7 +53,7 @@ class GmbController extends Controller
      *
      * @param $location
      */
-    public function update($location = null) {
+    public function update($location) {
 
         if(empty($this->access_token) || empty($location) ) {
             return;
@@ -63,7 +63,7 @@ class GmbController extends Controller
 
         //send that formatted gmb_data to gmb
         //https://mybusiness.googleapis.com/v3/accounts/account_name/locations/locationId?languageCode=language&validateOnly=True|False&fieldMask=field1,field2,etc.
-        //it will look something like this
+        //109466447190993053012 is the account ID of ML within our GMB email
         try {
             $response = $this->client->request(
                 'PATCH',
@@ -72,8 +72,7 @@ class GmbController extends Controller
                     'headers' => array(
                         'Authorization' => "Bearer $this->access_token"
                     ),
-                    'body' => $gmb_data,
-                    'http_errors' => false
+                    'body' => $gmb_data
                 )
             );
 
