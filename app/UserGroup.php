@@ -2,8 +2,10 @@
 
 namespace App;
 
+use App\Helpers\CognitoHelper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 
 class UserGroup extends Model
 {
@@ -32,6 +34,17 @@ class UserGroup extends Model
         'premium'        => 'boolean',
         'event_promoter' => 'boolean'
     ];
+
+    protected $appends = [
+        'users'
+    ];
+
+    protected $users = [];
+
+    public function getUsersAttribute()
+    {
+        return $this->users;
+    }
     
     public function commission() {
         return $this->hasOne('App\CommissionGroup', 'id', 'commission_id');
@@ -50,8 +63,84 @@ class UserGroup extends Model
         );
     }
 
+    public function deleteUser($id) {
+        DB::table('usergroup_users')
+            ->where([
+                'user_group_id' => $this->id,
+                'user_id' => $id
+            ])
+            ->delete();
+
+        // Check to see if this was a single-user group, and if so, delete the group as well since no users are apart of this anymore
+        if (strpos($this->group_name, 'user.') !== false) {
+            // Delete relations
+            DB::table('usergroup_addresses')->where('user_group_id', $this->id)->delete();
+            // Delete this UserGroup
+            $this->delete();
+        }
+    }
+
     public function addresses()
     {
         return $this->belongsToMany('App\Address', 'usergroup_addresses');
+    }
+
+    public function listUsers()
+    {
+        $cognito = new CognitoHelper();
+
+        $userIds = DB::table('usergroup_users')
+            ->where('user_group_id', '=', $this->id)
+            ->get()
+            ->pluck('user_id')
+            ->unique();
+
+        return collect($userIds)
+            ->transform(function($userId) use($cognito){
+                $user = $cognito->getUser($userId);
+                if (!empty($user)) {
+                    return User::structureUser($user);
+                }
+            })
+            ->reject(function($user){
+                return is_null($user);
+            })
+            ->values()
+            ->all();
+    }
+    public function loadUsers($allUsers, $shopifyUsers) {
+        // this logic seems to take a long time to run, so we'll cache it as well
+        $cacheName = 'location_' . $this->id . '_all_users';
+        if(Cache::has($cacheName)) {
+            $this->users = json_decode(Cache::get($cacheName), TRUE);
+        } else {
+            $userIds = DB::table('usergroup_users')
+                ->where('user_group_id', '=', $this->id)
+                ->get()
+                ->pluck('user_id')
+                ->unique();
+
+            $shopifyUsers = collect($shopifyUsers);
+
+            $this->users = array_values(
+                collect($allUsers)
+                    ->whereIn('id', $userIds)
+                    ->transform(function($user) use ($shopifyUsers){
+                        $shopifyUser = $shopifyUsers
+                            ->where('id', $user['shopify_id'])
+                            ->first();
+
+                        if(!empty($shopifyUser)) {
+                            $user['first_name'] = $shopifyUser->first_name;
+                            $user['last_name'] = $shopifyUser->last_name;
+                        }
+
+                        return $user;
+                    })
+                    ->toArray()
+            );
+
+            Cache::put($cacheName, json_encode($this->users), 1440);
+        }
     }
 }

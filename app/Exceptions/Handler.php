@@ -5,6 +5,7 @@ namespace App\Exceptions;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use App\Helpers\SlackHelper;
 
 class Handler extends ExceptionHandler
 {
@@ -37,6 +38,12 @@ class Handler extends ExceptionHandler
      */
     public function report(Exception $exception)
     {
+        if(config('app.env') !== 'local') {
+            if (app()->bound('sentry') && $this->shouldReport($exception)) {
+                app('sentry')->captureException($exception);
+            }
+        }
+
         parent::report($exception);
     }
 
