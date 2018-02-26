@@ -85,6 +85,12 @@ Route::group(['prefix' => 'reporting'], function() {
     });
 });
 
+//Google My Business
+Route::group(['prefix' => 'gmb'], function() {
+    Route::get('/get_all', 'GmbController@get_all');
+    Route::get('/get/{gmb_id}', 'GmbController@get');
+});
+
 // Csv Exports
 Route::get('/export/users/duplicates', 'UserController@exportDuplicateUsersToCSV');
 

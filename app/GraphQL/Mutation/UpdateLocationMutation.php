@@ -2,6 +2,7 @@
 
 namespace App\GraphQL\Mutation;
 
+use App\Http\Controllers\GmbController as GMB;
 use GraphQL;
 use Folklore\GraphQL\Support\Mutation;
 use App\Location;
@@ -34,7 +35,7 @@ class UpdateLocationMutation extends Mutation
                 $args[$key] = filter_var($var, FILTER_SANITIZE_STRING);
             }
         }
-        
+
         $location = Location
             ::where(
                 'id', $args['id']
@@ -52,7 +53,8 @@ class UpdateLocationMutation extends Mutation
                 'opening_date'              => $args['opening_date'],
                 'closing_date'              => $args['closing_date'],
                 'daylight_savings_applies'  => $args['daylight_savings_applies'],
-                'business_hours'            => $args['business_hours']
+                'business_hours'            => $args['business_hours'],
+                'gmb_id'                    => $args['gmb_id']
             ]);
 
         $updated_location = Location
@@ -87,6 +89,10 @@ class UpdateLocationMutation extends Mutation
         foreach($addresses as $address) {
             Address::attachAddress($updated_location->id, $address);
         }
+
+        //update the gmb record
+        $gmb = new GMB();
+        $gmb->update($updated_location);
 
         if ($location === 1) {
             return $args;
