@@ -98,6 +98,7 @@ class LocationQuery extends Query
 
     public function resolve ($root, $args)
     {
+        // White label is a ML website without ML Branding.  There are special rules for whitelabel sites and the locations tied to them so we need a flag to identify the whitelabel locations
         //if the 'showWhitelabel' parameter is set to true include them in the results, otherwise filter them out
         $whitelabelValues = [0, 0];
         if(!empty($args['showWhitelabel']) ) {
