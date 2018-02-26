@@ -76,11 +76,11 @@ class GmbController extends Controller
                 )
             );
 
+            return $response->getBody()->getContents();
+
         } catch (Exception $e) {
             Log::error($e);
         }
-
-        return $response->getBody()->getContents();
     }
 
     /**
@@ -108,11 +108,11 @@ class GmbController extends Controller
                 )
             );
 
+            return $response->getBody()->getContents();
+
         } catch (Exception $e) {
             Log::error($e);
         }
-
-        return $response->getBody()->getContents();
     }
 
     /**
@@ -139,11 +139,11 @@ class GmbController extends Controller
                 )
             );
 
+            return $response->getBody()->getContents();
+
         } catch (Exception $e) {
             Log::error($e);
         }
-
-        return $response->getBody()->getContents();
     }
 
     /**
