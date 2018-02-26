@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Http\Request;
+use App\Helpers\ShopifyHelper;
+use App\Helpers\ProductHelper;
 
 /*
 |--------------------------------------------------------------------------
@@ -37,6 +39,7 @@ Route::group(['prefix' => 'user'], function() {
 });
 
 Route::get('/users', 'UserController@listUsers');
+Route::get('/users/{groupName}', 'UserController@listUsers');
 
 // Locations
 Route::group(['prefix' => 'location'], function() {
@@ -87,3 +90,16 @@ Route::group(['prefix' => 'gmb'], function() {
     Route::get('/get_all', 'GmbController@get_all');
     Route::get('/get/{gmb_id}', 'GmbController@get');
 });
+
+// Csv Exports
+Route::get('/export/users/duplicates', 'UserController@exportDuplicateUsersToCSV');
+
+Route::get('/store/update-products', function () {
+    $products = (new ShopifyHelper())
+        ->getProducts([], FALSE);
+    
+    (new ProductHelper())
+        ->importProducts($products);
+});
+
+Route::get('/store/search', 'SearchController@index');

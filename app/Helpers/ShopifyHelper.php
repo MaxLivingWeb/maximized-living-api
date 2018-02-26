@@ -2,33 +2,45 @@
 
 namespace App\Helpers;
 
-use GuzzleHttp\Client as GuzzleClient;
+use App\Extensions\CacheableApi\CacheableApi;
 use GuzzleHttp\Exception\ClientException;
+use Illuminate\Support\Facades\Cache;
 
-class ShopifyHelper
+class ShopifyHelper extends CacheableApi
 {
-    private $client;
-
-    function __construct()
+    /**
+     * ShopifyAdminAPI constructor.
+     *
+     * @param integer $cacheTime The number of minutes to cache request results.
+     */
+    public function __construct($cacheTime = NULL)
     {
-        $this->client = new GuzzleClient([
-            'base_uri' => 'https://' . env('SHOPIFY_API_KEY') . ':' . env('SHOPIFY_API_PASSWORD') . '@' . env('SHOPIFY_API_STORE') . '.myshopify.com/admin/'
-        ]);
+        parent::__construct(
+            'https://' . env('SHOPIFY_API_KEY') . ':' . env('SHOPIFY_API_PASSWORD') . '@' . env('SHOPIFY_API_STORE') . '.myshopify.com/admin/',
+            $cacheTime ?? env('SHOPIFY_API_CACHE_TIME', 5)
+        );
     }
 
     public function getCustomer($id)
     {
-        $result = $this->client->get('customers/' . $id . '.json');
-
-        return json_decode($result->getBody()->getContents())->customer;
+        try {
+            $result = $this->get('customers/' . $id . '.json', TRUE);
+            return json_decode($result)->customer;
+        }
+        catch(ClientException $e) {
+            return $e;
+        }
+        catch(\Exception $e) {
+            throw $e;
+        }
     }
 
     public function getOrCreateCustomer($customer)
     {
         //search for existing customer
-        $result = $this->client->get('customers/search.json?query=email:' . $customer['email']);
+        $result = $this->get('customers/search.json?query=email:' . $customer['email']);
 
-        $customers = json_decode($result->getBody()->getContents())->customers;
+        $customers = json_decode($result)->customers;
         if(count($customers) > 0) {
             return $customers[0];
         }
@@ -41,6 +53,51 @@ class ShopifyHelper
         ]);
 
         return json_decode($result->getBody()->getContents())->customer;
+    }
+
+    /**
+     * Returns an array of customers from Shopify with the given IDs.
+     *
+     * @param array $ids The IDs of the Shopify customers to return.
+     * @return array|\Exception|ClientException
+     */
+    public function getCustomers($ids)
+    {
+        $endpoint = 'customers.json';
+
+        try {
+            $customers = collect([]);
+
+            collect($ids)
+                ->chunk(30)
+                ->each(function($chunk) use ($endpoint, $customers){
+                    $params = [
+                        'query' => [
+                            'ids' => $chunk->implode(',')
+                        ]
+                    ];
+
+                    $cacheString = $this->cacheName . $endpoint . serialize($params);
+
+                    if(Cache::has($cacheString)) {
+                        $customers->push(json_decode(Cache::get($cacheString)));
+                    } else {
+                        $result = $this->client->get($endpoint, $params);
+                        $customers->push(json_decode($result->getBody()->getContents())->customers);
+                        Cache::put($cacheString, $result->getBody()->getContents(), $this->cacheTime);
+                    }
+                });
+
+            return $customers
+                ->flatten()
+                ->toArray();
+        }
+        catch(ClientException $e) {
+            return $e;
+        }
+        catch(\Exception $e) {
+            throw $e;
+        }
     }
 
     public function updateCustomer($customer)
@@ -71,24 +128,36 @@ class ShopifyHelper
         return json_decode($result->getBody()->getContents())->customer;
     }
 
+    /**
+     * Deletes a given customer Address from the Shopify store.
+     *
+     * @param array $address An associative array of address info.
+     * @return array
+     */
+    public function deleteCustomerAddress($address)
+    {
+        $this->client->delete('customers/' . $address['customer_id'] . '/addresses/' . $address['id'] . '.json');
+    }
+
     public function getPriceRules()
     {
-        $result = $this->client->get('price_rules.json');
+        $result = $this->get('price_rules.json', TRUE);
 
-        return json_decode($result->getBody()->getContents())->price_rules;
+        return json_decode($result)->price_rules;
     }
 
     public function getPriceRule($id)
     {
-        try
-        {
-            $result = $this->client->get('price_rules/' . $id . '.json');
+        try {
+            $result = $this->get('price_rules/' . $id . '.json', TRUE);
 
-            return json_decode($result->getBody()->getContents())->price_rule;
+            return json_decode($result)->price_rule;
         }
-        catch (ClientException $e)
-        {
+        catch (ClientException $e) {
             return null;
+        }
+        catch(\Exception $e) {
+            throw $e;
         }
     }
 
@@ -110,15 +179,16 @@ class ShopifyHelper
 
     public function getUserMetafields($id)
     {
-        try
-        {
-            $result = $this->client->get('customers/' . $id . '/metafields.json');
+        try {
+            $result = $this->get('customers/' . $id . '/metafields.json', TRUE);
 
-            return json_decode($result->getBody()->getContents())->metafields;
+            return json_decode($result)->metafields;
         }
-        catch (ClientException $e)
-        {
+        catch (ClientException $e) {
             return null;
+        }
+        catch(\Exception $e) {
+            throw $e;
         }
     }
 
@@ -261,5 +331,44 @@ class ShopifyHelper
         }
 
         return $allOrders;
+    }
+
+    /**
+     * Retrieve a count of all the products using Shopify's AdminAPI.
+     *
+     * @return Shopify Orders Count
+     */
+    public function getProductCount()
+    {
+        $result = $this->get('products/count.json', TRUE);
+        return json_decode($result)->count;
+    }
+    
+    public function getProducts()
+    {
+        try
+        {
+            $count = $this->getProductCount();
+            $per_page = 250;
+            $numPages = (int)ceil($count / $per_page);
+
+            $products = [];
+            for($i = 1; $i <= $numPages; ++$i) {
+                $result = $this->client->get('products.json', [
+                    'query' => [
+                        'limit'  => $per_page,
+                        'page'   => $i
+                    ]
+                ]);
+
+                $products[] = json_decode($result->getBody()->getContents())->products;
+            }
+
+            return array_merge(...$products);
+        }
+        catch (ClientException $e)
+        {
+            return $result;
+        }
     }
 }
