@@ -89,6 +89,9 @@ class LocationQuery extends Query
                 'name' => 'citySlug',
                 'type' => Type::string()
             ],
+            'showWhitelabel' => [
+                'name' => 'showWhitelabel',
+                'type' => Type::boolean()
             'hasGmbId' => [
                 'name' => 'hasGmbId',
                 'type' => Type::boolean()
@@ -98,14 +101,27 @@ class LocationQuery extends Query
 
     public function resolve ($root, $args)
     {
+        // White label is a ML website without ML Branding.  There are special rules for whitelabel sites and the locations tied to them so we need a flag to identify the whitelabel locations
+        //if the 'showWhitelabel' parameter is set to true include them in the results, otherwise filter them out
+        $whitelabelValues = [0, 0];
+        if(!empty($args['showWhitelabel']) ) {
+            $whitelabelValues = [0, 1];
+        }
+
         if (isset($args['slug']) && isset($args['citySlug']) && isset($args['regionCode']) && isset($args['countryCode']) ) {
             $location = Location::with('addresses.city.region')
-                ->whereHas('addresses.city.region', function ($q) use ($args) {
-                    return $q->where('abbreviation', filter_var($args['regionCode'], FILTER_SANITIZE_STRING));
-                })->whereHas('addresses.city.region.country', function ($q) use ($args) {
-                    return $q->where('abbreviation', filter_var($args['countryCode'], FILTER_SANITIZE_STRING));
-                })->whereHas('addresses.city', function ($q) use ($args) {
-                    return $q->where('slug', filter_var($args['citySlug'], FILTER_SANITIZE_STRING));
+                ->whereHas('addresses.city.region', function ($q) use ($args, $whitelabelValues) {
+                    return $q->where([
+                        'abbreviation' => filter_var($args['regionCode'], FILTER_SANITIZE_STRING)
+                    ])->whereBetween('whitelabel', $whitelabelValues);
+                })->whereHas('addresses.city.region.country', function ($q) use ($args, $whitelabelValues) {
+                    return $q->where([
+                        'abbreviation' => filter_var($args['countryCode'], FILTER_SANITIZE_STRING)
+                    ])->whereBetween('whitelabel', $whitelabelValues);
+                })->whereHas('addresses.city', function ($q) use ($args, $whitelabelValues) {
+                    return $q->where([
+                        'slug' => filter_var($args['citySlug'], FILTER_SANITIZE_STRING)
+                    ])->whereBetween('whitelabel', $whitelabelValues);
                 })->where("slug", $args['slug'])
                 ->get();
 
@@ -114,12 +130,18 @@ class LocationQuery extends Query
 
         if (isset($args['regionCode']) && isset($args['countryCode']) && isset($args['citySlug']) ) {
             $location = Location::with('addresses.city.region')
-                ->whereHas('addresses.city.region', function ($q) use ($args) {
-                    return $q->where('abbreviation', filter_var($args['regionCode'], FILTER_SANITIZE_STRING));
-                })->whereHas('addresses.city.region.country', function ($q) use ($args) {
-                    return $q->where('abbreviation', filter_var($args['countryCode'], FILTER_SANITIZE_STRING));
-                })->whereHas('addresses.city', function ($q) use ($args) {
-                    return $q->where('slug', filter_var($args['citySlug'], FILTER_SANITIZE_STRING));
+                ->whereHas('addresses.city.region', function ($q) use ($args, $whitelabelValues) {
+                    return $q->where([
+                        'abbreviation' => filter_var($args['regionCode'], FILTER_SANITIZE_STRING)
+                    ])->whereBetween('whitelabel', $whitelabelValues);
+                })->whereHas('addresses.city.region.country', function ($q) use ($args, $whitelabelValues) {
+                    return $q->where([
+                        'abbreviation' => filter_var($args['countryCode'], FILTER_SANITIZE_STRING)
+                    ])->whereBetween('whitelabel', $whitelabelValues);
+                })->whereHas('addresses.city', function ($q) use ($args, $whitelabelValues) {
+                    return $q->where([
+                        'slug' => filter_var($args['citySlug'], FILTER_SANITIZE_STRING)
+                    ])->whereBetween('whitelabel', $whitelabelValues);
                 })
                 ->get();
 
@@ -128,10 +150,14 @@ class LocationQuery extends Query
 
         if (isset($args['regionCode']) && isset($args['countryCode']) ) {
             $location = Location::with('addresses.city.region')
-                ->whereHas('addresses.city.region', function ($q) use ($args) {
-                    return $q->where('abbreviation', filter_var($args['regionCode'], FILTER_SANITIZE_STRING));
-                })->whereHas('addresses.city.region.country', function ($q) use ($args) {
-                    return $q->where('abbreviation', filter_var($args['countryCode'], FILTER_SANITIZE_STRING));
+                ->whereHas('addresses.city.region', function ($q) use ($args, $whitelabelValues) {
+                    return $q->where([
+                        'abbreviation' => filter_var($args['regionCode'], FILTER_SANITIZE_STRING)
+                    ])->whereBetween('whitelabel', $whitelabelValues);
+                })->whereHas('addresses.city.region.country', function ($q) use ($args, $whitelabelValues) {
+                    return $q->where([
+                        'abbreviation' => filter_var($args['countryCode'], FILTER_SANITIZE_STRING)
+                    ])->whereBetween('whitelabel', $whitelabelValues);
                 })
                 ->get();
 
@@ -157,31 +183,43 @@ class LocationQuery extends Query
         }
 
         if (isset($args['id'])) {
-            return Location::where('id', $args['id'])->get();
+            return Location::where([
+                'id' => $args['id']
+            ])->get();
         }
 
         if (isset($args['slug'])) {
-            return Location::where('slug', $args['slug'])->get();
+            return Location::where([
+                'slug' => $args['slug']
+            ])->get();
         }
 
         if (isset($args['vanity_website_id'])) {
-            return Location::where('vanity_website_id', $args['vanity_website_id'])->get();
+            return Location::where([
+                'vanity_website_id' => $args['vanity_website_id']
+            ])->get();
         }
 
         $countryFilters = [ 'country', 'countryCode', 'countryID' ];
         $hasCountryFilter = !empty(array_intersect(array_keys($args), $countryFilters));
         if ($hasCountryFilter) {
             return Location::with('addresses.city.region.country')
-                ->whereHas('addresses.city.region.country', function ($q) use ($args) {
+                ->whereHas('addresses.city.region.country', function ($q) use ($args, $whitelabelValues) {
                     if (isset($args['countryID'])) {
-                        return $q->where('id', filter_var($args['countryID'], FILTER_SANITIZE_STRING));
+                        return $q->where([
+                            'id' => filter_var($args['countryID'], FILTER_SANITIZE_STRING)
+                        ])->whereBetween('whitelabel', $whitelabelValues);
                     }
 
                     if (isset($args['countryCode'])) {
-                        return $q->where('abbreviation', filter_var($args['countryCode'], FILTER_SANITIZE_STRING));
+                        return $q->where([
+                            'abbreviation' => filter_var($args['countryCode'], FILTER_SANITIZE_STRING)
+                        ])->whereBetween('whitelabel', $whitelabelValues);
                     }
 
-                    return $q->where('name', filter_var($args['country'], FILTER_SANITIZE_STRING));
+                    return $q->where([
+                        'name' => filter_var($args['country'], FILTER_SANITIZE_STRING)
+                    ])->whereBetween('whitelabel', $whitelabelValues);
                 })
                 ->get();
         }
@@ -190,16 +228,22 @@ class LocationQuery extends Query
         $hasRegionFilter = !empty(array_intersect(array_keys($args), $regionFilters));
         if ($hasRegionFilter) {
             return Location::with('addresses.city.region')
-                ->whereHas('addresses.city.region', function ($q) use ($args) {
+                ->whereHas('addresses.city.region', function ($q) use ($args, $whitelabelValues) {
                     if (isset($args['regionID'])) {
-                        return $q->where('id', filter_var($args['regionID'], FILTER_SANITIZE_STRING));
+                        return $q->where([
+                            'id' => filter_var($args['regionID'], FILTER_SANITIZE_STRING)
+                        ])->whereBetween('whitelabel', $whitelabelValues);
                     }
 
                     if (isset($args['regionCode'])) {
-                        return $q->where('abbreviation', filter_var($args['regionCode'], FILTER_SANITIZE_STRING) );
+                        return $q->where([
+                            'abbreviation' => filter_var($args['regionCode'], FILTER_SANITIZE_STRING)
+                        ])->whereBetween('whitelabel', $whitelabelValues);
                     }
 
-                    return $q->where('name', filter_var($args['region'], FILTER_SANITIZE_STRING));
+                    return $q->where([
+                        'name' => filter_var($args['region'], FILTER_SANITIZE_STRING)
+                    ])->whereBetween('whitelabel', $whitelabelValues);
                 })
                 ->get();
         }
@@ -208,16 +252,22 @@ class LocationQuery extends Query
         $hasCityFilter = !empty(array_intersect(array_keys($args), $cityFilters));
         if ($hasCityFilter) {
             return Location::with('addresses.city')
-                ->whereHas('addresses.city', function ($q) use ($args) {
+                ->whereHas('addresses.city', function ($q) use ($args, $whitelabelValues) {
                     if (isset($args['cityID'])) {
-                        return $q->where('id', filter_var($args['cityID'], FILTER_SANITIZE_STRING));
+                        return $q->where([
+                            'id' => filter_var($args['cityID'], FILTER_SANITIZE_STRING)
+                        ])->whereBetween('whitelabel', $whitelabelValues);
                     }
 
                     if (isset($args['citySlug'])) {
-                        return $q->where('slug', filter_var($args['citySlug'], FILTER_SANITIZE_STRING));
+                        return $q->where([
+                            'slug' => filter_var($args['citySlug'], FILTER_SANITIZE_STRING)
+                        ])->whereBetween('whitelabel', $whitelabelValues);
                     }
 
-                    return $q->where('name', filter_var($args['city'], FILTER_SANITIZE_STRING));
+                    return $q->where([
+                        'name' => filter_var($args['city'], FILTER_SANITIZE_STRING)
+                    ])->whereBetween('whitelabel', $whitelabelValues);
                 })
                 ->get();
         }
