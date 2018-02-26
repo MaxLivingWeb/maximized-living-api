@@ -92,6 +92,7 @@ class LocationQuery extends Query
             'showWhitelabel' => [
                 'name' => 'showWhitelabel',
                 'type' => Type::boolean()
+            ],
             'hasGmbId' => [
                 'name' => 'hasGmbId',
                 'type' => Type::boolean()
