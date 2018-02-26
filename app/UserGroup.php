@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Helpers\CognitoHelper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
@@ -62,11 +63,51 @@ class UserGroup extends Model
         );
     }
 
+    public function deleteUser($id) {
+        DB::table('usergroup_users')
+            ->where([
+                'user_group_id' => $this->id,
+                'user_id' => $id
+            ])
+            ->delete();
+
+        // Check to see if this was a single-user group, and if so, delete the group as well since no users are apart of this anymore
+        if (strpos($this->group_name, 'user.') !== false) {
+            // Delete relations
+            DB::table('usergroup_addresses')->where('user_group_id', $this->id)->delete();
+            // Delete this UserGroup
+            $this->delete();
+        }
+    }
+
     public function addresses()
     {
         return $this->belongsToMany('App\Address', 'usergroup_addresses');
     }
 
+    public function listUsers()
+    {
+        $cognito = new CognitoHelper();
+
+        $userIds = DB::table('usergroup_users')
+            ->where('user_group_id', '=', $this->id)
+            ->get()
+            ->pluck('user_id')
+            ->unique();
+
+        return collect($userIds)
+            ->transform(function($userId) use($cognito){
+                $user = $cognito->getUser($userId);
+                if (!empty($user)) {
+                    return User::structureUser($user);
+                }
+            })
+            ->reject(function($user){
+                return is_null($user);
+            })
+            ->values()
+            ->all();
+    }
     public function loadUsers($allUsers, $shopifyUsers) {
         // this logic seems to take a long time to run, so we'll cache it as well
         $cacheName = 'location_' . $this->id . '_all_users';
@@ -101,5 +142,38 @@ class UserGroup extends Model
 
             Cache::put($cacheName, json_encode($this->users), 1440);
         }
+    }
+
+    /**
+     * Creates a new 'single user' usergroup for the given user.
+     *
+     * @param array $data An array containing the data for the usergroup.
+     * @param string $id The ID of the user to create a usergroup for.
+     * @return \App\UserGroup
+     */
+    public static function createGroupForUser(array $user, string $id)
+    {
+        // add the user to their own user group if they don't have one
+        $params = [
+            'group_name' => 'user.' . $user['email'],
+            'group_name_display' => $user['first_name'].' '.$user['last_name']
+        ];
+
+        if(isset($user['legacyId'])) {
+            $params['legacy_affiliate_id'] = $user['legacyId'];
+        }
+
+        if(isset($user['commission']['id'])) {
+            $params['commission_id'] = $user['commission']['id'];
+        }
+
+        if(isset($user['wholesaler'])) {
+            $params['wholesaler'] = $user['wholesaler'];
+        }
+
+        $userGroup = UserGroup::create($params);
+        $userGroup->addUser($id);
+
+        return $userGroup;
     }
 }

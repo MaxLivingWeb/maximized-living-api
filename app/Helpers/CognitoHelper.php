@@ -2,6 +2,8 @@
 
 namespace App\Helpers;
 
+use App\CognitoUser;
+use App\User;
 use Aws\Sdk;
 use Aws\Exception\AwsException;
 use Illuminate\Support\Facades\Cache;
@@ -62,16 +64,28 @@ class CognitoHelper
      */
     public function getUser($id)
     {
-        return $this->client->adminGetUser([
-            'UserPoolId' => env('AWS_COGNITO_USER_POOL_ID'),
-            'Username' => $id
-        ]);
+        try {
+            return $this->client->adminGetUser([
+                'UserPoolId' => env('AWS_COGNITO_USER_POOL_ID'),
+                'Username' => $id
+            ]);
+        }
+        catch(AwsException $e) {
+            if($e->getStatusCode() !== 400) { // user not found
+                abort(
+                    $e->getStatusCode(),
+                    $e->getAwsErrorMessage()
+                );
+            }
+
+            return;
+        }
     }
 
     /**
      * Returns an array of users from Cognito.
      *
-     * @param string|null $groupName The name of the group to get users for. If no group name is provided, will default to the .env affiliate group name.
+     * @param string|null $groupName The name of the group to get users for. If no group name is provided, will default to the .env affiliate group name. To return all users - pass the value 'ALL_COGNITO_USERS'
      * @return \Illuminate\Support\Collection
      */
     public function listUsers($groupName = NULL)
@@ -81,30 +95,49 @@ class CognitoHelper
         }
 
         try {
-
             $users = collect();
 
             $count = 0;
-            while(!isset($result) || $result->hasKey('NextToken')) {
-                $params = [
-                    'GroupName' => $groupName,
-                    'UserPoolId' => env('AWS_COGNITO_USER_POOL_ID')
-                ];
+            while(!isset($result) || $result->hasKey('NextToken') || $result->hasKey('PaginationToken')) {
 
-                if(isset($result)) {
-                    $params['NextToken'] = $result->get('NextToken');
+                if ($groupName !== 'ALL_COGNITO_USERS') {
+                    $params = [
+                        'GroupName' => $groupName,
+                        'UserPoolId' => env('AWS_COGNITO_USER_POOL_ID')
+                    ];
+
+                    if(isset($result)) {
+                        $params['NextToken'] = $result->get('NextToken');
+                    }
+
+                    $result = $this->getCached('listUsersInGroup', $params);
+                }
+                else {
+                    $params = [
+                        'UserPoolId' => env('AWS_COGNITO_USER_POOL_ID')
+                    ];
+
+                    if(isset($result)) {
+                        $params['PaginationToken'] = $result->get('PaginationToken');
+                    }
+
+                    $result = $this->getCached('listUsers', $params);
                 }
 
-                $result = $this->getCached('listUsersInGroup', $params);
+                $users = $users->merge(collect($result->get('Users'))
+                    ->transform(function($user) {
+                        return self::formatUserData($user);
+                    })
+                );
 
-                $users = $users->merge(collect($result->get('Users'))->transform(function($user) {
-                    return self::formatUserData($user);
-                }));
                 if($count % $this->listUsersQueryGroupSize === 0) {
                     sleep($this->listUsersSleepTime);
                 }
+
                 $count++;
             }
+
+            return $users->toArray();
         }
         catch(AwsException $e) {
             if($e->getStatusCode() !== 400) { // group not found
@@ -116,12 +149,11 @@ class CognitoHelper
 
             return collect([]);
         }
-
-        return $users->toArray();
     }
 
     public function createUser($username, $password)
     {
+        $username = strtolower($username);
         return $this->client->adminCreateUser([
             'TemporaryPassword' => $password,
             'UserPoolId' => env('AWS_COGNITO_USER_POOL_ID'),
@@ -175,6 +207,16 @@ class CognitoHelper
         return $this->client->listGroups([
             'UserPoolId' => env('AWS_COGNITO_USER_POOL_ID')
         ]);
+    }
+
+    public function getGroupsForUser($username)
+    {
+        $result = $this->client->adminListGroupsForUser([
+            'Username' => $username,
+            'UserPoolId' => env('AWS_COGNITO_USER_POOL_ID')
+        ]);
+
+        return $result->get('Groups');
     }
 
     public function createGroup($name, $desc, $precedence = null)
@@ -233,9 +275,10 @@ class CognitoHelper
             'UserPoolId' => env('AWS_COGNITO_USER_POOL_ID'),
         ]);
 
-        return collect($result->get('Users'))->transform(function($user) {
-            return self::formatUserData($user);
-        });
+        return collect($result->get('Users'))
+            ->transform(function($user) {
+                return self::formatUserData($user);
+            });
     }
 
     public function removeUserAttribute($attributes, $username)
@@ -286,15 +329,28 @@ class CognitoHelper
         return TRUE;
     }
 
-    public static function formatUserData($user)
+    public static function formatUserData($cognitoUser)
     {
-        $attributes = collect($user['Attributes']);
+        $attributes = collect($cognitoUser['Attributes']);
+
+        $shopifyId = (int)$attributes
+            ->where('Name', env('COGNITO_SHOPIFY_CUSTOM_ATTRIBUTE'))
+            ->first()['Value'];
+
+        $user = new CognitoUser($cognitoUser['Username']);
+        $userGroup = $user->group();
+        $affiliate = null;
+        if(!is_null($userGroup)) {
+            $affiliate = $userGroup;
+        }
+
         return [
-            'id'            => $user['Username'],
-            'user_status'    => $user['UserStatus'],
-            'email'         => $attributes->where('Name', 'email')->first()['Value'],
-            'created'       => $user['UserCreateDate'],
-            'shopify_id'     => intval($attributes->where('Name', env('COGNITO_SHOPIFY_CUSTOM_ATTRIBUTE'))->first()['Value'])
+            'id'           => $cognitoUser['Username'],
+            'user_status'  => $cognitoUser['UserStatus'],
+            'email'        => $attributes->where('Name', 'email')->first()['Value'],
+            'created'      => $cognitoUser['UserCreateDate'],
+            'shopify_id'   => $shopifyId,
+            'affiliate'    => $affiliate
         ];
     }
 }

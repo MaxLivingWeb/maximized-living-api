@@ -84,8 +84,12 @@ class LocationType extends GraphQLType
             ],
             'business_hours' => [
                 'name' => 'business_hours',
-                'type' => Type::string(),
+                'type' => Type::string()
             ],
+            'gmb_id' => [
+                'name' => 'gmb_id',
+                'type' => Type::string()
+            ]
         ];
     }
 }

@@ -39,6 +39,7 @@ Route::group(['prefix' => 'user'], function() {
 });
 
 Route::get('/users', 'UserController@listUsers');
+Route::get('/users/{groupName}', 'UserController@listUsers');
 
 // Locations
 Route::group(['prefix' => 'location'], function() {
@@ -83,6 +84,15 @@ Route::group(['prefix' => 'reporting'], function() {
         Route::get('{id}/sales', 'Reporting\WholesaleController@salesById');
     });
 });
+
+//Google My Business
+Route::group(['prefix' => 'gmb'], function() {
+    Route::get('/get_all', 'GmbController@get_all');
+    Route::get('/get/{gmb_id}', 'GmbController@get');
+});
+
+// Csv Exports
+Route::get('/export/users/duplicates', 'UserController@exportDuplicateUsersToCSV');
 
 Route::get('/store/update-products', function () {
     $products = (new ShopifyHelper())

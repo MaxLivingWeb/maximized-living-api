@@ -30,45 +30,50 @@ class User extends Authenticatable
 
     public static function structureUser($cognitoUser)
     {
+        if (empty($cognitoUser)) {
+            return;
+        }
+
+        //depending on the endpoint used to get user data, this may differentiate (adminGetUser vs listUsers)
+        $attributes = $cognitoUser['UserAttributes']
+            ?? $cognitoUser['Attributes']
+            ?? [];
+
         $res = (object) [
-            'id'    => $cognitoUser->get('Username'),
-            'email' => collect($cognitoUser['UserAttributes'])
+            'id'    => $cognitoUser['Username'],
+            'email' => collect($attributes)
                 ->where('Name', 'email')
                 ->first()['Value'],
-            'user_status' => $cognitoUser->get('UserStatus'),
-            'created' => $cognitoUser->get('UserCreateDate')
+            'user_status' => $cognitoUser['UserStatus'],
+            'created' => $cognitoUser['UserCreateDate']
         ];
 
-        $shopifyId = collect($cognitoUser['UserAttributes'])
+        $shopifyId = collect($attributes)
             ->where('Name', env('COGNITO_SHOPIFY_CUSTOM_ATTRIBUTE'))
             ->first()['Value'];
 
-        $affiliateId = collect($cognitoUser['UserAttributes'])
+        $affiliateId = collect($attributes)
             ->where('Name', 'custom:affiliateId')
             ->first()['Value'];
 
         $shopify = new ShopifyHelper();
         $shopifyCustomer = $shopify->getCustomer($shopifyId);
+        $shopifyCustomerCompanyName = $shopifyCustomer->default_address->company ?? 'N/A';
 
-        $shopifyCustomerCompanyName = collect($shopifyCustomer->addresses)
-            ->where('default', true)
-            ->pluck('company')
-            ->first();
-
-        $res->shopify_id = $shopifyCustomer->id;
-        $res->referred_affiliate_id = is_null($affiliateId) ? $affiliateId : intval($affiliateId);
-        $res->first_name = $shopifyCustomer->first_name;
-        $res->last_name = $shopifyCustomer->last_name;
-        $res->phone = $shopifyCustomer->phone;
+        $res->shopify_id = $shopifyCustomer->id ?? null;
+        $res->referred_affiliate_id = is_null($affiliateId) ? $affiliateId : (int)$affiliateId;
+        $res->first_name = $shopifyCustomer->first_name ?? null;
+        $res->last_name = $shopifyCustomer->last_name ?? null;
+        $res->phone = $shopifyCustomer->phone ?? null;
         $res->business = (object)['name' => $shopifyCustomerCompanyName];
 
-        $user = new CognitoUser($cognitoUser->get('Username'));
+        $user = new CognitoUser($cognitoUser['Username']);
         $userGroup = $user->group();
         if(!is_null($userGroup)) {
             $res->affiliate = $userGroup;
         }
 
-        $permissions = collect($cognitoUser['UserAttributes'])->where('Name', 'custom:permissions')->first();
+        $permissions = collect($attributes)->where('Name', 'custom:permissions')->first();
         if(!is_null($permissions)) {
             $res->permissions = explode(',', $permissions['Value']);
         }
