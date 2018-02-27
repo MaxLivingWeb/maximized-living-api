@@ -60,8 +60,7 @@ class GmbController extends Controller
         }
 
         $gmb_data = $this->format_for_gmb($location);
-
-        //send that formatted gmb_data to gmb
+        
         //https://mybusiness.googleapis.com/v3/accounts/account_name/locations/locationId?languageCode=language&validateOnly=True|False&fieldMask=field1,field2,etc.
         //109466447190993053012 is the account ID of ML within our GMB email
         try {
