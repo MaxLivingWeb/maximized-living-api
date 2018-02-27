@@ -61,7 +61,7 @@ class UpdateLocationMutation extends Mutation
             ::where('vanity_website_id', $args['vanity_website_id'])
             ->orWhere('id', $args['id'])
             ->first();
-    
+
         $addresses = $args['addresses'];
 
         if(empty($addresses)) {
@@ -77,6 +77,12 @@ class UpdateLocationMutation extends Mutation
                 'zip_postal_code'   => $addresses[0]['zip_postal_code']
             ])->first();
 
+        if(!empty($args['gmb_id']) ) {
+            //update the gmb record
+            $gmb = new GMB();
+            $gmb->update($updated_location);
+        }
+
         //if the address exists, just get out
         if(!empty($address_exists)) {
             return $args;
@@ -89,10 +95,6 @@ class UpdateLocationMutation extends Mutation
         foreach($addresses as $address) {
             Address::attachAddress($updated_location->id, $address);
         }
-
-        //update the gmb record
-        $gmb = new GMB();
-        $gmb->update($updated_location);
 
         if ($location === 1) {
             return $args;
