@@ -88,7 +88,7 @@ class CognitoHelper
      * @param string|null $groupName The name of the group to get users for. If no group name is provided, will default to the .env affiliate group name. To return all users - pass the value 'ALL_COGNITO_USERS'
      * @return \Illuminate\Support\Collection
      */
-    public function listUsers($groupName = NULL)
+    public function listUsers($groupName = NULL, $condensed = FALSE)
     {
         if (!$groupName) {
             $groupName = env('AWS_COGNITO_AFFILIATE_USER_GROUP_NAME');
@@ -125,8 +125,8 @@ class CognitoHelper
                 }
 
                 $users = $users->merge(collect($result->get('Users'))
-                    ->transform(function($user) {
-                        return self::formatUserData($user);
+                    ->transform(function($user) use($condensed) {
+                        return self::formatUserData($user, $condensed);
                     })
                 );
 
@@ -268,7 +268,7 @@ class CognitoHelper
         return true;
     }
 
-    public function listUsersForGroup($name)
+    public function listUsersForGroup($name, $condensed = FALSE)
     {
         $result = $this->client->listUsersInGroup([
             'GroupName' => $name,
@@ -276,8 +276,8 @@ class CognitoHelper
         ]);
 
         return collect($result->get('Users'))
-            ->transform(function($user) {
-                return self::formatUserData($user);
+            ->transform(function($user) use($condensed) {
+                return self::formatUserData($user, $condensed);
             });
     }
 
@@ -329,7 +329,7 @@ class CognitoHelper
         return TRUE;
     }
 
-    public static function formatUserData($cognitoUser)
+    public static function formatUserData($cognitoUser, $condensed = FALSE)
     {
         $attributes = collect($cognitoUser['Attributes']);
 
@@ -337,20 +337,27 @@ class CognitoHelper
             ->where('Name', env('COGNITO_SHOPIFY_CUSTOM_ATTRIBUTE'))
             ->first()['Value'];
 
-        $user = new CognitoUser($cognitoUser['Username']);
-        $userGroup = $user->group();
-        $affiliate = null;
-        if(!is_null($userGroup)) {
-            $affiliate = $userGroup;
+        if ($condensed === FALSE) {
+            $user = new CognitoUser($cognitoUser['Username']);
+            $userGroup = $user->group();
+            $affiliate = null;
+            if (!is_null($userGroup)) {
+                $affiliate = $userGroup;
+            }
         }
 
-        return [
+        $userData = [
             'id'           => $cognitoUser['Username'],
             'user_status'  => $cognitoUser['UserStatus'],
             'email'        => $attributes->where('Name', 'email')->first()['Value'],
             'created'      => $cognitoUser['UserCreateDate'],
-            'shopify_id'   => $shopifyId,
-            'affiliate'    => $affiliate
+            'shopify_id'   => $shopifyId
         ];
+
+        if ($condensed === FALSE && isset($affiliate)) {
+            $userData['affiliate'] = $affiliate;
+        }
+
+        return $userData;
     }
 }

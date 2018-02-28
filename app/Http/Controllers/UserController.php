@@ -20,17 +20,26 @@ use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
 {
-    public function listUsers($groupName = NULL)
+    /**
+     * List Users from Cognito
+     * @param null|string $groupName (Get Cognito users by a specific UserGroup. To get ALL Cognito users, enter "ALL_COGNITO_USERS")
+     * @param bool $sendbackResultAsJSON (Sendback result as JSON format)
+     * @param bool $condensed (Sendback condensed user data)
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Support\Collection
+     */
+    public function listUsers($groupName = NULL, $sendbackResultAsJSON = TRUE, $condensed = FALSE)
     {
         $cognito = new CognitoHelper();
         try {
-            $result = $cognito->listUsers($groupName);
+            $result = $cognito->listUsers($groupName, $condensed);
 
             if(is_null($result)) {
                 return response()->json('no users', 404);
             }
 
-            return response()->json($result);
+            return ($sendbackResultAsJSON === TRUE)
+                ? response()->json($result)
+                : $result;
         }
         catch(AwsException $e) {
             return response()->json([$e->getAwsErrorMessage()], 500);
@@ -40,12 +49,20 @@ class UserController extends Controller
         }
     }
 
+    public function getDuplicateCognitoUsers()
+    {
+        $cognitoUserReportingHelper = new CognitoUserReportingHelper();
+
+        $users = $this->listUsers('ALL_COGNITO_USERS', FALSE, TRUE);
+
+        return $cognitoUserReportingHelper->listDuplicateUserInstances($users);
+    }
+
     public function exportDuplicateUsersToCSV()
     {
         $exportHelper = new ExportHelper();
-        $cognitoUserReportingHelper = new CognitoUserReportingHelper();
 
-        $duplicateUserInstances = $cognitoUserReportingHelper->listDuplicateUserInstances();
+        $duplicateUserInstances = $this->getDuplicateCognitoUsers();
 
         // CSV Rows
         $rows = [];

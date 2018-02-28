@@ -2,37 +2,17 @@
 
 namespace App\Helpers;
 
-use App\Helpers\CognitoHelper;
-
 class CognitoUserReportingHelper
 {
-    public function listDuplicateUserInstances()
+    public function listDuplicateUserInstances(array $users)
     {
-        $users = $this->listUsers('ALL_COGNITO_USERS');
+        if (empty($users)) {
+            return;
+        }
 
         $duplicateUsers = $this->findDuplicateCognitoUserInstances($users);
 
         return $duplicateUsers;
-    }
-
-    private function listUsers($groupName = NULL)
-    {
-        $cognito = new CognitoHelper();
-        try {
-            $result = $cognito->listUsers($groupName);
-
-            if(is_null($result)) {
-                return response()->json('no users', 404);
-            }
-
-            return $result;
-        }
-        catch(AwsException $e) {
-            return response()->json([$e->getAwsErrorMessage()], 500);
-        }
-        catch (\Exception $e) {
-            return response()->json($e->getMessage(), 500);
-        }
     }
 
     private function findDuplicateCognitoUserInstances($users)
