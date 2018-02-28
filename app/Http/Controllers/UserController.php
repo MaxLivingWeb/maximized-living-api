@@ -10,7 +10,6 @@ use App\UserGroup;
 use App\User;
 use App\Helpers\CognitoUserReportingHelper;
 use App\Helpers\CognitoHelper;
-use App\Helpers\ExportHelper;
 use App\Helpers\ShopifyHelper;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Http\Request;
@@ -55,46 +54,16 @@ class UserController extends Controller
 
         $users = $this->listUsers('ALL_COGNITO_USERS', FALSE, TRUE);
 
-        return $cognitoUserReportingHelper->listDuplicateUserInstances($users);
+        return $cognitoUserReportingHelper->listDuplicateCognitoUserInstances($users);
     }
 
-    public function exportDuplicateUsersToCSV()
+    public function getUppercasedCognitoUsers()
     {
-        $exportHelper = new ExportHelper();
+        $cognitoUserReportingHelper = new CognitoUserReportingHelper();
 
-        $duplicateUserInstances = $this->getDuplicateCognitoUsers();
+        $users = $this->listUsers('ALL_COGNITO_USERS', FALSE, TRUE);
 
-        // CSV Rows
-        $rows = [];
-
-        // Insert CSV Headers
-        $rows[] = [
-            'Duplicate Email Comparison',
-            'Shopify IDs Match',
-            'Cognito ID',
-            'Email',
-            'User Status',
-            'Created',
-            'Shopify ID'
-        ];
-
-        foreach ($duplicateUserInstances as $email => $duplicateUsers) {
-            foreach ($duplicateUsers->user_instances as $user) {
-                $rows[] = [
-                    'DuplicateEmailComparison' => $email,
-                    'ShopifyIDsMatch' => $duplicateUsers->shopify_ids_match ? 'Yes' : 'No',
-                    'CognitoID' => $user['id'],
-                    'Email' => $user['email'],
-                    'UserStatus' => $user['user_status'],
-                    'Created' => $user['created']->format('Y-m-d h:ia'),
-                    'ShopifyID' => '"='.$user['shopify_id'].'"'
-                ];
-            }
-        }
-
-        $csv = $exportHelper->exportCsv($rows, 'ListDuplicateUserInstances');
-
-        return $csv;
+        return $cognitoUserReportingHelper->listUppercasedCognitoUserInstances($users);
     }
 
     public function addUser(Request $request)
