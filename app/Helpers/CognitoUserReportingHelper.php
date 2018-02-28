@@ -2,39 +2,60 @@
 
 namespace App\Helpers;
 
-use App\Helpers\CognitoHelper;
-
 class CognitoUserReportingHelper
 {
-    public function listDuplicateUserInstances()
+    /**
+     * List all duplicate user instances from Cognito that share the same email address
+     * @param array $users
+     * @return array|void
+     */
+    public function listDuplicateCognitoUserInstances(array $users)
     {
-        $users = $this->listUsers('ALL_COGNITO_USERS');
+        if (empty($users)) {
+            return;
+        }
 
-        $duplicateUsers = $this->findDuplicateCognitoUserInstances($users);
-
-        return $duplicateUsers;
+        return $this->findDuplicateCognitoUserInstances($users);
     }
 
-    private function listUsers($groupName = NULL)
+    /**
+     * List all uppercased user instances from Cognito
+     * @param array $users
+     * @return array|void
+     */
+    public function listUppercasedCognitoUserInstances(array $users)
     {
-        $cognito = new CognitoHelper();
-        try {
-            $result = $cognito->listUsers($groupName);
+        if (empty($users)) {
+            return;
+        }
 
-            if(is_null($result)) {
-                return response()->json('no users', 404);
+        return $this->findUppercasedCognitoUserInstances($users);
+    }
+
+    /**
+     * Helper function to find all uppercased user instances from Cognito
+     * @param $users
+     * @return array
+     */
+    private function findUppercasedCognitoUserInstances(array $users)
+    {
+        $uppercasedUserInstances = [];
+
+        foreach ($users as $currentUser) {
+            $lowercasedEmail = strtolower($currentUser['email']);
+            if ($lowercasedEmail !== $currentUser['email']) {
+                $uppercasedUserInstances[] = $currentUser['email'];
             }
+        }
 
-            return $result;
-        }
-        catch(AwsException $e) {
-            return response()->json([$e->getAwsErrorMessage()], 500);
-        }
-        catch (\Exception $e) {
-            return response()->json($e->getMessage(), 500);
-        }
+        return $uppercasedUserInstances;
     }
 
+    /**
+     * Helper function to find all duplicate user instances from Cognito that share the same email address
+     * @param $users
+     * @return array
+     */
     private function findDuplicateCognitoUserInstances($users)
     {
         $emails = [];

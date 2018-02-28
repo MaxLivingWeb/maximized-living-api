@@ -10,7 +10,6 @@ use App\UserGroup;
 use App\User;
 use App\Helpers\CognitoUserReportingHelper;
 use App\Helpers\CognitoHelper;
-use App\Helpers\ExportHelper;
 use App\Helpers\ShopifyHelper;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Http\Request;
@@ -20,17 +19,26 @@ use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
 {
-    public function listUsers($groupName = NULL)
+    /**
+     * List Users from Cognito
+     * @param null|string $groupName (Get Cognito users by a specific UserGroup. To get ALL Cognito users, enter "ALL_COGNITO_USERS")
+     * @param bool $sendbackResultAsJSON (Sendback result as JSON format)
+     * @param bool $condensed (Sendback condensed user data)
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Support\Collection
+     */
+    public function listUsers($groupName = NULL, $sendbackResultAsJSON = TRUE, $condensed = FALSE)
     {
         $cognito = new CognitoHelper();
         try {
-            $result = $cognito->listUsers($groupName);
+            $result = $cognito->listUsers($groupName, $condensed);
 
             if(is_null($result)) {
                 return response()->json('no users', 404);
             }
 
-            return response()->json($result);
+            return ($sendbackResultAsJSON === TRUE)
+                ? response()->json($result)
+                : $result;
         }
         catch(AwsException $e) {
             return response()->json([$e->getAwsErrorMessage()], 500);
@@ -40,44 +48,22 @@ class UserController extends Controller
         }
     }
 
-    public function exportDuplicateUsersToCSV()
+    public function getDuplicateCognitoUsers()
     {
-        $exportHelper = new ExportHelper();
         $cognitoUserReportingHelper = new CognitoUserReportingHelper();
 
-        $duplicateUserInstances = $cognitoUserReportingHelper->listDuplicateUserInstances();
+        $users = $this->listUsers('ALL_COGNITO_USERS', FALSE, TRUE);
 
-        // CSV Rows
-        $rows = [];
+        return $cognitoUserReportingHelper->listDuplicateCognitoUserInstances($users);
+    }
 
-        // Insert CSV Headers
-        $rows[] = [
-            'Duplicate Email Comparison',
-            'Shopify IDs Match',
-            'Cognito ID',
-            'Email',
-            'User Status',
-            'Created',
-            'Shopify ID'
-        ];
+    public function getUppercasedCognitoUsers()
+    {
+        $cognitoUserReportingHelper = new CognitoUserReportingHelper();
 
-        foreach ($duplicateUserInstances as $email => $duplicateUsers) {
-            foreach ($duplicateUsers->user_instances as $user) {
-                $rows[] = [
-                    'DuplicateEmailComparison' => $email,
-                    'ShopifyIDsMatch' => $duplicateUsers->shopify_ids_match ? 'Yes' : 'No',
-                    'CognitoID' => $user['id'],
-                    'Email' => $user['email'],
-                    'UserStatus' => $user['user_status'],
-                    'Created' => $user['created']->format('Y-m-d h:ia'),
-                    'ShopifyID' => '"='.$user['shopify_id'].'"'
-                ];
-            }
-        }
+        $users = $this->listUsers('ALL_COGNITO_USERS', FALSE, TRUE);
 
-        $csv = $exportHelper->exportCsv($rows, 'ListDuplicateUserInstances');
-
-        return $csv;
+        return $cognitoUserReportingHelper->listUppercasedCognitoUserInstances($users);
     }
 
     public function addUser(Request $request)

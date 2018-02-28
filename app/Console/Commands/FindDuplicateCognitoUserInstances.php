@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Helpers\ExportHelper;
 use App\Helpers\CognitoUserReportingHelper;
 use Illuminate\Console\Command;
 
