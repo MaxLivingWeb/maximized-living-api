@@ -2,6 +2,7 @@
 
 namespace App\GraphQL\Mutation;
 
+use App\Http\Controllers\GmbController as GMB;
 use GraphQL;
 use Folklore\GraphQL\Support\Mutation;
 use App\Location;
@@ -34,7 +35,11 @@ class UpdateLocationMutation extends Mutation
                 $args[$key] = filter_var($var, FILTER_SANITIZE_STRING);
             }
         }
-        
+
+        if(empty($args['gmb_id']) ) {
+            $args['gmb_id'] = '';
+        }
+
         $location = Location
             ::where(
                 'id', $args['id']
@@ -52,14 +57,15 @@ class UpdateLocationMutation extends Mutation
                 'opening_date'              => $args['opening_date'],
                 'closing_date'              => $args['closing_date'],
                 'daylight_savings_applies'  => $args['daylight_savings_applies'],
-                'business_hours'            => $args['business_hours']
+                'business_hours'            => $args['business_hours'],
+                'gmb_id'                    => $args['gmb_id']
             ]);
 
         $updated_location = Location
             ::where('vanity_website_id', $args['vanity_website_id'])
             ->orWhere('id', $args['id'])
             ->first();
-    
+
         $addresses = $args['addresses'];
 
         if(empty($addresses)) {
@@ -74,6 +80,12 @@ class UpdateLocationMutation extends Mutation
                 'longitude'         => $addresses[0]['longitude'],
                 'zip_postal_code'   => $addresses[0]['zip_postal_code']
             ])->first();
+
+        if(!empty($args['gmb_id']) ) {
+            //update the gmb record
+            $gmb = new GMB();
+            $gmb->update($updated_location);
+        }
 
         //if the address exists, just get out
         if(!empty($address_exists)) {
