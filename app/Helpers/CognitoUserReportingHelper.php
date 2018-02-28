@@ -4,17 +4,58 @@ namespace App\Helpers;
 
 class CognitoUserReportingHelper
 {
-    public function listDuplicateUserInstances(array $users)
+    /**
+     * List all duplicate user instances from Cognito that share the same email address
+     * @param array $users
+     * @return array|void
+     */
+    public function listDuplicateCognitoUserInstances(array $users)
     {
         if (empty($users)) {
             return;
         }
 
-        $duplicateUsers = $this->findDuplicateCognitoUserInstances($users);
-
-        return $duplicateUsers;
+        return $this->findDuplicateCognitoUserInstances($users);
     }
 
+    /**
+     * List all uppercased user instances from Cognito
+     * @param array $users
+     * @return array|void
+     */
+    public function listUppercasedCognitoUserInstances(array $users)
+    {
+        if (empty($users)) {
+            return;
+        }
+
+        return $this->findUppercasedCognitoUserInstances($users);
+    }
+
+    /**
+     * Helper function to find all uppercased user instances from Cognito
+     * @param $users
+     * @return array
+     */
+    private function findUppercasedCognitoUserInstances(array $users)
+    {
+        $uppercasedUserInstances = [];
+
+        foreach ($users as $currentUser) {
+            $lowercasedEmail = strtolower($currentUser['email']);
+            if ($lowercasedEmail !== $currentUser['email']) {
+                $uppercasedUserInstances[] = $currentUser['email'];
+            }
+        }
+
+        return $uppercasedUserInstances;
+    }
+
+    /**
+     * Helper function to find all duplicate user instances from Cognito that share the same email address
+     * @param $users
+     * @return array
+     */
     private function findDuplicateCognitoUserInstances($users)
     {
         $emails = [];
