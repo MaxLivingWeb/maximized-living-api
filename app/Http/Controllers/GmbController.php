@@ -165,6 +165,15 @@ class GmbController extends Controller
             return;
         }
 
+        //if the GMB entry has labels associated with it, keep the labels on
+        $gmb_labels = [];
+
+        if(is_array($gmb_entry->labels)) {
+            foreach($gmb_entry->labels as $labels) {
+                array_push($gmb_labels, $labels);
+            }
+        }
+
         $json_gmb_data = json_encode([
             "languageCode"  => "EN",
             "storeCode"     => $gmb_entry->storeCode,
@@ -185,7 +194,8 @@ class GmbController extends Controller
             "primaryCategory"   => [
                 "name"          => "Chiropractor",
                 "categoryId"    => "gcid:chiropractor"
-            ]
+            ],
+            "labels" => $gmb_labels
         ]);
 
         return $json_gmb_data;
