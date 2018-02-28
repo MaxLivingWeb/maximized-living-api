@@ -8,7 +8,7 @@ use App\CognitoUser;
 use App\Location;
 use App\UserGroup;
 use App\User;
-use App\Helpers\CognitoUserReportingHelper;
+use App\Helpers\CognitoUserHelper;
 use App\Helpers\CognitoHelper;
 use App\Helpers\ShopifyHelper;
 use GuzzleHttp\Exception\ClientException;
@@ -22,50 +22,46 @@ class UserController extends Controller
     /**
      * List Users from Cognito
      * @param null|string $groupName (Get Cognito users by a specific UserGroup. To get ALL Cognito users, enter "ALL_COGNITO_USERS")
-     * @param bool $sendbackResultAsJSON (Sendback result as JSON format)
-     * @param bool $condensed (Sendback condensed user data)
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Support\Collection
      */
-    public function listUsers($groupName = NULL, $sendbackResultAsJSON = TRUE, $condensed = FALSE)
+    public function listUsers($groupName = NULL)
     {
-        $cognito = new CognitoHelper();
-        try {
-            $result = $cognito->listUsers($groupName, $condensed);
-
-            if(is_null($result)) {
-                return response()->json('no users', 404);
-            }
-
-            return ($sendbackResultAsJSON === TRUE)
-                ? response()->json($result)
-                : $result;
-        }
-        catch(AwsException $e) {
-            return response()->json([$e->getAwsErrorMessage()], 500);
-        }
-        catch (\Exception $e) {
-            return response()->json($e->getMessage(), 500);
-        }
+        return CognitoUserHelper::listUsers($groupName);
     }
 
+    /**
+     * Cognito Reporting Helper function
+     * Find all Cognito users that share the same email address (since emails can be saved as uppercase or lowercase into the system...)
+     * @return array|void
+     */
     public function getDuplicateCognitoUsers()
     {
-        $cognitoUserReportingHelper = new CognitoUserReportingHelper();
+        $cognitoUserReportingHelper = new CognitoUserHelper();
 
-        $users = $this->listUsers('ALL_COGNITO_USERS', FALSE, TRUE);
+        $users = CognitoUserHelper::listUsers('ALL_COGNITO_USERS', FALSE, TRUE);
 
         return $cognitoUserReportingHelper->listDuplicateCognitoUserInstances($users);
     }
 
+    /**
+     * Cognito Reporting Helper function
+     * Find all Cognito users that have uppercased email addresses
+     * @return array|void
+     */
     public function getUppercasedCognitoUsers()
     {
-        $cognitoUserReportingHelper = new CognitoUserReportingHelper();
+        $cognitoUserReportingHelper = new CognitoUserHelper();
 
-        $users = $this->listUsers('ALL_COGNITO_USERS', FALSE, TRUE);
+        $users = CognitoUserHelper::listUsers('ALL_COGNITO_USERS', FALSE, TRUE);
 
         return $cognitoUserReportingHelper->listUppercasedCognitoUserInstances($users);
     }
 
+    /**
+     * Add New User
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function addUser(Request $request)
     {
         $cognito = new CognitoHelper();
@@ -381,6 +377,12 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * Update Existing User by providing their Cognito user id
+     * @param Request $request
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function updateUser(Request $request, $id)
     {
         $cognito = new CognitoHelper();

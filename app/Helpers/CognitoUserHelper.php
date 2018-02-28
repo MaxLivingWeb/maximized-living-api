@@ -2,8 +2,44 @@
 
 namespace App\Helpers;
 
-class CognitoUserReportingHelper
+use App\Helpers\CognitoHelper;
+use GuzzleHttp\Exception\ClientException;
+use Aws\Exception\AwsException;
+
+class CognitoUserHelper
 {
+    /**
+     * List Users from Cognito
+     * @param null|string $groupName (Get Cognito users by a specific UserGroup. To get ALL Cognito users, enter "ALL_COGNITO_USERS")
+     * @param bool $sendbackResultAsJSON (Sendback result as JSON format)
+     * @param bool $condensed (Sendback condensed user data)
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Support\Collection
+     */
+    public static function listUsers(
+        $groupName = NULL,
+        $sendbackResultAsJSON = TRUE,
+        $condensed = FALSE
+    ){
+        $cognito = new CognitoHelper();
+        try {
+            $result = $cognito->listUsers($groupName, $condensed);
+
+            if(is_null($result)) {
+                return response()->json('no users', 404);
+            }
+
+            return ($sendbackResultAsJSON === TRUE)
+                ? response()->json($result)
+                : $result;
+        }
+        catch(AwsException $e) {
+            return response()->json([$e->getAwsErrorMessage()], 500);
+        }
+        catch (\Exception $e) {
+            return response()->json($e->getMessage(), 500);
+        }
+    }
+
     /**
      * List all duplicate user instances from Cognito that share the same email address
      * @param array $users

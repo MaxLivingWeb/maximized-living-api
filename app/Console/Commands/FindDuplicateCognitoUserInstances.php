@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Helpers\CognitoUserReportingHelper;
+use App\Helpers\CognitoUserHelper;
 use Illuminate\Console\Command;
 
 class FindDuplicateCognitoUserInstances extends Command
@@ -38,7 +38,7 @@ class FindDuplicateCognitoUserInstances extends Command
      */
     public function handle()
     {
-        $cognitoUserReportingHelper = new CognitoUserReportingHelper();
+        $cognitoUserReportingHelper = new CognitoUserHelper();
         $duplicateUserInstances = $cognitoUserReportingHelper->listDuplicateUserInstances();
 
         $response = $this->info('Total Duplicate User Instances Found: ' . count($duplicateUserInstances));
