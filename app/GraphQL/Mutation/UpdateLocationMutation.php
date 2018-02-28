@@ -36,6 +36,10 @@ class UpdateLocationMutation extends Mutation
             }
         }
 
+        if(empty($args['gmb_id']) ) {
+            $args['gmb_id'] = '';
+        }
+
         $location = Location
             ::where(
                 'id', $args['id']
