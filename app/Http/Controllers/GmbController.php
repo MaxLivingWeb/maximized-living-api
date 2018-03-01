@@ -67,7 +67,7 @@ class GmbController extends Controller
         try {
             $response = $this->client->request(
                 'PATCH',
-                'https://mybusiness.googleapis.com/v3/accounts/109466447190993053012/locations/'.$location->gmb_id,
+                'https://mybusiness.googleapis.com/v3/accounts/117651769791383192578/locations/'.$location->gmb_id,
                 array(
                     'headers' => array(
                         'Authorization' => "Bearer $this->access_token"
@@ -100,7 +100,7 @@ class GmbController extends Controller
         try {
             $response = $this->client->request(
                 'GET',
-                'https://mybusiness.googleapis.com/v3/accounts/109466447190993053012/locations/'.$gmb_location_id,
+                'https://mybusiness.googleapis.com/v4/accounts/117651769791383192578/locations/'.$gmb_location_id,
                 array(
                     'headers' => array(
                         'Authorization' => "Bearer $this->access_token"
@@ -131,7 +131,7 @@ class GmbController extends Controller
         try {
             $response = $this->client->request(
                 'GET',
-                'https://mybusiness.googleapis.com/v3/accounts/109466447190993053012/locations',
+                'https://mybusiness.googleapis.com/v4/accounts/117651769791383192578/locations',
                 array(
                     'headers' => array(
                         'Authorization' => "Bearer $this->access_token"
@@ -139,7 +139,17 @@ class GmbController extends Controller
                 )
             );
 
-            return $response->getBody()->getContents();
+            //grabbing locations only with the ML label
+            $locs = json_decode($response->getBody()->getContents(), true);
+            $ml_locations = [];
+
+            foreach($locs['locations'] as $l) {
+                if(array_key_exists('labels', $l) && in_array("ML", $l['labels'] ) ) {
+                    array_push($ml_locations, $l);
+                }
+            }
+
+            return json_encode($ml_locations);
 
         } catch (Exception $e) {
             Log::error($e);
