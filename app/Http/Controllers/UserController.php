@@ -34,13 +34,9 @@ class UserController extends Controller
      * Find all Cognito users that share the same email address (since emails can be saved as uppercase or lowercase into the system...)
      * @return array|void
      */
-    public function getDuplicateCognitoUsers()
+    public function listCognitoUsersWithDuplicateInstances()
     {
-        $cognitoUserReportingHelper = new CognitoUserHelper();
-
-        $users = CognitoUserHelper::listUsers('ALL_COGNITO_USERS', FALSE, TRUE);
-
-        return $cognitoUserReportingHelper->listDuplicateCognitoUserInstances($users);
+        return CognitoUserHelper::listCognitoUsersWithDuplicateInstances();
     }
 
     /**
@@ -48,13 +44,9 @@ class UserController extends Controller
      * Find all Cognito users that have uppercased email addresses
      * @return array|void
      */
-    public function getUppercasedCognitoUsers()
+    public function listCognitoUsersWithUppercasedEmails()
     {
-        $cognitoUserReportingHelper = new CognitoUserHelper();
-
-        $users = CognitoUserHelper::listUsers('ALL_COGNITO_USERS', FALSE, TRUE);
-
-        return $cognitoUserReportingHelper->listUppercasedCognitoUserInstances($users);
+        return CognitoUserHelper::listCognitoUsersWithUppercasedEmails();
     }
 
     /**

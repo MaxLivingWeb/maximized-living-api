@@ -45,13 +45,15 @@ class CognitoUserHelper
      * @param array $users
      * @return array|void
      */
-    public function listDuplicateCognitoUserInstances(array $users)
+    public static function listCognitoUsersWithDuplicateInstances(array $users = [])
     {
+        $users = !empty($users) ? $users : self::listUsers('ALL_COGNITO_USERS', FALSE, TRUE);
+
         if (empty($users)) {
             return;
         }
 
-        return $this->findDuplicateCognitoUserInstances($users);
+        return self::findCognitoUsersWithDuplicateInstances($users);
     }
 
     /**
@@ -59,13 +61,15 @@ class CognitoUserHelper
      * @param array $users
      * @return array|void
      */
-    public function listUppercasedCognitoUserInstances(array $users)
+    public static function listCognitoUsersWithUppercasedEmails(array $users = [])
     {
+        $users = !empty($users) ? $users : self::listUsers('ALL_COGNITO_USERS', FALSE, TRUE);
+
         if (empty($users)) {
             return;
         }
 
-        return $this->findUppercasedCognitoUserInstances($users);
+        return self::findCognitoUsersWithUppercasedEmails($users);
     }
 
     /**
@@ -73,18 +77,18 @@ class CognitoUserHelper
      * @param $users
      * @return array
      */
-    private function findUppercasedCognitoUserInstances(array $users)
+    private static function findCognitoUsersWithUppercasedEmails(array $users)
     {
-        $uppercasedUserInstances = [];
+        $uppercasedUsers = [];
 
         foreach ($users as $currentUser) {
             $lowercasedEmail = strtolower($currentUser['email']);
             if ($lowercasedEmail !== $currentUser['email']) {
-                $uppercasedUserInstances[] = $currentUser['email'];
+                $uppercasedUsers[] = $currentUser;
             }
         }
 
-        return $uppercasedUserInstances;
+        return $uppercasedUsers;
     }
 
     /**
@@ -92,7 +96,7 @@ class CognitoUserHelper
      * @param $users
      * @return array
      */
-    private function findDuplicateCognitoUserInstances($users)
+    private static function findCognitoUsersWithDuplicateInstances($users)
     {
         $emails = [];
         $duplicateUserInstances = [];
