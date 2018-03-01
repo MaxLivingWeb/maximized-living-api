@@ -63,8 +63,8 @@ class UserController extends Controller
             $fields = [
                 'email'               => 'required|email',
                 'password'            => 'required|min:8',
-                'firstName'           => 'required',
-                'lastName'            => 'required',
+                'first_name'           => 'required',
+                'last_name'            => 'required',
                 'phone'               => 'nullable',
                 'legacyId'            => 'nullable|integer',
                 'commission.id'       => 'nullable|integer',
@@ -123,8 +123,8 @@ class UserController extends Controller
             // Setup Shopify Customer initial params
             $shopifyCustomerData = [
                 'email'      => $validatedData['email'],
-                'first_name' => $validatedData['firstName'],
-                'last_name'  => $validatedData['lastName']
+                'first_name' => $validatedData['first_name'],
+                'last_name'  => $validatedData['last_name']
             ];
 
             if (isset($validatedData['phone'])) {
