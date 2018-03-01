@@ -8,9 +8,8 @@ use App\CognitoUser;
 use App\Location;
 use App\UserGroup;
 use App\User;
-use App\Helpers\CognitoUserReportingHelper;
+use App\Helpers\CognitoUserHelper;
 use App\Helpers\CognitoHelper;
-use App\Helpers\ExportHelper;
 use App\Helpers\ShopifyHelper;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Http\Request;
@@ -20,66 +19,41 @@ use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
 {
+    /**
+     * List Users from Cognito
+     * @param null|string $groupName (Get Cognito users by a specific UserGroup. To get ALL Cognito users, enter "ALL_COGNITO_USERS")
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Support\Collection
+     */
     public function listUsers($groupName = NULL)
     {
-        $cognito = new CognitoHelper();
-        try {
-            $result = $cognito->listUsers($groupName);
-
-            if(is_null($result)) {
-                return response()->json('no users', 404);
-            }
-
-            return response()->json($result);
-        }
-        catch(AwsException $e) {
-            return response()->json([$e->getAwsErrorMessage()], 500);
-        }
-        catch (\Exception $e) {
-            return response()->json($e->getMessage(), 500);
-        }
+        return CognitoUserHelper::listUsers($groupName);
     }
 
-    public function exportDuplicateUsersToCSV()
+    /**
+     * Cognito Reporting Helper function
+     * Find all Cognito users that share the same email address (since emails can be saved as uppercase or lowercase into the system...)
+     * @return array|void
+     */
+    public function listCognitoUsersWithDuplicateInstances()
     {
-        $exportHelper = new ExportHelper();
-        $cognitoUserReportingHelper = new CognitoUserReportingHelper();
-
-        $duplicateUserInstances = $cognitoUserReportingHelper->listDuplicateUserInstances();
-
-        // CSV Rows
-        $rows = [];
-
-        // Insert CSV Headers
-        $rows[] = [
-            'Duplicate Email Comparison',
-            'Shopify IDs Match',
-            'Cognito ID',
-            'Email',
-            'User Status',
-            'Created',
-            'Shopify ID'
-        ];
-
-        foreach ($duplicateUserInstances as $email => $duplicateUsers) {
-            foreach ($duplicateUsers->user_instances as $user) {
-                $rows[] = [
-                    'DuplicateEmailComparison' => $email,
-                    'ShopifyIDsMatch' => $duplicateUsers->shopify_ids_match ? 'Yes' : 'No',
-                    'CognitoID' => $user['id'],
-                    'Email' => $user['email'],
-                    'UserStatus' => $user['user_status'],
-                    'Created' => $user['created']->format('Y-m-d h:ia'),
-                    'ShopifyID' => '"='.$user['shopify_id'].'"'
-                ];
-            }
-        }
-
-        $csv = $exportHelper->exportCsv($rows, 'ListDuplicateUserInstances');
-
-        return $csv;
+        return CognitoUserHelper::listCognitoUsersWithDuplicateInstances();
     }
 
+    /**
+     * Cognito Reporting Helper function
+     * Find all Cognito users that have uppercased email addresses
+     * @return array|void
+     */
+    public function listCognitoUsersWithUppercasedEmails()
+    {
+        return CognitoUserHelper::listCognitoUsersWithUppercasedEmails();
+    }
+
+    /**
+     * Add New User
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function addUser(Request $request)
     {
         $cognito = new CognitoHelper();
@@ -395,6 +369,12 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * Update Existing User by providing their Cognito user id
+     * @param Request $request
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function updateUser(Request $request, $id)
     {
         $cognito = new CognitoHelper();

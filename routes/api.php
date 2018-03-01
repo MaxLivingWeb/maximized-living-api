@@ -38,8 +38,12 @@ Route::group(['prefix' => 'user'], function() {
     Route::delete('/{id}', 'UserController@delete');
 });
 
-Route::get('/users', 'UserController@listUsers');
-Route::get('/users/{groupName}', 'UserController@listUsers');
+Route::group(['prefix' => 'users'], function() {
+    Route::get('/', 'UserController@listUsers');
+    Route::get('/duplicates', 'UserController@listCognitoUsersWithDuplicateInstances'); // Reporting task to find all problematic Cognito User accounts
+    Route::get('/uppercased', 'UserController@listCognitoUsersWithUppercasedEmails'); // Reporting task to find all problematic Cognito User accounts
+    Route::get('/group_by/{groupName}', 'UserController@listUsers');
+});
 
 // Locations
 Route::group(['prefix' => 'location'], function() {
@@ -85,10 +89,7 @@ Route::group(['prefix' => 'reporting'], function() {
     });
 });
 
-
-// Csv Exports
-Route::get('/export/users/duplicates', 'UserController@exportDuplicateUsersToCSV');
-
+// Update ML Store Products
 Route::get('/store/update-products', function () {
     $products = (new ShopifyHelper())
         ->getProducts([], FALSE);
