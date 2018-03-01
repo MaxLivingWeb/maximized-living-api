@@ -118,9 +118,10 @@ class CognitoUserHelper
                     ->values()
                     ->all();
 
-                $duplicateUserInstances[$email] = (object)[
-                    'user_instances' => $duplicateUsers,
-                    'shopify_ids_match' => collect($duplicateUsers)->every('shopify_id', $currentUser['shopify_id'])
+                $duplicateUserInstances[] = (object)[
+                    'matching_email' => $email,
+                    'shopify_ids_match' => collect($duplicateUsers)->every('shopify_id', $currentUser['shopify_id']),
+                    'user_instances' => $duplicateUsers
                 ];
             }
 
