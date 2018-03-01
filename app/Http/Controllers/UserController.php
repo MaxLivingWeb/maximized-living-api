@@ -63,8 +63,8 @@ class UserController extends Controller
             $fields = [
                 'email'               => 'required|email',
                 'password'            => 'required|min:8',
-                'first_name'           => 'required',
-                'last_name'            => 'required',
+                'first_name'          => 'required',
+                'last_name'           => 'required',
                 'phone'               => 'nullable',
                 'legacyId'            => 'nullable|integer',
                 'commission.id'       => 'nullable|integer',
