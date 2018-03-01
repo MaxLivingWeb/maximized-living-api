@@ -57,25 +57,23 @@ class FixUppercasedCognitoUserEmails extends Command
             return $this->info('No users found with uppercased emails.');
         }
 
-        $count = 0;
+        $numUsers = count($users);
         $response = $this->info('Starting to update users...');
-        while ($count < count($users)) {
-            $user = $users[$count];
+        while ($numUsers--) {
+            $user = $users[$numUsers];
             $email = $user['email'];
 
             // Update user to Cognito
             $cognito->updateUserAttribute('email', strtolower($email), $user['id']);
 
             // Return response to console
-            $number = ($count+1);
+            $number = ($numUsers+1);
             $response .= $this->line($number.'. User to Update ['.$user['id'].'] ... "'.$email.'" changed to "'.strtolower($email).'"');
 
             // Sleep during queries, so API won't reach limit
-            if ($count % $queryGroupSize === 0) {
+            if ($numUsers % $queryGroupSize === 0) {
                 sleep($sleepTime);
             }
-
-            $count++;
         }
 
         $response .= $this->info('Done updating users.');
