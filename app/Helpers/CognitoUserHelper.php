@@ -79,13 +79,17 @@ class CognitoUserHelper
      */
     private static function findCognitoUsersWithUppercasedEmails(array $users)
     {
+        $emails = [];
         $uppercasedUsers = [];
 
         foreach ($users as $currentUser) {
             $lowercasedEmail = strtolower($currentUser['email']);
-            if ($lowercasedEmail !== $currentUser['email']) {
+
+            if (!in_array($lowercasedEmail,$emails) && $lowercasedEmail !== $currentUser['email']) {
                 $uppercasedUsers[] = $currentUser;
             }
+
+            $emails[] = $lowercasedEmail;
         }
 
         return $uppercasedUsers;
