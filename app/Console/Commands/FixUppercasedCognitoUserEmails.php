@@ -51,6 +51,7 @@ class FixUppercasedCognitoUserEmails extends Command
             return $this->error('--sleepTime and --queryGroupSize parameters must both be integers');
         }
 
+        $response = $this->line('Starting to get User data...');
         $users = CognitoUserHelper::listCognitoUsersWithUppercasedEmails();
 
         if (count($users) === 0) {
@@ -58,7 +59,7 @@ class FixUppercasedCognitoUserEmails extends Command
         }
 
         $numUsers = count($users);
-        $response = $this->info('Starting to update users...');
+        $response .= $this->info('Starting to update users...');
         while ($numUsers--) {
             $user = $users[$numUsers];
             $email = $user['email'];
