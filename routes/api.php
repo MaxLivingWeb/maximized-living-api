@@ -89,12 +89,6 @@ Route::group(['prefix' => 'reporting'], function() {
     });
 });
 
-//Google My Business
-Route::group(['prefix' => 'gmb'], function() {
-    Route::get('/get_all', 'GmbController@get_all');
-    Route::get('/get/{gmb_id}', 'GmbController@get');
-});
-
 // Update ML Store Products
 Route::get('/store/update-products', function () {
     $products = (new ShopifyHelper())
@@ -105,3 +99,9 @@ Route::get('/store/update-products', function () {
 });
 
 Route::get('/store/search', 'SearchController@index');
+
+//Google My Business
+Route::group(['prefix' => 'gmb'], function() {
+    Route::get('/get_all', 'GmbController@get_all');
+    Route::get('/get/{gmb_id}', 'GmbController@get');
+});

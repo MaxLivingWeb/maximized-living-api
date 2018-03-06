@@ -171,7 +171,7 @@ class CognitoHelper
         ]);
 
     }
-    
+
     public function deleteUser($username)
     {
         return $this->client->adminDeleteUser([
