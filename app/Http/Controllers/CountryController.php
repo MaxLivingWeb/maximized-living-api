@@ -18,7 +18,7 @@ class CountryController extends Controller
     /**
      * Retrieves a single Country
      *
-     * @param integer $id The ID of the location to retrieve users for.
+     * @param integer $id The ID of the Country
      * @return array
      */
     public function getById($id)

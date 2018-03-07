@@ -18,7 +18,7 @@ class RegionController extends Controller
     /**
      * Retrieves a single Region
      *
-     * @param integer $id The ID of the location to retrieve users for.
+     * @param integer $id The ID of the Region
      * @return array
      */
     public function getById($id)

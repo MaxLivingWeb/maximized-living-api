@@ -18,7 +18,7 @@ class CityController extends Controller
     /**
      * Retrieves a single City
      *
-     * @param integer $id The ID of the location to retrieve users for.
+     * @param integer $id The ID of the City
      * @return array
      */
     public function getById($id)
