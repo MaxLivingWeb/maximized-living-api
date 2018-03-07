@@ -18,8 +18,11 @@ class RetailController extends Controller
             $endDate = $dateObject->endDate;
             $orders = $shopify->getAllOrders($startDate, $endDate, request()->input('status'));
 
-            return $orders->filter(function ($value) {
-                return !collect($value->note_attributes)->contains('name', 'wholesaleId');
+            return $orders->filter(function ($order) {
+                return !preg_match(
+                    "/(^|.+(\/\s))((Client|Wholesaler|VIP|Admin|Event).+)($|(\s\/).+)/i",
+                    collect($order->line_items)->first()->name
+                );
             })->values();
         }
         catch (\Exception $e) {
