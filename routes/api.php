@@ -53,6 +53,18 @@ Route::group(['prefix' => 'location'], function() {
 
 Route::get('/locations', 'LocationController@all');
 
+// Cities
+Route::get('/cities', 'CityController@all');
+Route::get('/city/{id}', 'CityController@getById');
+
+// Regions
+Route::get('/regions', 'RegionController@all');
+Route::get('/region/{id}', 'RegionController@getById');
+
+// Countries
+Route::get('/countries', 'CountryController@all');
+Route::get('/country/{id}', 'CountryController@getById');
+
 // Commissions
 Route::group(['prefix' => 'commission'], function() {
     Route::get('/', 'CommissionController@all');
