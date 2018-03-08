@@ -19,10 +19,17 @@ class RetailController extends Controller
             $orders = $shopify->getAllOrders($startDate, $endDate, request()->input('status'));
 
             return $orders->filter(function ($order) {
-                return !preg_match(
-                    "/(^|.+(\/\s))((Client|Wholesaler|VIP|Admin|Event).+)($|(\s\/).+)/i",
-                    collect($order->line_items)->first()->name
-                );
+                foreach($order->line_items as $line_item) {
+                    $match = preg_match(
+                        "/(^|.+(\/\s))((Client|Wholesaler|VIP|Admin|Event).+)($|(\s\/).+)/i",
+                        $line_item->name
+                    );
+
+                    if($match) {
+                        return false;
+                    }
+                }
+                return true;
             })->values();
         }
         catch (\Exception $e) {
