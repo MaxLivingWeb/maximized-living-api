@@ -43,6 +43,7 @@ class AddLocationMutation extends Mutation
             'email'                     => $args['email'],
             'vanity_website_url'        => $args['vanity_website_url'],
             'vanity_website_id'         => $args['vanity_website_id'],
+            'whitelabel'                => $args['whitelabel'],
             'pre_open_display_date'     => $args['pre_open_display_date'],
             'opening_date'              => $args['opening_date'],
             'closing_date'              => $args['closing_date'],

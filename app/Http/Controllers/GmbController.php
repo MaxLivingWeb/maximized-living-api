@@ -143,15 +143,15 @@ class GmbController extends Controller
             $locs = json_decode($response->getBody()->getContents(), true);
             $ml_locations = [];
 
-            foreach($locs['locations'] as $l) {
-                if(array_key_exists('labels', $l) && in_array("ML", $l['labels'] ) ) {
+            foreach ($locs['locations'] as $l) {
+                if (array_key_exists('labels', $l) && in_array("ML", $l['labels'])) {
                     array_push($ml_locations, $l);
                 }
-             }
+            }
 
-             return json_encode($ml_locations);
-
-        } catch (Exception $e) {
+            return json_encode($ml_locations);
+        }
+        catch (Exception $e) {
             Log::error($e);
         }
     }
