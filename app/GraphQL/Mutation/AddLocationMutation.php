@@ -57,7 +57,9 @@ class AddLocationMutation extends Mutation
         foreach($addresses as $address) {
             Address::attachAddress($location->id, $address);
         }
-    
+
+        //Email on location creation
+
         return $location;
     }
 }

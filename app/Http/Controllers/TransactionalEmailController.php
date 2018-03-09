@@ -21,44 +21,56 @@ class TransactionalEmailController extends Controller
         // Capture request data
         $requestData = $request->json()->all();
 
+        return $this->processing($requestData);
+
+    }
+
+    public function apiSave($request)
+    {
+        return $this->processing($request);
+    }
+
+    private function processing($data)
+    {
+
         // Validate request has content
-        if(empty($requestData)) {
+        if(empty($data)) {
             return response('JSON Format Error', 400)
                 ->header('Content-type', 'text/plain');
         }
 
         // Validate request has TO
-        if(empty($requestData['to_email'])) {
+        if(empty($data['to_email'])) {
             return response('Missing Required Field: To Email Address', 400)
                 ->header('Content-type', 'text/plain');
         }
 
         // Validate request has REPLY_TO
-        if(empty($requestData['reply_to'])) {
+        if(empty($data['reply_to'])) {
             return response('Missing Required Field: Reply To Address', 400)
                 ->header('Content-type', 'text/plain');
         }
 
         // Validate request has SUBJECT
-        if(empty($requestData['email_subject'])) {
+        if(empty($data['email_subject'])) {
             return response('Missing Required Field: Subject', 400)
                 ->header('Content-type', 'text/plain');
         }
 
         // Validate request has FORM_NAME
-        if(empty($requestData['form_name'])) {
+        if(empty($data['form_name'])) {
             return response('Missing Required Field: Form Name', 400)
                 ->header('Content-type', 'text/plain');
         }
 
         // Format the data to assign defaults if no data exists
-        $formattedData = $this->formatArrayData($requestData);
+        $formattedData = $this->formatArrayData($data);
 
         // Save request to the DB and returns ID
 //        $this->emailRecordID = $this->saveTransactionalEmail($formattedData);
 
         // Send to Arcane Leads API
-        $arcaneLeadsStatus = $this->leadsAPISubmission($formattedData);
+//        $arcaneLeadsStatus = $this->leadsAPISubmission($formattedData);
 
         // Save Arcane Leads API Status
 //        $this->updateTransactionalEmails(['leads_api_submission_status' => $arcaneLeadsStatus]);
@@ -79,7 +91,6 @@ class TransactionalEmailController extends Controller
         return response('All Good', 200)
             ->header('Content-type', 'text/plain');
     }
-
 
     /**
      * Sends submission to Sendgrid for distribution

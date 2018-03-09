@@ -8,6 +8,7 @@ use Folklore\GraphQL\Support\Mutation;
 use App\Location;
 use App\GraphQL\Type\LocationType;
 use App\Address;
+use App\Http\Controllers\TransactionalEmailController;
 
 class UpdateLocationMutation extends Mutation
 {
@@ -40,6 +41,14 @@ class UpdateLocationMutation extends Mutation
             $args['gmb_id'] = '';
         }
 
+        //Location before being updated for notification email
+        $locationBeforeUpdate = Location
+            ::where(
+                'id', $args['id']
+            )->orWhere(
+                'vanity_website_id', $args['vanity_website_id']
+            )->first();
+
         $location = Location
             ::where(
                 'id', $args['id']
@@ -68,6 +77,8 @@ class UpdateLocationMutation extends Mutation
 
         $addresses = $args['addresses'];
 
+        $contact = new TransactionalEmailController();
+
         if(empty($addresses)) {
             return $args;
         }
@@ -87,8 +98,19 @@ class UpdateLocationMutation extends Mutation
             $gmb->update($updated_location);
         }
 
+        //Location after being updated for notification email
+        $locationAfterUpdate = Location
+            ::where(
+                'id', $args['id']
+            )->orWhere(
+                'vanity_website_id', $args['vanity_website_id']
+            )->first();
+
         //if the address exists, just get out
-        if(!empty($address_exists)) {
+        if(!empty($address_exists) && env('APP_ENV') !== 'local') {
+
+            //Email on location address update
+
             return $args;
         }
 
@@ -99,6 +121,49 @@ class UpdateLocationMutation extends Mutation
         foreach($addresses as $address) {
             Address::attachAddress($updated_location->id, $address);
         }
+
+        //Email on location address update
+        $content = '<br><h3><a href="'.$locationAfterUpdate->vanity_website_url.'" target="_blank">'.$locationAfterUpdate->name.'</a> has been updated!</h3>';
+        $content .= 'Location Name: '.$locationAfterUpdate->name;
+        $content .= '<br>Telephone Number: '.$locationAfterUpdate->telephone;
+        $content .= '<br>Telephone Ext: '.$locationAfterUpdate->telephone_ext;
+        $content .= '<br>Fax Number: '.$locationAfterUpdate->fax;
+        $content .= '<br>Email: '.$locationAfterUpdate->email;
+        $content .= '<br>Website: '.$locationAfterUpdate->vanity_website_url;
+        $content .= '<br>Address 1: '.$addresses[0]['address_1'];
+        $content .= '<br>Address 2: '.$addresses[0]['address_2'];
+        $content .= '<br>City: '.$addresses[0]['city'];
+        $content .= '<br>Region: '.$addresses[0]['region'];
+        $content .= '<br>Postal Code: '.$addresses[0]['zip_postal_code'];
+        $content .= '<br>Country: '.$addresses[0]['country'];
+
+
+        $content .= '<br><br><h4>Previous information:</h4>';
+        $content .= 'Location Name: '.$locationBeforeUpdate->name;
+        $content .= '<br>Telephone Number: '.$locationBeforeUpdate->telephone;
+        $content .= '<br>Telephone Ext: '.$locationBeforeUpdate->telephone_ext;
+        $content .= '<br>Fax Number: '.$locationBeforeUpdate->fax;
+        $content .= '<br>Email: '.$locationBeforeUpdate->email;
+        $content .= '<br>Website: '.$locationBeforeUpdate->vanity_website_url;
+        $content .= '<br>Address 1: '.$locationBeforeUpdate->addresses()->address_1;
+        $content .= '<br>Address 2: '.$addressesBeforeUpdate[0]['address_2'];
+        $content .= '<br>City: '.$addressesBeforeUpdate[0]['city'];
+        $content .= '<br>Region: '.$addressesBeforeUpdate[0]['region'];
+        $content .= '<br>Postal Code: '.$addressesBeforeUpdate[0]['zip_postal_code'];
+        $content .= '<br>Country: '.$addressesBeforeUpdate[0]['country'];
+
+
+
+        $email = array(
+            'to_email' => 'l.stewart@arcane.ws',
+            'reply_to' => 'noreply@maxliving.com',
+            'email_subject' => 'Update for MaxLiving Location: '.$locationAfterUpdate->name,
+            'form_name' => 'Update for MaxLiving Location',
+            'content' => $content
+        );
+        $contact->apiSave($email);
+
+        dd($contact);
 
         if ($location === 1) {
             return $args;
