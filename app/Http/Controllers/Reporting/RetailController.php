@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Reporting;
 
-use App\Helpers\ShopifyHelper;
+use App\Helpers\{ShopifyHelper, CognitoHelper};
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
@@ -12,25 +12,21 @@ class RetailController extends Controller
     {
         try {
             $shopify = new ShopifyHelper();
+            $cognito = new CognitoHelper();
 
             $dateObject = $this->getDateObject($request);
             $startDate = $dateObject->startDate;
             $endDate = $dateObject->endDate;
             $orders = $shopify->getAllOrders($startDate, $endDate, request()->input('status'));
 
-            return $orders->filter(function ($order) {
-                foreach($order->line_items as $line_item) {
-                    $match = preg_match(
-                        "/(^|.+(\/\s))((Client|Wholesaler|VIP|Admin|Event).+)($|(\s\/).+)/i",
-                        $line_item->name
-                    );
+            $affiliateEmails = collect($cognito->listUsers())
+                ->pluck('email')
+                ->unique()
+                ->toArray();
 
-                    if($match) {
-                        return false;
-                    }
-                }
-                return true;
-            })->values();
+            return $orders
+                ->whereNotIn('email', $affiliateEmails)
+                ->values();
         }
         catch (\Exception $e) {
             return response()->json($e->getMessage(), 500);
