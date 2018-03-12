@@ -111,7 +111,6 @@ class ProductController extends Controller
         $audienceTypesForProduct = collect($product->options)
             ->where('name', 'Audience')
             ->pluck('values')
-            ->unique()
             ->first();
 
         return collect($audienceTypesForProduct)
