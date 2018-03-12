@@ -84,17 +84,26 @@ Route::post('/contact', 'TransactionalEmailController@save');
 
 // Reporting
 Route::group(['prefix' => 'reporting'], function() {
+    // All Sales
     Route::get('/sales', 'Reporting\SalesController@sales');
 
+    // Retail Sales
     Route::group(['prefix' => 'retail'], function() {
-        Route::get('/sales', 'Reporting\RetailController@sales');
+        Route::group(['prefix' => 'customer'], function() {
+            Route::get('/sales', 'Reporting\RetailController@customerSales');
+        });
+        Route::group(['prefix' => 'pos'], function() {
+            Route::get('/sales', 'Reporting\RetailController@posSales');
+        });
     });
 
+    // Affiliate Sales
     Route::group(['prefix' => 'affiliate'], function() {
         Route::get('/sales', 'Reporting\AffiliateController@sales');
         Route::get('/{id}/sales', 'Reporting\AffiliateController@salesById');
     });
 
+    // Wholesale Sales
     Route::group(['prefix' => 'wholesale'], function() {
         Route::get('/sales', 'Reporting\WholesaleController@sales');
         Route::get('{id}/sales', 'Reporting\WholesaleController@salesById');
