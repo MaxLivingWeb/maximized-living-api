@@ -234,4 +234,64 @@ class TransactionalEmailController extends Controller
 
         return (array) $formattedArray;
     }
+
+    /**
+     * @param $locationBeforeUpdate
+     * @param $locationBeforeUpdateAddress
+     * @param $locationAfterUpdate
+     * @param $addresses
+     */
+    public function LocationEmail($locationBeforeUpdate,$locationBeforeUpdateAddress,$location,$addresses,$type) {
+
+        $emailTitle = 'MaxLiving Location created: '.$location->name;
+        $formName = 'MaxLiving Location Location Created';
+        $contentHeader = '<br><h3><a href="'.$location->vanity_website_url.'" target="_blank">'.$location->name.'</a> has been created!</h3>';
+        if ($type==='update') {
+            $emailTitle = 'Update for MaxLiving Location: '.$location->name;
+            $formName = 'Update for MaxLiving Location';
+            $contentHeader = '<br><h3><a href="'.$location->vanity_website_url.'" target="_blank">'.$location->name.'</a> has been updated!</h3>';
+        }
+
+        $content = $contentHeader;
+        $content .= 'Location Name: '.$location->name;
+        $content .= '<br>Telephone Number: '.$location->telephone;
+        $content .= '<br>Telephone Ext: '.$location->telephone_ext;
+        $content .= '<br>Fax Number: '.$location->fax;
+        $content .= '<br>Email: '.$location->email;
+        $content .= '<br>Website: '.$location->vanity_website_url;
+        $content .= '<br>Address 1: '.$addresses[0]['address_1'];
+        $content .= '<br>Address 2: '.$addresses[0]['address_2'];
+        $content .= '<br>City: '.$addresses[0]['city'];
+        $content .= '<br>Region: '.$addresses[0]['region'];
+        $content .= '<br>Postal Code: '.$addresses[0]['zip_postal_code'];
+        $content .= '<br>Country: '.$addresses[0]['country'];
+        if ($type==='update') {
+            //Before Location Update information
+            $content .= '<br><br><h4>Previous information:</h4>';
+            $content .= 'Location Name: '.$locationBeforeUpdate->name;
+            $content .= '<br>Telephone Number: '.$locationBeforeUpdate->telephone;
+            $content .= '<br>Telephone Ext: '.$locationBeforeUpdate->telephone_ext;
+            $content .= '<br>Fax Number: '.$locationBeforeUpdate->fax;
+            $content .= '<br>Email: '.$locationBeforeUpdate->email;
+            $content .= '<br>Website: '.$locationBeforeUpdate->vanity_website_url;
+            $content .= '<br>Address 1: '.$locationBeforeUpdateAddress['address_1'];
+            $content .= '<br>Address 2: '.$locationBeforeUpdateAddress['address_2'];
+            $content .= '<br>City: '.$locationBeforeUpdateAddress['city'];
+            $content .= '<br>Region: '.$locationBeforeUpdateAddress['region'];
+            $content .= '<br>Postal Code: '.$locationBeforeUpdateAddress['zip_postal_code'];
+            $content .= '<br>Country: '.$locationBeforeUpdateAddress['country'];
+        }
+
+        $email = array(
+            'to_email' => env('ARCANE_NOTIFICATION_EMAIL'),
+            'reply_to' => 'noreply@maxliving.com',
+            'email_subject' => $emailTitle,
+            'form_name' => $formName,
+            'content' => $content
+        );
+        $contact = new TransactionalEmailController();
+        $contact->apiSave($email);
+
+        return;
+    }
 }

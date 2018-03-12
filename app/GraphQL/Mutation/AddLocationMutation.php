@@ -7,6 +7,7 @@ use Folklore\GraphQL\Support\Mutation;
 use App\Location;
 use App\GraphQL\Type\LocationType;
 use App\Address;
+use App\Http\Controllers\TransactionalEmailController;
 
 class AddLocationMutation extends Mutation
 {
@@ -59,6 +60,8 @@ class AddLocationMutation extends Mutation
         }
 
         //Email on location creation
+        $sendEmail= new TransactionalEmailController();
+        $sendEmail->LocationEmail(null,null,$location,$addresses,'add');
 
         return $location;
     }
