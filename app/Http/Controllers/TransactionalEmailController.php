@@ -289,8 +289,8 @@ class TransactionalEmailController extends Controller
             'form_name' => $formName,
             'content' => $content
         );
-        $contact = new TransactionalEmailController();
-        $contact->apiSave($email);
+
+        $this->apiSave($email);
 
         return;
     }
