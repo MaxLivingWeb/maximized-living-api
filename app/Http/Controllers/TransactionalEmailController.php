@@ -70,7 +70,7 @@ class TransactionalEmailController extends Controller
 //        $this->emailRecordID = $this->saveTransactionalEmail($formattedData);
 
         // Send to Arcane Leads API
-        $arcaneLeadsStatus = $this->leadsAPISubmission($formattedData);
+//        $arcaneLeadsStatus = $this->leadsAPISubmission($formattedData);
 
         // Save Arcane Leads API Status
 //        $this->updateTransactionalEmails(['leads_api_submission_status' => $arcaneLeadsStatus]);
@@ -289,8 +289,8 @@ class TransactionalEmailController extends Controller
             'form_name' => $formName,
             'content' => $content
         );
-        $contact = new TransactionalEmailController();
-        $contact->apiSave($email);
+
+        $this->apiSave($email);
 
         return;
     }
