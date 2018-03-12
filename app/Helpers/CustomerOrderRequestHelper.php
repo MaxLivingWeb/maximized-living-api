@@ -2,8 +2,7 @@
 
 namespace App\Helpers;
 
-use App\Helpers\DateRequestHelper;
-use App\Helpers\ShopifyHelper;
+use App\Helpers\{DateRequestHelper, ShopifyHelper};
 use Illuminate\Http\Request;
 
 class CustomerOrderRequestHelper

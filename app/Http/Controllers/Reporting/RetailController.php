@@ -2,8 +2,7 @@
 
 namespace App\Http\Controllers\Reporting;
 
-use App\Helpers\CognitoHelper;
-use App\Helpers\CustomerOrderRequestHelper;
+use App\Helpers\{CognitoHelper, CustomerOrderRequestHelper};
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
@@ -30,8 +29,9 @@ class RetailController extends Controller
                 ->filter(function($order){
                     return $order->source_name !== 'pos';
                 })
-                ->each(function($order){
+                ->transform(function($order){
                     $order->email = strtolower($order->email);
+                    return $order;
                 })
                 ->whereNotIn('email', $affiliateEmails)
                 ->values()
