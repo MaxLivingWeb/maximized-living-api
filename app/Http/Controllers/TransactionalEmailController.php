@@ -252,74 +252,19 @@ class TransactionalEmailController extends Controller
             $contentHeader = '<br><h3><a href="'.$location->vanity_website_url.'" target="_blank">'.$location->name.'</a> has been updated!</h3>';
         }
 
-
-        //Defaults
-        $boldName='';
-        $boldPhone='';
-        $boldPhoneExt='';
-        $boldFax='';
-        $boldEmail='';
-        $boldWebsite='';
-        $boldAddress1='';
-        $boldAddress2='';
-        $boldCity='';
-        $boldRegion='';
-        $boldPostal='';
-        $boldCountry='';
-
-        //Styling for changed items
-        if ($type==='update') {
-            $changeStyle = 'style="font-weight: bold;background-color:yellow;"';
-            if ($location->name !== $locationBeforeUpdate->name) {
-                $boldName = $changeStyle;
-            }
-            if ($location->telephone !== $locationBeforeUpdate->telephone) {
-                $boldPhone = $changeStyle;
-            }
-            if ($location->telephone_ext !== $locationBeforeUpdate->telephone_ext) {
-                $boldPhoneExt = $changeStyle;
-            }
-            if ($location->fax !== $locationBeforeUpdate->fax) {
-                $boldFax = $changeStyle;
-            }
-            if ($location->email !== $locationBeforeUpdate->email) {
-                $boldEmail = $changeStyle;
-            }
-            if ($location->vanity_website_url !== $locationBeforeUpdate->vanity_website_url) {
-                $boldWebsite = $changeStyle;
-            }
-            if ($addresses[0]['address_1'] !== $locationBeforeUpdateAddress['address_1']) {
-                $boldAddress1 = $changeStyle;
-            }
-            if ($addresses[0]['address_2'] !== $locationBeforeUpdateAddress['address_2']) {
-                $boldAddress2 = $changeStyle;
-            }
-            if ($addresses[0]['city'] !== $locationBeforeUpdateAddress['city']) {
-                $boldCity = $changeStyle;
-            }
-            if ($addresses[0]['region'] !== $locationBeforeUpdateAddress['region']) {
-                $boldRegion = $changeStyle;
-            }
-            if ($addresses[0]['zip_postal_code'] !== $locationBeforeUpdateAddress['zip_postal_code']) {
-                $boldPostal = $changeStyle;
-            }
-            if ($addresses[0]['country'] !== $locationBeforeUpdateAddress['country']) {
-                $boldCountry = $changeStyle;
-            }
-        }
         $content = $contentHeader;
-        $content .= '<span '.$boldName.'>Location Name:</span> '.$location->name;
-        $content .= '<br><span '.$boldPhone.'>Telephone Number:</span> '.$location->telephone;
-        $content .= '<br><span '.$boldPhoneExt.'>Telephone Ext:</span> '.$location->telephone_ext;
-        $content .= '<br><span '.$boldFax.'>Fax Number:</span> '.$location->fax;
-        $content .= '<br><span '.$boldEmail.'>Email:</span> '.$location->email;
-        $content .= '<br><span '.$boldWebsite.'>Website:</span> '.$location->vanity_website_url;
-        $content .= '<br><span '.$boldAddress1.'>Address 1:</span> '.$addresses[0]['address_1'];
-        $content .= '<br><span '.$boldAddress2.'>Address 2:</span> '.$addresses[0]['address_2'];
-        $content .= '<br><span '.$boldCity.'>City:</span> '.$addresses[0]['city'];
-        $content .= '<br><span '.$boldRegion.'>Region:</span> '.$addresses[0]['region'];
-        $content .= '<br><span '.$boldPostal.'>Postal Code:</span> '.$addresses[0]['zip_postal_code'];
-        $content .= '<br><span '.$boldCountry.'>Country:</span> '.$addresses[0]['country'];
+        $content .= '<span '.$this->compareLocationChange($location->name,$locationBeforeUpdate->name,$type).'>Location Name:</span> '.$location->name;
+        $content .= '<br><span '.$this->compareLocationChange($location->telephone,$locationBeforeUpdate->telephone,$type).'>Telephone Number:</span> '.$location->telephone;
+        $content .= '<br><span '.$this->compareLocationChange($location->telephone_ext,$locationBeforeUpdate->telephone_ext,$type).'>Telephone Ext:</span> '.$location->telephone_ext;
+        $content .= '<br><span '.$this->compareLocationChange($location->fax,$locationBeforeUpdate->fax,$type).'>Fax Number:</span> '.$location->fax;
+        $content .= '<br><span '.$this->compareLocationChange($location->email,$locationBeforeUpdate->email,$type).'>Email:</span> '.$location->email;
+        $content .= '<br><span '.$this->compareLocationChange($location->vanity_website_url,$locationBeforeUpdate->vanity_website_url,$type).'>Website:</span> '.$location->vanity_website_url;
+        $content .= '<br><span '.$this->compareLocationChange($addresses[0]['address_1'],$locationBeforeUpdateAddress['address_1'],$type).'>Address 1:</span> '.$addresses[0]['address_1'];
+        $content .= '<br><span '.$this->compareLocationChange($addresses[0]['address_2'],$locationBeforeUpdateAddress['address_2'],$type).'>Address 2:</span> '.$addresses[0]['address_2'];
+        $content .= '<br><span '.$this->compareLocationChange($addresses[0]['city'],$locationBeforeUpdateAddress['city'],$type).'>City:</span> '.$addresses[0]['city'];
+        $content .= '<br><span '.$this->compareLocationChange($addresses[0]['region'],$locationBeforeUpdateAddress['region'],$type).'>Region:</span> '.$addresses[0]['region'];
+        $content .= '<br><span '.$this->compareLocationChange($addresses[0]['zip_postal_code'],$locationBeforeUpdateAddress['zip_postal_code'],$type).'>Postal Code:</span> '.$addresses[0]['zip_postal_code'];
+        $content .= '<br><span '.$this->compareLocationChange($addresses[0]['country'],$locationBeforeUpdateAddress['country'],$type).'>Country:</span> '.$addresses[0]['country'];
         if ($type==='update') {
             //Before Location Update information
             $content .= '<br><br><h4>Previous information:</h4>';
@@ -348,5 +293,15 @@ class TransactionalEmailController extends Controller
         $this->apiSave($email);
 
         return;
+    }
+
+    private function compareLocationChange($before,$after,$type) {
+        if ($type === 'add') {
+            return '';
+        }
+        $changeStyle = 'style="font-weight: bold;background-color:yellow;"';
+        if ($before !== $after) {
+            return $changeStyle;
+        }
     }
 }
