@@ -27,6 +27,7 @@ class ProductController extends Controller
     /**
      * Get ALL unique Audience Types that are applied on products from Shopify settings
      * @param Request $request
+     * @return array
      */
     public function getAllProductsAudienceTypes(Request $request)
     {
@@ -52,12 +53,13 @@ class ProductController extends Controller
     /**
      * Get Shopify Products that have these Audience Type values
      * @param string $audienceTypes
+     * @return array
      */
-    private function getProductsFromAudienceTypes(string $audienceTypes = '')
+    private function getProductsFromAudienceTypes(string $audienceTypes)
     {
         $shopify = new ShopifyHelper();
 
-        if ($audienceTypes === '') {
+        if (empty($audienceTypes)) {
             return;
         }
 
@@ -86,7 +88,7 @@ class ProductController extends Controller
     /**
      * Get all audience types as a flat array that are all unique
      * @param $audienceTypeCombinations
-     * @return mixed
+     * @return array
      */
     private function getUniqueAudienceTypesFromAllCombinations($audienceTypeCombinations)
     {
