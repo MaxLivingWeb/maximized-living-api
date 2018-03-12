@@ -87,7 +87,7 @@ class ProductController extends Controller
 
     /**
      * Get all audience types as a flat array that are all unique
-     * @param $audienceTypeCombinations
+     * @param array $audienceTypeCombinations
      * @return array
      */
     private function getUniqueAudienceTypesFromAllCombinations($audienceTypeCombinations)
@@ -103,7 +103,7 @@ class ProductController extends Controller
 
     /**
      * Get all audience type combinations for this product
-     * @param $product
+     * @param stdClass $product
      * @return array
      */
     private function getAudienceTypeCombinationsForProduct($product)
