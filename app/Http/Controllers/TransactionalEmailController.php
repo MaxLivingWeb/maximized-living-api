@@ -296,7 +296,7 @@ class TransactionalEmailController extends Controller
     }
 
     private function compareLocationChange($before,$after,$type) {
-        if ($type === 'add') {
+        if ($type !== 'update') {
             return '';
         }
         $changeStyle = 'style="font-weight: bold;background-color:yellow;"';
