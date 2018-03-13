@@ -110,16 +110,24 @@ Route::group(['prefix' => 'reporting'], function() {
     });
 });
 
-// Update ML Store Products
-Route::get('/store/update-products', function () {
-    $products = (new ShopifyHelper())
-        ->getProducts([], FALSE);
-    
-    (new ProductHelper())
-        ->importProducts($products);
-});
+// Store
+Route::group(['prefix' => 'store'], function() {
+    // Update ML Store Products
+    Route::get('/update-products', function () {
+        $products = (new ShopifyHelper())
+            ->getProducts([], FALSE);
 
-Route::get('/store/search', 'SearchController@index');
+        (new ProductHelper())
+            ->importProducts($products);
+    });
+
+    // Search for Products
+    Route::get('/search', 'SearchController@index');
+
+    // Get ALL Product Audience Types
+    Route::get('/products', 'Shopify\ProductController@getProducts');
+    Route::get('/products/audience_types', 'Shopify\ProductController@getAllProductsAudienceTypes');
+});
 
 //Google My Business
 Route::group(['prefix' => 'gmb'], function() {
