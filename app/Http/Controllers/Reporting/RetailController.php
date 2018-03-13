@@ -2,30 +2,53 @@
 
 namespace App\Http\Controllers\Reporting;
 
-use App\Helpers\{ShopifyHelper, CognitoHelper};
+use App\Helpers\{CognitoHelper, CustomerOrderRequestHelper};
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 class RetailController extends Controller
 {
-    public function sales(Request $request)
+    /**
+     * Get all Sales for Retail Customers
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function customerSales(Request $request)
     {
         try {
-            $shopify = new ShopifyHelper();
             $cognito = new CognitoHelper();
 
-            $dateObject = $this->getDateObject($request);
-            $startDate = $dateObject->startDate;
-            $endDate = $dateObject->endDate;
-            $orders = $shopify->getAllOrders($startDate, $endDate, request()->input('status'));
+            $orders = CustomerOrderRequestHelper::getAllOrders($request);
 
             $affiliateEmails = collect($cognito->listUsers())
                 ->pluck('email')
                 ->unique()
                 ->toArray();
 
-            return $orders
+            return collect($orders)
+                ->filter(function($order){
+                    return $order->source_name !== 'pos';
+                })
+                ->transform(function($order){
+                    $order->email = strtolower($order->email);
+                    return $order;
+                })
                 ->whereNotIn('email', $affiliateEmails)
+                ->values()
+                ->all();
+        }
+        catch (\Exception $e) {
+            return response()->json($e->getMessage(), 500);
+        }
+    }
+
+    public function posSales(Request $request)
+    {
+        try {
+            $orders = CustomerOrderRequestHelper::getAllOrders($request);
+
+            return collect($orders)
+                ->where('source_name', 'pos')
                 ->values();
         }
         catch (\Exception $e) {
@@ -33,26 +56,4 @@ class RetailController extends Controller
         }
     }
 
-    /**
-     * Get Start and End date from the current Request
-     */
-    private function getDateObject(Request $request)
-    {
-        $startDate = null;
-        $endDate = null;
-        if(request()->has('startDate') || request()->has('endDate')) {
-            $request->validate([
-                'startDate' => 'required|date',
-                'endDate'   => 'required|date'
-            ]);
-
-            $startDate = new \DateTime(request()->input('startDate'));
-            $endDate = new \DateTime(request()->input('endDate'));
-        }
-
-        return (Object)[
-            'startDate' => $startDate,
-            'endDate' => $endDate
-        ];
-    }
 }

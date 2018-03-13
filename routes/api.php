@@ -84,33 +84,50 @@ Route::post('/contact', 'TransactionalEmailController@save');
 
 // Reporting
 Route::group(['prefix' => 'reporting'], function() {
+    // All Sales
     Route::get('/sales', 'Reporting\SalesController@sales');
 
+    // Retail Sales
     Route::group(['prefix' => 'retail'], function() {
-        Route::get('/sales', 'Reporting\RetailController@sales');
+        Route::group(['prefix' => 'customer'], function() {
+            Route::get('/sales', 'Reporting\RetailController@customerSales');
+        });
+        Route::group(['prefix' => 'pos'], function() {
+            Route::get('/sales', 'Reporting\RetailController@posSales');
+        });
     });
 
+    // Affiliate Sales
     Route::group(['prefix' => 'affiliate'], function() {
         Route::get('/sales', 'Reporting\AffiliateController@sales');
         Route::get('/{id}/sales', 'Reporting\AffiliateController@salesById');
     });
 
+    // Wholesale Sales
     Route::group(['prefix' => 'wholesale'], function() {
         Route::get('/sales', 'Reporting\WholesaleController@sales');
         Route::get('{id}/sales', 'Reporting\WholesaleController@salesById');
     });
 });
 
-// Update ML Store Products
-Route::get('/store/update-products', function () {
-    $products = (new ShopifyHelper())
-        ->getProducts([], FALSE);
-    
-    (new ProductHelper())
-        ->importProducts($products);
-});
+// Store
+Route::group(['prefix' => 'store'], function() {
+    // Update ML Store Products
+    Route::get('/update-products', function () {
+        $products = (new ShopifyHelper())
+            ->getProducts([], FALSE);
 
-Route::get('/store/search', 'SearchController@index');
+        (new ProductHelper())
+            ->importProducts($products);
+    });
+
+    // Search for Products
+    Route::get('/search', 'SearchController@index');
+
+    // Get ALL Product Audience Types
+    Route::get('/products', 'Shopify\ProductController@getProducts');
+    Route::get('/products/audience_types', 'Shopify\ProductController@getAllProductsAudienceTypes');
+});
 
 //Google My Business
 Route::group(['prefix' => 'gmb'], function() {
