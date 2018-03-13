@@ -254,11 +254,6 @@ class TransactionalEmailController extends Controller
 
         $content = $contentHeader;
         $content .= '<span '.$this->compareLocationChange($location->name,$locationBeforeUpdate->name,$type).'>Location Name:</span> '.$location->name;
-        $content .= '<br><span '.$this->compareLocationChange($location->telephone,$locationBeforeUpdate->telephone,$type).'>Telephone Number:</span> '.$location->telephone;
-        $content .= '<br><span '.$this->compareLocationChange($location->telephone_ext,$locationBeforeUpdate->telephone_ext,$type).'>Telephone Ext:</span> '.$location->telephone_ext;
-        $content .= '<br><span '.$this->compareLocationChange($location->fax,$locationBeforeUpdate->fax,$type).'>Fax Number:</span> '.$location->fax;
-        $content .= '<br><span '.$this->compareLocationChange($location->email,$locationBeforeUpdate->email,$type).'>Email:</span> '.$location->email;
-        $content .= '<br><span '.$this->compareLocationChange($location->vanity_website_url,$locationBeforeUpdate->vanity_website_url,$type).'>Website:</span> '.$location->vanity_website_url;
         $content .= '<br><span '.$this->compareLocationChange($addresses[0]['address_1'],$locationBeforeUpdateAddress['address_1'],$type).'>Address 1:</span> '.$addresses[0]['address_1'];
         $content .= '<br><span '.$this->compareLocationChange($addresses[0]['address_2'],$locationBeforeUpdateAddress['address_2'],$type).'>Address 2:</span> '.$addresses[0]['address_2'];
         $content .= '<br><span '.$this->compareLocationChange($addresses[0]['city'],$locationBeforeUpdateAddress['city'],$type).'>City:</span> '.$addresses[0]['city'];
@@ -269,11 +264,6 @@ class TransactionalEmailController extends Controller
             //Before Location Update information
             $content .= '<br><br><h4>Previous information:</h4>';
             $content .= 'Location Name: '.$locationBeforeUpdate->name;
-            $content .= '<br>Telephone Number: '.$locationBeforeUpdate->telephone;
-            $content .= '<br>Telephone Ext: '.$locationBeforeUpdate->telephone_ext;
-            $content .= '<br>Fax Number: '.$locationBeforeUpdate->fax;
-            $content .= '<br>Email: '.$locationBeforeUpdate->email;
-            $content .= '<br>Website: '.$locationBeforeUpdate->vanity_website_url;
             $content .= '<br>Address 1: '.$locationBeforeUpdateAddress['address_1'];
             $content .= '<br>Address 2: '.$locationBeforeUpdateAddress['address_2'];
             $content .= '<br>City: '.$locationBeforeUpdateAddress['city'];
