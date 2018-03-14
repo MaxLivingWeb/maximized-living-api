@@ -60,6 +60,7 @@ Route::get('/city/{id}', 'CityController@getById');
 // Regions
 Route::get('/regions', 'RegionController@all');
 Route::get('/region/{id}', 'RegionController@getById');
+Route::get('/region/{id}/subscriptions/counts', 'RegionController@getSubscriptionCount');
 
 // Countries
 Route::get('/countries', 'CountryController@all');

@@ -7,11 +7,15 @@ use App\AddressType;
 use App\UserGroup;
 use App\Helpers\CognitoHelper;
 use App\Helpers\TextHelper;
+use App\Location;
+use App\RegionalSubscriptionCount;
 use Aws\Exception\AwsException;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use App\Helpers\ShopifyHelper;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Exception;
 
 class GroupController extends Controller
 {
@@ -93,6 +97,28 @@ class GroupController extends Controller
     {
         $name = TextHelper::fixEscapeForSpecialCharacters($request->input('name'));
         return UserGroup::with(['commission', 'location'])->where('group_name', $name)->firstOrFail();
+    }
+
+    private function updateRegionalCount($regionId) {
+        $countQuery = 'select count(ug.id) as count from user_groups ug
+            inner join locations l
+                on l.id = ug.location_id
+            inner join locations_addresses la
+                on la.location_id = l.id
+            inner join addresses a
+                on a.id = la.address_id
+            inner join cities c
+                on c.id = a.city_id
+            inner join regions r
+                on r.id = c.region_id
+            where r.id = ' . $regionId .
+            ' and (ug.premium = true or ug.event_promoter = true);';
+        $count = DB::select($countQuery)[0]->count;
+
+        $regionalSubscriptionCount = new RegionalSubscriptionCount();
+        $regionalSubscriptionCount->region_id = $regionId;
+        $regionalSubscriptionCount->count = $count;
+        $regionalSubscriptionCount->save();
     }
 
     public function add(Request $request)
@@ -204,22 +230,40 @@ class GroupController extends Controller
                 );
             }
 
+
             $cognito = new CognitoHelper();
             $cognito->createGroup(
                 $request->input('group_name'),
                 $request->input('group_name_display')
             );
 
-            return UserGroup::create([
-                'group_name'         => $request->input('group_name'),
-                'group_name_display' => $request->input('group_name_display'),
-                'wholesaler'         => $wholesaler,
-                'commission_id'      => $commission_id,
-                'location_id'        => $location_id,
-                'premium'            => $premium,
-                'event_promoter'     => $event_promoter,
-                'maxtv_token'        => bin2hex(random_bytes(32))
-            ]);
+            try {
+                DB::beginTransaction();
+
+                $userGroup = UserGroup::create([
+                    'group_name'         => $request->input('group_name'),
+                    'group_name_display' => $request->input('group_name_display'),
+                    'wholesaler'         => $wholesaler,
+                    'commission_id'      => $commission_id,
+                    'location_id'        => $location_id,
+                    'premium'            => $premium,
+                    'event_promoter'     => $event_promoter,
+                    'maxtv_token'        => bin2hex(random_bytes(32))
+                ]);
+
+                // Update regional count
+                $location = Location::with('addresses.city.region')
+                    ->where('id', $location_id)
+                    ->firstOrFail();
+                $this->updateRegionalCount($location->addresses[0]->city->region->id);
+
+                DB::commit();
+
+                return $userGroup;
+            } catch (Exception $e) {
+                DB::rollback();
+                throw $e;
+            }
         }
         catch (ValidationException $e) {
             return response()->json($e->errors(), 400);
@@ -231,34 +275,49 @@ class GroupController extends Controller
 
     public function update($id, Request $request)
     {
-        $group = UserGroup::findOrFail($id);
+        try {
+            DB::beginTransaction();
 
-        $wholesaler = false;
-        if (!is_null($request->input('wholesaler'))) {
-            $wholesaler = (bool)$request->input('wholesaler');
+            $group = UserGroup::findOrFail($id);
+
+            $wholesaler = false;
+            if (!is_null($request->input('wholesaler'))) {
+                $wholesaler = (bool)$request->input('wholesaler');
+            }
+
+            $premium = false;
+            if (!is_null($request->input('premium'))) {
+                $premium = (bool)$request->input('premium');
+            }
+
+            $event_promoter = false;
+            if (!is_null($request->input('event_promoter'))) {
+                $event_promoter = (bool)$request->input('event_promoter');
+            }
+
+            $commission_id = null;
+            if (!is_null($request->input('commission.id'))) {
+                $commission_id = (int)$request->input('commission.id');
+            }
+
+            $group->wholesaler = $wholesaler;
+            $group->premium = $premium;
+            $group->event_promoter = $event_promoter;
+            $group->commission_id = $commission_id;
+
+            $group->save();
+
+            // Update regional count
+            $location = Location::with('addresses.city.region')
+                ->where('id', $group->location_id)
+                ->firstOrFail();
+            $this->updateRegionalCount($location->addresses[0]->city->region->id);
+
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollback();
+            throw $e;
         }
-
-        $premium = false;
-        if (!is_null($request->input('premium'))) {
-            $premium = (bool)$request->input('premium');
-        }
-
-        $event_promoter = false;
-        if (!is_null($request->input('event_promoter'))) {
-            $event_promoter = (bool)$request->input('event_promoter');
-        }
-
-        $commission_id = null;
-        if (!is_null($request->input('commission.id'))) {
-            $commission_id = (int)$request->input('commission.id');
-        }
-
-        $group->wholesaler = $wholesaler;
-        $group->premium = $premium;
-        $group->event_promoter = $event_promoter;
-        $group->commission_id = $commission_id;
-
-        $group->save();
     }
 
     public function delete($id)
