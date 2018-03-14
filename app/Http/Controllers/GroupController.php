@@ -230,7 +230,6 @@ class GroupController extends Controller
                 );
             }
 
-
             $cognito = new CognitoHelper();
             $cognito->createGroup(
                 $request->input('group_name'),
