@@ -39,7 +39,7 @@ class RegionController extends Controller
     {
         $query = RegionalSubscriptionCount::where('region_id', $id);
         if ($request->query('start_date') && $request->query('end_date')) {
-            $format = 'd-m-Y';
+            $format = 'Y-m-d';
             $startDate = Carbon::createFromFormat($format, $request->query('start_date'))
                 ->hour(0)
                 ->minute(0)
