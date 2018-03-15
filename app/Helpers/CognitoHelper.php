@@ -194,22 +194,6 @@ class CognitoHelper
         ]);
     }
 
-    /**
-     * Get Cognito User Attribute by passing the Attribute keyname and array of attributes
-     * @param $key
-     * @param $attributes
-     */
-    public function getUserAttributeValue($key, $attributes)
-    {
-        if (empty($key) || empty($attributes)) {
-            return;
-        }
-
-        return collect($attributes)
-            ->where('Name', $key)
-            ->first()['Value'];
-    }
-
     public function getGroup($groupName)
     {
         return $this->client->getGroup([
@@ -353,6 +337,14 @@ class CognitoHelper
             ->where('Name', env('COGNITO_SHOPIFY_CUSTOM_ATTRIBUTE'))
             ->first()['Value'];
 
+        $permissions = $attributes
+            ->where('Name', 'custom:permissions')
+            ->first()['Value'];
+
+        $customAttributes = $attributes
+            ->where('Name', 'custom:attributes')
+            ->first()['Value'];
+
         if ($condensed === FALSE) {
             $user = new CognitoUser($cognitoUser['Username']);
             $userGroup = $user->group();
@@ -363,11 +355,13 @@ class CognitoHelper
         }
 
         $userData = [
-            'id'           => $cognitoUser['Username'],
-            'user_status'  => $cognitoUser['UserStatus'],
-            'email'        => $attributes->where('Name', 'email')->first()['Value'],
-            'created'      => $cognitoUser['UserCreateDate'],
-            'shopify_id'   => $shopifyId
+            'id'                => $cognitoUser['Username'],
+            'user_status'       => $cognitoUser['UserStatus'],
+            'email'             => $attributes->where('Name', 'email')->first()['Value'],
+            'created'           => $cognitoUser['UserCreateDate'],
+            'shopify_id'        => $shopifyId,
+            'permissions'       => $permissions,
+            'custom_attributes' => $customAttributes
         ];
 
         if ($condensed === FALSE && isset($affiliate)) {
