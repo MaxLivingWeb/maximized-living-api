@@ -2,7 +2,7 @@
 
 use Illuminate\Http\Request;
 use App\Helpers\ShopifyHelper;
-use App\Helpers\ProductHelper;
+use App\Helpers\ProductImportHelper;
 
 /*
 |--------------------------------------------------------------------------
@@ -60,6 +60,7 @@ Route::get('/city/{id}', 'CityController@getById');
 // Regions
 Route::get('/regions', 'RegionController@all');
 Route::get('/region/{id}', 'RegionController@getById');
+Route::get('/region/{id}/subscriptions/counts', 'RegionController@getSubscriptionCount');
 
 // Countries
 Route::get('/countries', 'CountryController@all');
@@ -113,13 +114,7 @@ Route::group(['prefix' => 'reporting'], function() {
 // Store
 Route::group(['prefix' => 'store'], function() {
     // Update ML Store Products
-    Route::get('/update-products', function () {
-        $products = (new ShopifyHelper())
-            ->getProducts([], FALSE);
-
-        (new ProductHelper())
-            ->importProducts($products);
-    });
+    Route::get('/update-products', 'Shopify\ProductController@importProductsToDatabase');
 
     // Search for Products
     Route::get('/search', 'SearchController@index');

@@ -343,7 +343,11 @@ class ShopifyHelper extends CacheableApi
         $result = $this->get('products/count.json', TRUE);
         return json_decode($result)->count;
     }
-    
+
+    /**
+     * Get All Shopify Products, by paginating through complete total
+     * @return array
+     */
     public function getProducts()
     {
         try
