@@ -9,7 +9,6 @@ class ProductAudienceTypeHelper
 
     /**
      * Get ALL unique Audience Types that are applied on products from Shopify settings
-     * @param Request $request
      * @return array
      */
     public static function getAllProductsAudienceTypes()
@@ -86,7 +85,7 @@ class ProductAudienceTypeHelper
 
     /**
      * Get all audience type combinations for this product
-     * @param stdClass $product
+     * @param \stdClass $product
      * @return array
      */
     private static function getAudienceTypeCombinationsForProduct($product)
