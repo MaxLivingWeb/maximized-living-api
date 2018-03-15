@@ -19,6 +19,7 @@ class ProductImportHelper
      * Imports products from Shopify
      *
      * @param array $products
+     * @return void
      */
     public function importProducts(array $products = [])
     {
@@ -77,8 +78,7 @@ class ProductImportHelper
     }
     
     /**
-     * Determines if a product exists and therefore should be
-     * updated or if it needs to be created.
+     * Determines if a product exists and therefore should be updated or if it needs to be created.
      *
      * @param array $product
      * @return int
@@ -102,6 +102,7 @@ class ProductImportHelper
      *
      * @param array $product
      * @param int   $row
+     * @return void
      */
     private static function updateProduct(array $product, int $row): void
     {
@@ -124,8 +125,7 @@ class ProductImportHelper
     }
     
     /**
-     * Saves products to the database and returns their
-     * id. Returns -1 if the product doesn't save.
+     * Saves products to the database and returns their id. Returns -1 if the product doesn't save.
      *
      * @param array $product
      * @return int
@@ -157,13 +157,13 @@ class ProductImportHelper
     }
     
     /**
-     * Saves all product variants but deletes them first. This prevents
-     * any duplicates from occurring.
+     * Saves all product variants but deletes them first. This prevents any duplicates from occurring.
      *
      * @param int   $productTableID
      * @param array $variants
      * @param int   $userTypePosition
      * @param int   $variantNamePosition
+     * @return void
      */
     private static function saveVariants(
         int $productTableID,
@@ -204,15 +204,13 @@ class ProductImportHelper
     }
     
     /**
-     * Deletes any products that were in the database but no longer
-     * exist in the Shopify system.
+     * Deletes any products that were in the database but no longer exist in the Shopify system.
+     * @return void
      */
     private function deleteOldProducts(): void
     {
-        foreach ($this->databaseProducts as $key => $product) {
-            DB::table('products')
-                ->where('id', $key)
-                ->delete();
-        }
+        DB::table('products')
+            ->whereIn('id', array_keys($this->databaseProducts))
+            ->delete();
     }
 }
