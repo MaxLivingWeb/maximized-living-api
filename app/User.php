@@ -78,6 +78,11 @@ class User extends Authenticatable
             $res->permissions = explode(',', $permissions['Value']);
         }
 
+        $customAttributes = collect($attributes)->where('Name', 'custom:attributes')->first();
+        if(!is_null($customAttributes)) {
+            $res->custom_attributes = explode(',', $customAttributes['Value']);
+        }
+
         $res->addresses = $userGroup->location->addresses
             ?? $userGroup->addresses
             ?? [];
