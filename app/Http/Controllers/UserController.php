@@ -72,7 +72,8 @@ class UserController extends Controller
                 'selectedLocation.id' => 'nullable',
                 'permissions'         => 'nullable|array|min:1',
                 'permissions.*'       => 'nullable|string|distinct|exists:user_permissions,key',
-                'business.name'       => 'required'
+                'business.name'       => 'required',
+                'custom_attributes'   => 'nullable|array|min:1'
             ];
 
             // user is not associated to a location, and they entered a default address...
@@ -301,11 +302,22 @@ class UserController extends Controller
                 $validatedData['email']
             );
 
+            // User Permissions - Update in Cognito
             if (isset($validatedData['permissions'])) {
                 //attach permissions to user
                 $cognito->updateUserAttribute(
                     'custom:permissions',
                     implode(',', $validatedData['permissions']),
+                    $validatedData['email']
+                );
+            }
+
+            // User Attributes - Update in Cognito
+            if (isset($validatedData['custom_attributes'])) {
+                //attach attributes to user
+                $cognito->updateUserAttribute(
+                    'custom:attributes',
+                    implode(',', $validatedData['custom_attributes']),
                     $validatedData['email']
                 );
             }
@@ -400,7 +412,8 @@ class UserController extends Controller
                 'selectedLocation.id' => 'nullable',
                 'permissions'         => 'nullable|array|min:1',
                 'permissions.*'       => 'nullable|string|distinct|exists:user_permissions,key',
-                'business.name'       => 'required'
+                'business.name'       => 'required',
+                'custom_attributes'   => 'nullable|array|min:1'
             ]);
 
             $user = new CognitoUser($id);
@@ -668,6 +681,14 @@ class UserController extends Controller
             }
             else {
                 $cognito->removeUserAttribute(['custom:permissions'], $request->id);
+            }
+
+            // Update attributes (for Cognito user)
+            if(isset($validatedData['custom_attributes'])) {
+                $cognito->updateUserAttribute('custom:attributes', implode(',', $validatedData['custom_attributes']), $request->id);
+            }
+            else {
+                $cognito->removeUserAttribute(['custom:attributes'], $request->id);
             }
 
             // Save addresses to Shopify Customer
