@@ -133,6 +133,7 @@ class ProductImportHelper
     private static function saveProduct(array $product): int
     {
         try {
+            //TODO - Tidy up this logic. It really doesn't seem necessary to save all of this Product data in the database for the Product Search functionality... Probably just need the Product ID to be saved.
             $result = DB::table('products')->insertGetId(
                 [
                     'product_id'   => $product['product_id'],
@@ -168,14 +169,15 @@ class ProductImportHelper
     private static function saveVariants(
         int $productTableID,
         array $variants,
-        int $userTypePosition,
-        int $variantNamePosition
+        int $userTypePosition,      //TODO - Fix this logic. This can break based on human error, and entering Variant Options in the incorrect order.
+        int $variantNamePosition    //TODO - Fix this logic. This can break based on human error, and entering Variant Options in the incorrect order.
     ): void
     {
         DB::table('variants')
             ->where('product_table_id', $productTableID)
             ->delete();
-        
+
+        //TODO - Tidy up this logic. It really doesn't seem necessary to save all of this Variant data in the database for the Product Search functionality... Probably just need the Product ID & Variant ID association to be saved.
         foreach ($variants as $variant) {
             DB::table('variants')->insert(
                 [
@@ -186,8 +188,8 @@ class ProductImportHelper
                     'sku'                => $variant->sku,
                     'price'              => $variant->price,
                     'compare_at_price'   => $variant->compare_at_price ?? '',
-                    'user_type'          => $variant->{'option' . $userTypePosition},
-                    'variant_name'       => $variant->{'option' . $variantNamePosition},
+                    'user_type'          => $variant->{'option' . $userTypePosition} ?? '',
+                    'variant_name'       => $variant->{'option' . $variantNamePosition} ?? '',
                     'qty'                => $variant->inventory_quantity,
                     'position'           => $variant->position,
                     'weight'             => $variant->weight,
