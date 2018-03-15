@@ -114,7 +114,7 @@ Route::group(['prefix' => 'reporting'], function() {
 // Store
 Route::group(['prefix' => 'store'], function() {
     // Update ML Store Products
-    Route::get('/update-products', 'shopify\ProductController@importProductsToDatabase');
+    Route::get('/update-products', 'Shopify\ProductController@importProductsToDatabase');
 
     // Search for Products
     Route::get('/search', 'SearchController@index');
