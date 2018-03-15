@@ -106,7 +106,7 @@ class UserGroup extends Model
                 $customAttributes = collect($attributes)
                     ->where('Name', 'custom:attributes')
                     ->first()['Value'];
-                if (in_array('hide-from-affiliate-group', $customAttributes, true)) {
+                if (!empty($customAttributes) && in_array('hide-from-affiliate-group', $customAttributes, true)) {
                     return; // Skip this user since it should be hidden from the affiliate group. Most likely an Admin who was secretly added to an Affiliate group to mimic specific page displays (Content Portal, Ecomm, etc).
                 }
 
@@ -139,9 +139,11 @@ class UserGroup extends Model
                 collect($allUsers)
                     ->whereIn('id', $userIds)
                     ->transform(function($user) use ($shopifyUsers){
-                        $customAttributes = explode(',', $user['custom_attributes']);
-                        if (in_array('hide-from-affiliate-group', $customAttributes, true)) {
-                            return; // Skip this user since it should be hidden from the affiliate group. Most likely an Admin who was secretly added to an Affiliate group to mimic specific page displays (Content Portal, Ecomm, etc).
+                        if (isset($user['custom_attributes'])) {
+                            $customAttributes = explode(',', $user['custom_attributes']);
+                            if (!empty($customAttributes) && in_array('hide-from-affiliate-group', $customAttributes, true)) {
+                                return; // Skip this user since it should be hidden from the affiliate group. Most likely an Admin who was secretly added to an Affiliate group to mimic specific page displays (Content Portal, Ecomm, etc).
+                            }
                         }
 
                         $shopifyUser = $shopifyUsers
