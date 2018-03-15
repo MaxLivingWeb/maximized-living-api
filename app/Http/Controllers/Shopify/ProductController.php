@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Shopify;
 
+use App\Helpers\ProductAudienceTypeHelper;
+use App\Helpers\ProductImportHelper;
 use App\Helpers\ShopifyHelper;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -18,7 +20,7 @@ class ProductController extends Controller
         $shopify = new ShopifyHelper();
 
         if (!empty($request->audience_types)) {
-            return $this->getProductsFromAudienceTypes($request->audience_types);
+            return ProductAudienceTypeHelper::getProductsFromAudienceTypes($request->audience_types);
         }
 
         return $shopify->getProducts();
@@ -29,94 +31,22 @@ class ProductController extends Controller
      * @param Request $request
      * @return array
      */
-    public function getAllProductsAudienceTypes(Request $request)
+    public function getAllProductsAudienceTypes()
     {
-        $shopify = new ShopifyHelper();
-
-        $products = $shopify->getProducts();
-
-        // Returns a list of all product audience types
-        // ie - "Client, VIP, Admin"
-        $audienceTypeCombinations = collect($products)
-            ->transform(function($product){
-                return $this->getAudienceTypeCombinationsForProduct($product);
-            })
-            ->flatten()
-            ->all();
-
-        // Returns all audience types as a single value, that are all unique
-        $audienceTypes = array_values($this->getUniqueAudienceTypesFromAllCombinations($audienceTypeCombinations));
-        
-        return $audienceTypes;
+        return ProductAudienceTypeHelper::getAllProductsAudienceTypes();
     }
 
     /**
-     * Get Shopify Products that have these Audience Type values
-     * @param string $audienceTypes
-     * @return array
+     * Import Shopify Products to Database
+     * @param Request $request
+     * @return void
      */
-    private function getProductsFromAudienceTypes(string $audienceTypes)
+    public function importProductsToDatabase(Request $request)
     {
-        $shopify = new ShopifyHelper();
+        $products = $this->getProducts($request);
 
-        if (empty($audienceTypes)) {
-            return;
-        }
-
-        $selectedAudienceTypes = explode(',',$audienceTypes);
-        $products = $shopify->getProducts();
-
-        $filteredProducts = collect($products)
-            ->filter(function($product) use($selectedAudienceTypes){
-                $audienceTypesForProduct = $this->getUniqueAudienceTypesFromAllCombinations(
-                    $this->getAudienceTypeCombinationsForProduct($product)
-                );
-
-                $match = collect($selectedAudienceTypes)
-                    ->filter(function($audienceType) use($audienceTypesForProduct){
-                        return collect($audienceTypesForProduct)->contains($audienceType);
-                    })
-                    ->isNotEmpty();
-
-                return $match;
-            })
-            ->all();
-
-        return $filteredProducts;
+        $productImporter = new ProductImportHelper();
+        $productImporter->importProducts($products);
     }
 
-    /**
-     * Get all audience types as a flat array that are all unique
-     * @param array $audienceTypeCombinations
-     * @return array
-     */
-    private function getUniqueAudienceTypesFromAllCombinations($audienceTypeCombinations)
-    {
-        return collect($audienceTypeCombinations)
-            ->transform(function($audienceTypeCombination){
-                return explode(', ', $audienceTypeCombination);
-            })
-            ->flatten()
-            ->unique()
-            ->all();
-    }
-
-    /**
-     * Get all audience type combinations for this product
-     * @param stdClass $product
-     * @return array
-     */
-    private function getAudienceTypeCombinationsForProduct($product)
-    {
-        $audienceTypesForProduct = collect($product->options)
-            ->where('name', 'Audience')
-            ->pluck('values')
-            ->first();
-
-        return collect($audienceTypesForProduct)
-            ->transform(function($audienceType){
-                return str_replace('/', ', ', $audienceType);
-            })
-            ->all();
-    }
 }

@@ -2,7 +2,7 @@
 
 use Illuminate\Http\Request;
 use App\Helpers\ShopifyHelper;
-use App\Helpers\ProductHelper;
+use App\Helpers\ProductImportHelper;
 
 /*
 |--------------------------------------------------------------------------
@@ -114,13 +114,7 @@ Route::group(['prefix' => 'reporting'], function() {
 // Store
 Route::group(['prefix' => 'store'], function() {
     // Update ML Store Products
-    Route::get('/update-products', function () {
-        $products = (new ShopifyHelper())
-            ->getProducts([], FALSE);
-
-        (new ProductHelper())
-            ->importProducts($products);
-    });
+    Route::get('/update-products', 'shopify\ProductController@importProductsToDatabase');
 
     // Search for Products
     Route::get('/search', 'SearchController@index');
