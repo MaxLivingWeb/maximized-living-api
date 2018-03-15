@@ -317,7 +317,7 @@ class UserController extends Controller
                 //attach attributes to user
                 $cognito->updateUserAttribute(
                     'custom:attributes',
-                    implode(',', $validatedData['attributes']),
+                    implode(',', $validatedData['custom_attributes']),
                     $validatedData['email']
                 );
             }
