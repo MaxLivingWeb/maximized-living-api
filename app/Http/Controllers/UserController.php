@@ -73,7 +73,7 @@ class UserController extends Controller
                 'permissions'         => 'nullable|array|min:1',
                 'permissions.*'       => 'nullable|string|distinct|exists:user_permissions,key',
                 'business.name'       => 'required',
-                'attributes'          => 'nullable|array|min:1'
+                'custom_attributes'   => 'nullable|array|min:1'
             ];
 
             // user is not associated to a location, and they entered a default address...
@@ -313,7 +313,7 @@ class UserController extends Controller
             }
 
             // User Attributes - Update in Cognito
-            if (isset($validatedData['attributes'])) {
+            if (isset($validatedData['custom_attributes'])) {
                 //attach attributes to user
                 $cognito->updateUserAttribute(
                     'custom:attributes',
@@ -413,7 +413,7 @@ class UserController extends Controller
                 'permissions'         => 'nullable|array|min:1',
                 'permissions.*'       => 'nullable|string|distinct|exists:user_permissions,key',
                 'business.name'       => 'required',
-                'attributes'          => 'nullable|array|min:1'
+                'custom_attributes'   => 'nullable|array|min:1'
             ]);
 
             $user = new CognitoUser($id);
@@ -684,7 +684,7 @@ class UserController extends Controller
             }
 
             // Update attributes (for Cognito user)
-            if(isset($validatedData['attributes'])) {
+            if(isset($validatedData['custom_attributes'])) {
                 $cognito->updateUserAttribute('custom:attributes', implode(',', $validatedData['attributes']), $request->id);
             }
             else {
