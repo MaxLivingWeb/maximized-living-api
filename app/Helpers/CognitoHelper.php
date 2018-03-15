@@ -194,6 +194,22 @@ class CognitoHelper
         ]);
     }
 
+    /**
+     * Get Cognito User Attribute by passing the Attribute keyname and array of attributes
+     * @param $key
+     * @param $attributes
+     */
+    public function getUserAttributeValue($key, $attributes)
+    {
+        if (empty($key) || empty($attributes)) {
+            return;
+        }
+
+        return collect($attributes)
+            ->where('Name', $key)
+            ->first()['Value'];
+    }
+
     public function getGroup($groupName)
     {
         return $this->client->getGroup([

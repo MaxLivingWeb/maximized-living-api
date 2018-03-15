@@ -98,6 +98,16 @@ class UserGroup extends Model
         return collect($userIds)
             ->transform(function($userId) use($cognito){
                 $user = $cognito->getUser($userId);
+
+                $attributes = $user['UserAttributes']
+                    ?? $user['Attributes']
+                    ?? [];
+
+                $customAttributes = $cognito->getUserAttributeValue('custom:attributes', $attributes);
+                if (collect($customAttributes)->contains('hide-from-affiliate-group')) {
+                    return; // Skip this user since it should be hidden from the affiliate group. Most likely an Admin who was secretly added to an Affiliate group to mimic specific page displays (Content Portal, Ecomm, etc).
+                }
+
                 if (!empty($user)) {
                     return User::structureUser($user);
                 }
