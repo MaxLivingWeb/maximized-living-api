@@ -685,7 +685,7 @@ class UserController extends Controller
 
             // Update attributes (for Cognito user)
             if(isset($validatedData['custom_attributes'])) {
-                $cognito->updateUserAttribute('custom:attributes', implode(',', $validatedData['attributes']), $request->id);
+                $cognito->updateUserAttribute('custom:attributes', implode(',', $validatedData['custom_attributes']), $request->id);
             }
             else {
                 $cognito->removeUserAttribute(['custom:attributes'], $request->id);
