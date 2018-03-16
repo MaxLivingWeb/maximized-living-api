@@ -1057,7 +1057,7 @@ class UserController extends Controller
      * @param null $businessName
      * @param array $address
      * @param bool $default
-     * @return object
+     * @return \stdClass
      */
     private function formatAddressForShopifyCustomer(
         $shopifyCustomerData,
