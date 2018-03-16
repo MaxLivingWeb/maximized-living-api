@@ -204,12 +204,6 @@ class GroupController extends Controller
                 );
             }
 
-            $cognito = new CognitoHelper();
-            $cognito->createGroup(
-                $request->input('group_name'),
-                $request->input('group_name_display')
-            );
-
             return UserGroup::create([
                 'group_name'         => $request->input('group_name'),
                 'group_name_display' => $request->input('group_name_display'),
