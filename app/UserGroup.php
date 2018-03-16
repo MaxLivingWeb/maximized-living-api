@@ -106,6 +106,7 @@ class UserGroup extends Model
                 $customAttributes = collect($attributes)
                     ->where('Name', 'custom:attributes')
                     ->first()['Value'];
+                $customAttributes = explode(',', $customAttributes);
                 if (!empty($customAttributes) && in_array('hide-from-affiliate-group', $customAttributes, true)) {
                     return; // Skip this user since it should be hidden from the affiliate group. Most likely an Admin who was secretly added to an Affiliate group to mimic specific page displays (Content Portal, Ecomm, etc).
                 }
