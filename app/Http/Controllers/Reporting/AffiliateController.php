@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Reporting;
 
 use App\UserGroup;
-use App\Helpers\ShopifyHelper;
+use App\Helpers\CustomerOrderRequestHelper;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -16,16 +16,14 @@ class AffiliateController extends Controller
     public function sales(Request $request)
     {
         try {
-            $shopify = new ShopifyHelper();
+            $orders = CustomerOrderRequestHelper::getAllOrders($request);
 
-            $dateObject = $this->getDateObject($request);
-            $startDate = $dateObject->startDate;
-            $endDate = $dateObject->endDate;
-            $orders = $shopify->getAllOrders($startDate, $endDate, request()->input('status'));
+            $affiliates = UserGroup::with(['commission', 'location'])
+                ->get()
+                ->where('commission', '!==', null);
 
-            $affiliates = UserGroup::with(['commission', 'location'])->get()->where('commission', '!==', null);
             foreach ($affiliates as $affiliate) {
-                $affiliate->sales = $orders
+                $affiliate->sales = collect($orders)
                     ->filter(function ($value) use ($affiliate) {
                         $affiliateId = collect($value->note_attributes)
                             ->where('name', 'affiliateId')
@@ -41,13 +39,11 @@ class AffiliateController extends Controller
                     ->values();
             }
 
-            return $affiliates->filter(function($affiliate) {
-                if($affiliate->sales->isEmpty()) {
-                    return false;
-                }
-
-                return true;
-            })->values();
+            return $affiliates
+                ->filter(function($affiliate) {
+                    return $affiliate->sales->isNotEmpty();
+                })
+                ->values();
         }
         catch (\Exception $e) {
             return response()->json($e->getMessage(), 500);
@@ -61,21 +57,18 @@ class AffiliateController extends Controller
     public function salesById(Request $request)
     {
         try {
-            $shopify = new ShopifyHelper();
+            $orders = CustomerOrderRequestHelper::getAllOrders($request);
 
-            $dateObject = $this->getDateObject($request);
-            $startDate = $dateObject->startDate;
-            $endDate = $dateObject->endDate;
-            $orders = $shopify->getAllOrders($startDate, $endDate, request()->input('status'));
+            $affiliate = UserGroup::with(['commission', 'location'])
+                ->findOrFail($request->id);
 
-            $affiliate = UserGroup::with(['commission', 'location'])->findOrFail($request->id);
-            $affiliate->sales = $orders
+            $affiliate->sales = collect($orders)
                 ->filter(function ($value) use ($affiliate) {
                     $affiliateId = collect($value->note_attributes)
                         ->where('name', 'affiliateId')
                         ->first();
 
-                    if(is_null($affiliateId)) {
+                    if (is_null($affiliateId)) {
                         return false;
                     }
 
@@ -91,26 +84,4 @@ class AffiliateController extends Controller
         }
     }
 
-    /**
-     * Get Start and End date from the current Request
-     */
-    private function getDateObject(Request $request)
-    {
-        $startDate = null;
-        $endDate = null;
-        if(request()->has('startDate') || request()->has('endDate')) {
-            $request->validate([
-                'startDate' => 'required|date',
-                'endDate'   => 'required|date'
-            ]);
-
-            $startDate = new \DateTime(request()->input('startDate'));
-            $endDate = new \DateTime(request()->input('endDate'));
-        }
-
-        return (Object)[
-            'startDate' => $startDate,
-            'endDate' => $endDate
-        ];
-    }
 }

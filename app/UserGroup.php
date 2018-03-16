@@ -98,6 +98,19 @@ class UserGroup extends Model
         return collect($userIds)
             ->transform(function($userId) use($cognito){
                 $user = $cognito->getUser($userId);
+
+                $attributes = $user['UserAttributes']
+                    ?? $user['Attributes']
+                    ?? [];
+
+                $customAttributes = collect($attributes)
+                    ->where('Name', 'custom:attributes')
+                    ->first()['Value'];
+                $customAttributes = explode(',', $customAttributes);
+                if (!empty($customAttributes) && in_array('hide-from-affiliate-group', $customAttributes, true)) {
+                    return; // Skip this user since it should be hidden from the affiliate group. Most likely an Admin who was secretly added to an Affiliate group to mimic specific page displays (Content Portal, Ecomm, etc).
+                }
+
                 if (!empty($user)) {
                     return User::structureUser($user);
                 }
@@ -108,6 +121,7 @@ class UserGroup extends Model
             ->values()
             ->all();
     }
+
     public function loadUsers($allUsers, $shopifyUsers) {
         // this logic seems to take a long time to run, so we'll cache it as well
         $cacheName = 'location_' . $this->id . '_all_users';
@@ -126,6 +140,13 @@ class UserGroup extends Model
                 collect($allUsers)
                     ->whereIn('id', $userIds)
                     ->transform(function($user) use ($shopifyUsers){
+                        if (isset($user['custom_attributes'])) {
+                            $customAttributes = explode(',', $user['custom_attributes']);
+                            if (!empty($customAttributes) && in_array('hide-from-affiliate-group', $customAttributes, true)) {
+                                return; // Skip this user since it should be hidden from the affiliate group. Most likely an Admin who was secretly added to an Affiliate group to mimic specific page displays (Content Portal, Ecomm, etc).
+                            }
+                        }
+
                         $shopifyUser = $shopifyUsers
                             ->where('id', $user['shopify_id'])
                             ->first();
@@ -136,6 +157,9 @@ class UserGroup extends Model
                         }
 
                         return $user;
+                    })
+                    ->reject(function($user){
+                        return is_null($user);
                     })
                     ->toArray()
             );
