@@ -383,6 +383,7 @@ class UserController extends Controller
 
     /**
      * Update Existing User by providing their Cognito user id
+     * Note: To update specific data groups for user during this request, attach parameter "datagroup". Example - This is used to update "basic_details", which is the users first & last Name. If nothing is provided for this parameter, update ALL user data.
      * @param Request $request
      * @param $id
      * @return \Illuminate\Http\JsonResponse
