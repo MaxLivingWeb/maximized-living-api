@@ -383,6 +383,7 @@ class UserController extends Controller
 
     /**
      * Update Existing User by providing their Cognito user id
+     * Note: To update specific data groups for user during this request, attach parameter "datagroup". Example - This is used to update "basic_details", which is the users first & last Name. If nothing is provided for this parameter, update ALL user data.
      * @param Request $request
      * @param $id
      * @return \Illuminate\Http\JsonResponse
@@ -920,12 +921,18 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * Get User by provided Cognito User ID
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getUser($id)
     {
         $cognito = new CognitoHelper();
 
         try {
-            return response()->json(User::structureUser($cognito->getUser($id)));
+            $user = $cognito->getUser($id);
+            return response()->json(User::structureUser($user));
         }
         catch(AwsException $e) {
             return response()->json([$e->getAwsErrorMessage()], 500);
@@ -935,6 +942,12 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * Link this User to an Affiliate User from the provided Affiliate ID
+     * @param $id
+     * @param $affiliateId
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function linkToAffiliate($id, $affiliateId)
     {
         try {
@@ -951,6 +964,11 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * Get User's Affiliate Group based on the provided Cognito User ID
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function affiliate($id)
     {
         try {
@@ -965,6 +983,11 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * Delete User based on the provided Cognito User ID
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function delete($id)
     {
         $cognito = new CognitoHelper();
@@ -980,6 +1003,11 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * Helper Function -- Get Address data by provided Address Type ID
+     * @param array $types
+     * @return \Closure
+     */
     private function _getAddressByType(array $types = [])
     {
         return function ($address) use ($types)
@@ -988,6 +1016,14 @@ class UserController extends Controller
         };
     }
 
+    /**
+     * Insert User's Address to Database
+     * @param $request
+     * @param $fieldName
+     * @param $fieldDescription
+     * @param $userGroup
+     * @return null
+     */
     private function addAddressToDatabase(
         $request,
         $fieldName,
@@ -1015,6 +1051,14 @@ class UserController extends Controller
         return $address;
     }
 
+    /**
+     * Format Address data to be passed into Shopify Request
+     * @param $shopifyCustomerData
+     * @param null $businessName
+     * @param array $address
+     * @param bool $default
+     * @return \stdClass
+     */
     private function formatAddressForShopifyCustomer(
         $shopifyCustomerData,
         $businessName = null,
@@ -1055,6 +1099,12 @@ class UserController extends Controller
         ];
     }
 
+    /**
+     * Validate that Shopify Address being added to Shopify Customer is completely unique
+     * @param $currentAddress
+     * @param $addresses
+     * @return bool
+     */
     private function uniqueShopifyAddressData($currentAddress, $addresses)
     {
         if (count($addresses) === 0) {
