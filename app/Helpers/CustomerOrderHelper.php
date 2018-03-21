@@ -143,14 +143,14 @@ class CustomerOrderHelper
     {
         return collect($orders)
             ->transform(function($order){
-                $refundedSubtotal = collect($order->refunds)
+                $refundedAmount = collect($order->refunds)
                     ->sum(function($refund){
                         return collect($refund->transactions)->sum('amount');
                     });
 
-                $totalRecievedPayment = $order->total_price - $refundedSubtotal;
+                $totalRecievedPayment = $order->total_price - $refundedAmount;
 
-                $order->refunded_subtotal = number_format($refundedSubtotal,2, '.', '');
+                $order->refunded_amount = number_format($refundedAmount,2, '.', '');
                 $order->total_recieved_payment = number_format($totalRecievedPayment,2, '.', '');
 
                 return $order;
