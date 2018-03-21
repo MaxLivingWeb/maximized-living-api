@@ -120,8 +120,16 @@ Route::group(['prefix' => 'store'], function() {
     Route::get('/search', 'SearchController@index');
 
     // Get ALL Product Audience Types
-    Route::get('/products', 'Shopify\ProductController@getProducts');
-    Route::get('/products/audience_types', 'Shopify\ProductController@getAllProductsAudienceTypes');
+    Route::group(['prefix' => 'products'], function() {
+        Route::get('/', 'Shopify\ProductController@getProducts');
+        Route::get('/audience_types', 'Shopify\ProductController@getAllProductsAudienceTypes');
+    });
+
+    // Get Shopify Orders
+    Route::group(['prefix' => 'orders'], function(){
+        Route::get('/', 'Shopify\OrderController@getAllOrders');
+        Route::get('/test', 'Shopify\OrderController@getTestOrders');
+    });
 });
 
 //Google My Business

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Reporting;
 
 use App\UserGroup;
-use App\Helpers\CustomerOrderRequestHelper;
+use App\Helpers\CustomerOrderHelper;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -16,7 +16,7 @@ class AffiliateController extends Controller
     public function sales(Request $request)
     {
         try {
-            $orders = CustomerOrderRequestHelper::getAllOrders($request);
+            $orders = CustomerOrderHelper::getAllOrdersFromRequest($request);
 
             $affiliates = UserGroup::with(['commission', 'location'])
                 ->get()
@@ -57,7 +57,7 @@ class AffiliateController extends Controller
     public function salesById(Request $request)
     {
         try {
-            $orders = CustomerOrderRequestHelper::getAllOrders($request);
+            $orders = CustomerOrderHelper::getAllOrdersFromRequest($request);
 
             $affiliate = UserGroup::with(['commission', 'location'])
                 ->findOrFail($request->id);

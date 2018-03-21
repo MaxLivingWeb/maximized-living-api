@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Reporting;
 
-use App\Helpers\{CognitoHelper, CustomerOrderRequestHelper};
+use App\Helpers\{CognitoHelper, CustomerOrderHelper};
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
@@ -18,7 +18,7 @@ class RetailController extends Controller
         try {
             $cognito = new CognitoHelper();
 
-            $orders = CustomerOrderRequestHelper::getAllOrders($request);
+            $orders = CustomerOrderHelper::getAllOrdersFromRequest($request);
 
             $affiliateEmails = collect($cognito->listUsers())
                 ->pluck('email')
@@ -45,7 +45,7 @@ class RetailController extends Controller
     public function posSales(Request $request)
     {
         try {
-            $orders = CustomerOrderRequestHelper::getAllOrders($request);
+            $orders = CustomerOrderHelper::getAllOrdersFromRequest($request);
 
             return collect($orders)
                 ->where('source_name', 'pos')
