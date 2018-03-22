@@ -7,12 +7,13 @@ use App\AddressType;
 use App\UserGroup;
 use App\Helpers\CognitoHelper;
 use App\Helpers\TextHelper;
+use App\Helpers\ShopifyHelper;
+use App\Helpers\UserGroupHelper;
 use App\Location;
 use App\RegionalSubscriptionCount;
 use Aws\Exception\AwsException;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
-use App\Helpers\ShopifyHelper;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Exception;
@@ -33,9 +34,15 @@ class GroupController extends Controller
             ->all();
     }
 
-    public function getById($id)
+    public function getById(Request $request)
     {
-        return UserGroup::with('commission')->findOrFail($id);
+        $userGroup = UserGroup::with('commission')->findOrFail($request->id);
+
+        if ((bool)$request->input('include_users') === TRUE) {
+            $userGroup->assignUsersToUserGroup();
+        }
+
+        return $userGroup;
     }
 
     public function getUsersById($id)
@@ -46,51 +53,7 @@ class GroupController extends Controller
 
     public function allWithCommission(Request $request)
     {
-        $userGroups = UserGroup::with(['commission', 'location'])
-            ->get()
-            ->where('commission', '!==', null)
-            ->values()
-            ->all();
-
-        if((bool)$request->input('include_users') === TRUE) {
-
-            // the CognitoHelper IS using caching, but it seems as though the cache is refreshed very frequently
-            // probably because the pagination token changes on Cognito's side very frquently
-            // to get around this, cache the end results directly
-            if(Cache::has('allAffiliateUsersGroupController')) {
-                $allUsers = collect(json_decode(
-                    Cache::get('allAffiliateUsersGroupController'),
-                    TRUE
-                ));
-            } else {
-                $allUsers = (new CognitoHelper(1440))
-                    ->listUsers();
-
-                Cache::put(
-                    'allAffiliateUsersGroupController',
-                    json_encode($allUsers),
-                    1440
-                );
-            }
-
-            $shopifyUsers = (new ShopifyHelper(1440))
-                ->getCustomers(
-                    collect($allUsers)
-                        ->filter(function($user) {
-                            return !empty($user['shopify_id']);
-                        })
-                        ->pluck('shopify_id')
-                );
-
-            foreach($userGroups as $userGroup) {
-                $userGroup->loadUsers(
-                    $allUsers,
-                    $shopifyUsers
-                );
-            }
-        }
-
-        return $userGroups;
+        return UserGroupHelper::getAllWithCommissionFromRequest($request);
     }
 
     public function getByName(Request $request)

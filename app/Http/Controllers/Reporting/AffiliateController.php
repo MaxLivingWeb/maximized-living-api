@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Reporting;
 
 use App\UserGroup;
 use App\Helpers\CustomerOrderHelper;
+use App\Helpers\UserGroupHelper;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -18,9 +19,7 @@ class AffiliateController extends Controller
         try {
             $orders = CustomerOrderHelper::getAllOrdersFromRequest($request);
 
-            $affiliates = UserGroup::with(['commission', 'location'])
-                ->get()
-                ->where('commission', '!==', null);
+            $affiliates = UserGroupHelper::getAllWithCommissionFromRequest($request);
 
             foreach ($affiliates as $affiliate) {
                 $affiliate->sales = collect($orders)
@@ -39,7 +38,7 @@ class AffiliateController extends Controller
                     ->values();
             }
 
-            return $affiliates
+            return collect($affiliates)
                 ->filter(function($affiliate) {
                     return $affiliate->sales->isNotEmpty();
                 })
@@ -61,6 +60,10 @@ class AffiliateController extends Controller
 
             $affiliate = UserGroup::with(['commission', 'location'])
                 ->findOrFail($request->id);
+
+            if ((bool)$request->input('include_users') === TRUE) {
+                $affiliate->assignUsersToUserGroup();
+            }
 
             $affiliate->sales = collect($orders)
                 ->filter(function ($value) use ($affiliate) {
