@@ -143,15 +143,30 @@ class CustomerOrderHelper
     {
         return collect($orders)
             ->transform(function($order){
-                $refundedAmount = collect($order->refunds)
+                // 1. Subtotal spent on items
+                // 1.a Refunded Amount (Subtotal spent on items)
+                $refundedSubtotalAmount = collect($order->refunds)
+                    ->sum(function($refund){
+                        return collect($refund->refund_line_items)->sum('subtotal');
+                    });
+
+                // 1.b Final Subtotal spent on Items
+                $finalSubtotal = $order->subtotal_price - $refundedSubtotalAmount;
+
+                // 2. Grand Total after taxes, discounts, everything
+                // 2.a Refunded Amount (Total)
+                $refundedTotalAmount = collect($order->refunds)
                     ->sum(function($refund){
                         return collect($refund->transactions)->sum('amount');
                     });
 
-                $totalRecievedPayment = $order->total_price - $refundedAmount;
+                // 2.b Final Total spent on everything
+                $finalTotal = $order->total_price - $refundedTotalAmount;
 
-                $order->refunded_amount = number_format($refundedAmount,2, '.', '');
-                $order->total_recieved_payment = number_format($totalRecievedPayment,2, '.', '');
+                $order->subtotal_refunded_amount = number_format($refundedSubtotalAmount,2);
+                $order->subtotal_price_final = number_format($finalSubtotal, 2, '.', '');
+                $order->total_refunded_amount = number_format($refundedTotalAmount,2, '.', '');
+                $order->total_price_final = number_format($finalTotal,2, '.', '');
 
                 return $order;
             })

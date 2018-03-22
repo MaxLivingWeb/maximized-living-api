@@ -40,7 +40,7 @@ class AffiliateController extends Controller
 
             return collect($affiliates)
                 ->filter(function($affiliate) {
-                    return $affiliate->sales->isNotEmpty();
+                    return (!empty($affiliate->sales) && $affiliate->sales->isNotEmpty());
                 })
                 ->values();
         }
