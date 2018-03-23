@@ -128,7 +128,6 @@ Route::group(['prefix' => 'store'], function() {
     // Get Shopify Orders
     Route::group(['prefix' => 'orders'], function(){
         Route::get('/', 'Shopify\OrderController@getAllOrders');
-        Route::get('/test', 'Shopify\OrderController@getTestOrders');
     });
 
     // Get Shopify Customers

@@ -18,14 +18,4 @@ class OrderController extends Controller
         return CustomerOrderHelper::getAllOrdersFromRequest($request);
     }
 
-    /**
-     * Get test Orders only
-     * @param Request $request
-     * @return array
-     */
-    public function getTestOrders(Request $request)
-    {
-        return CustomerOrderHelper::getAllTestOrdersFromRequest($request);
-    }
-
 }

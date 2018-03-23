@@ -56,33 +56,6 @@ class CustomerOrderHelper
     }
 
     /**
-     * Get ALL Shopify Test Orders
-     * @param Request $request
-     * @return array
-     */
-    public static function getAllTestOrdersFromRequest(Request $request)
-    {
-        $shopify = new ShopifyHelper();
-
-        $dateObject = DateRequestHelper::getDateObject($request);
-        $startDate = $dateObject->startDate;
-        $endDate = $dateObject->endDate;
-
-        $orders = $shopify->getAllOrders($startDate, $endDate, request()->input('status'));
-
-        $calculateSales = (
-            !empty($request->input('calculateSales'))
-                ? (bool)$request->input('calculateSales')
-                : self::$calculateSalesByDefault
-        );
-        if ($calculateSales === true) {
-            $orders = self::calculateSubtotalForRefundedOrders($orders);
-        }
-
-        return self::filterTestOrders($orders);
-    }
-
-    /**
      * Exclude Arcane Developer test Orders from being returned in results
      * @method static
      * @param array $orders
@@ -93,21 +66,6 @@ class CustomerOrderHelper
         return collect($orders)
             ->filter(function($order){
                 return !self::isTestOrder($order);
-            })
-            ->all();
-    }
-
-    /**
-     * Filter orders to only get Arcane Developer test orders
-     * @method static
-     * @param array $orders
-     * @return array
-     */
-    public static function filterTestOrders(array $orders)
-    {
-        return collect($orders)
-            ->filter(function($order){
-                return self::isTestOrder($order);
             })
             ->all();
     }
