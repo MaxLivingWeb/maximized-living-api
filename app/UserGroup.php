@@ -85,6 +85,14 @@ class UserGroup extends Model
         return $this->belongsToMany('App\Address', 'usergroup_addresses');
     }
 
+    /**
+     * Assign the protected $users variable to this UserGroup
+     */
+    public function assignUsersToUserGroup()
+    {
+        $this->users = $this->listUsers();
+    }
+
     public function listUsers()
     {
         $cognito = new CognitoHelper();

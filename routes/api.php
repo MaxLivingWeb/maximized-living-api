@@ -33,6 +33,7 @@ Route::group(['prefix' => 'user'], function() {
     Route::get('/{id}', 'UserController@getUser');
     Route::post('/', 'UserController@addUser');
     Route::put('/{id}', 'UserController@updateUser');
+    Route::put('/{id}/new_email', 'UserController@updateUserEmailAddress');
     Route::get('/{id}/affiliate/{affiliateId}', 'UserController@linkToAffiliate');
     Route::get('/{id}/affiliate', 'UserController@affiliate');
     Route::delete('/{id}', 'UserController@delete');
@@ -120,8 +121,10 @@ Route::group(['prefix' => 'store'], function() {
     Route::get('/search', 'SearchController@index');
 
     // Get ALL Product Audience Types
-    Route::get('/products', 'Shopify\ProductController@getProducts');
-    Route::get('/products/audience_types', 'Shopify\ProductController@getAllProductsAudienceTypes');
+    Route::group(['prefix' => 'products'], function() {
+        Route::get('/', 'Shopify\ProductController@getProducts');
+        Route::get('/audience_types', 'Shopify\ProductController@getAllProductsAudienceTypes');
+    });
 });
 
 //Google My Business
