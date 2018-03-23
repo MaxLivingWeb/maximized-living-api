@@ -2,11 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Address;
-use App\AddressType;
-use App\UserGroup;
-use App\Helpers\TextHelper;
-use App\Helpers\UserGroupHelper;
+use App\{Address,AddressType,UserGroup};
+use App\Helpers\{TextHelper,UserGroupHelper};
 use App\Location;
 use App\RegionalSubscriptionCount;
 use Aws\Exception\AwsException;

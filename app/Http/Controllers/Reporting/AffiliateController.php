@@ -3,10 +3,9 @@
 namespace App\Http\Controllers\Reporting;
 
 use App\UserGroup;
-use App\Helpers\CustomerOrderHelper;
-use App\Helpers\UserGroupHelper;
-use Illuminate\Http\Request;
+use App\Helpers\{CustomerOrderHelper,UserGroupHelper};
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 
 class AffiliateController extends Controller
 {
