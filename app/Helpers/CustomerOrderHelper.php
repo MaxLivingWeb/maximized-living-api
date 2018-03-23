@@ -17,7 +17,7 @@ class CustomerOrderHelper
      * Default settings for updating sale calculations on order results
      * @var bool
      */
-    private static $calculateSalesByDefault = true;
+    private static $recalculateSubtotalsByDefault = true;
 
     /**
      * Get All Shopify Orders - based on provided request parameters
@@ -43,12 +43,12 @@ class CustomerOrderHelper
             $orders = self::excludeTestOrders($orders);
         }
 
-        $calculateSales = (
-            !empty($request->input('calculateSales'))
-                ? (bool)$request->input('calculateSales')
-                : self::$calculateSalesByDefault
+        $recalculateSubtotals = (
+            !empty($request->input('recalculateSubtotals'))
+                ? (bool)$request->input('recalculateSubtotals')
+                : self::$recalculateSubtotalsByDefault
         );
-        if ($calculateSales === true) {
+        if ($recalculateSubtotals === true) {
             $orders = self::calculateSubtotalForRefundedOrders($orders);
         }
 
@@ -183,7 +183,7 @@ class CustomerOrderHelper
                 $refundMessage = (count($refundMessage) > 0) ? implode(', ', $refundMessage) : null;
                 $order->refund_note = $refundMessage;
 
-                // Modify Line Items to include "refunded" property
+                // Modify Line Items to include "refunded" boolean property
                 $order->line_items = collect($order->line_items)
                     ->transform(function($item) use($order){
                         $item->refunded = collect($order->refunds)
