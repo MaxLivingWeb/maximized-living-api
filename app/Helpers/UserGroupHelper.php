@@ -5,7 +5,6 @@ namespace App\Helpers;
 use App\UserGroup;
 use App\Helpers\CognitoHelper;
 use App\Helpers\ShopifyHelper;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
 class UserGroupHelper
@@ -13,10 +12,10 @@ class UserGroupHelper
 
     /**
      * Get Affiliates (UserGroups with Location or Commission assigned) and then cache the $users assigned to each UserGroup
-     * @param Request $request
+     * @param bool $includeUsers
      * @return array
      */
-    public static function getAllWithCommissionFromRequest(Request $request)
+    public static function getAllWithCommission($includeUsers = false)
     {
         $userGroups = UserGroup::with(['commission', 'location'])
             ->get()
@@ -24,7 +23,7 @@ class UserGroupHelper
             ->values()
             ->all();
 
-        if((bool)$request->input('include_users') === TRUE) {
+        if ($includeUsers === TRUE) {
             // the CognitoHelper IS using caching, but it seems as though the cache is refreshed very frequently
             // probably because the pagination token changes on Cognito's side very frquently
             // to get around this, cache the end results directly

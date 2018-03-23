@@ -47,7 +47,8 @@ class GroupController extends Controller
 
     public function allWithCommission(Request $request)
     {
-        return UserGroupHelper::getAllWithCommissionFromRequest($request);
+        $includeUsers = (bool)$request->input('include_users');
+        return UserGroupHelper::getAllWithCommission($includeUsers);
     }
 
     public function getByName(Request $request)

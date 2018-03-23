@@ -5,51 +5,107 @@ namespace App\Helpers;
 use App\Helpers\{DateRequestHelper, ShopifyHelper};
 use Illuminate\Http\Request;
 
-class CustomerOrderHelper
+class ShopifyOrderHelper
 {
     /**
      * Default setting for filtering order results (remove test orders)
      * @var bool
      */
-    private static $excludeTestOrdersByDefault = true;
+    private $excludeTestOrdersByDefault = true;
 
     /**
      * Default settings for updating sale calculations on order results
      * @var bool
      */
-    private static $recalculateSubtotalsByDefault = true;
+    private $recalculateSubtotalsByDefault = true;
 
     /**
-     * Get All Shopify Orders - based on provided request parameters
-     * @method static
+     * Start Date for retrieving orders
+     * @var null|Carbon
+     */
+    private $startDate = null;
+
+    /**
+     * End Date for retrieving orders
+     * @var null|Carbon
+     */
+    private $endDate = null;
+
+    /**
+     * Shopify Order status to identify which types of orders to retrieve.
+     * @var null|string ('open' (default), 'closed', 'cancelled', 'any')
+     */
+    private $orderStatus = null;
+
+    /**
+     * Current setting for filtering order results. If null, will default  to the $excludeTestOrdersByDefault value
+     * @var null|bool
+     */
+    private $excludeTestOrders = null;
+
+    /**
+     * Current setting for filtering order results. If null, will default  to the $recalculateSubtotalsByDefault value
+     * @var null|bool
+     */
+    private $recalculateSubtotals = null;
+
+    /**
+     * Parse Request Data which will then be used to get Shopify Orders
      * @param Request $request
+     * @return $this
+     */
+    public function parseRequestData(Request $request)
+    {
+        $dateObject = DateRequestHelper::getDateObject($request);
+        $this->startDate = $dateObject->startDate;
+        $this->endDate = $dateObject->endDate;
+
+        $this->orderStatus = request()->input('status');
+
+        $this->excludeTestOrders = !empty($request->input('excludeTestOrders'))
+            ? (bool)$request->input('excludeTestOrders')
+            : $this->excludeTestOrdersByDefault;
+
+        $this->recalculateSubtotals = !empty($request->input('recalculateSubtotals'))
+            ? (bool)$request->input('recalculateSubtotals')
+            : $this->recalculateSubtotalsByDefault;
+
+        return $this;
+    }
+
+    /**
+     * Get All Shopify Orders
+     * @method static
+     * @param null|Carbon $startDate
+     * @param null|Carbon $endDate
+     * @param null|string $orderStatus
+     * @param null|bool $excludeTestOrders
+     * @param null|bool $recalculateSubtotals
      * @return array
      */
-    public static function getAllOrdersFromRequest(Request $request){
+    public function getAllOrders(
+        $startDate = null,
+        $endDate = null,
+        $orderStatus = null,
+        $excludeTestOrders = null,
+        $recalculateSubtotals = null
+    ){
         $shopify = new ShopifyHelper();
 
-        $dateObject = DateRequestHelper::getDateObject($request);
-        $startDate = $dateObject->startDate;
-        $endDate = $dateObject->endDate;
+        $startDate = $startDate ?? $this->startDate;
+        $endDate = $endDate ?? $this->endDate;
+        $orderStatus = $orderStatus ?? $this->orderStatus;
+        $excludeTestOrders = $excludeTestOrders ?? $this->excludeTestOrders ?? $this->excludeTestOrdersByDefault;
+        $recalculateSubtotals = $recalculateSubtotals ?? $this->recalculateSubtotals ?? $this->recalculateSubtotalsByDefault;
 
-        $orders = $shopify->getAllOrders($startDate, $endDate, request()->input('status'));
+        $orders = $shopify->getAllOrders($startDate, $endDate, $orderStatus);
 
-        $excludeTestOrders = (
-            !empty($request->input('excludeTestOrders'))
-                ? (bool)$request->input('excludeTestOrders')
-                : self::$excludeTestOrdersByDefault
-        );
         if ($excludeTestOrders === true) {
-            $orders = self::excludeTestOrders($orders);
+            $orders = $this->excludeTestOrders($orders);
         }
 
-        $recalculateSubtotals = (
-            !empty($request->input('recalculateSubtotals'))
-                ? (bool)$request->input('recalculateSubtotals')
-                : self::$recalculateSubtotalsByDefault
-        );
         if ($recalculateSubtotals === true) {
-            $orders = self::calculateSubtotalForRefundedOrders($orders);
+            $orders = $this->calculateSubtotalForRefundedOrders($orders);
         }
 
         return $orders;
@@ -61,11 +117,11 @@ class CustomerOrderHelper
      * @param array $orders
      * @return array
      */
-    public static function excludeTestOrders(array $orders)
+    public function excludeTestOrders(array $orders)
     {
         return collect($orders)
             ->filter(function($order){
-                return !self::isTestOrder($order);
+                return !$this->isTestOrder($order);
             })
             ->all();
     }
@@ -75,7 +131,7 @@ class CustomerOrderHelper
      * @param $order
      * @return bool
      */
-    private static function isTestOrder($order)
+    private function isTestOrder($order)
     {
         $email = $order->customer->email ?? $order->email ?? null;
 
@@ -97,7 +153,7 @@ class CustomerOrderHelper
      * @param array $orders
      * @return array
      */
-    public static function calculateSubtotalForRefundedOrders(array $orders)
+    public function calculateSubtotalForRefundedOrders(array $orders)
     {
         return collect($orders)
             ->transform(function($order){

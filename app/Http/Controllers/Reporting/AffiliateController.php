@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Reporting;
 
 use App\UserGroup;
-use App\Helpers\{CustomerOrderHelper,UserGroupHelper};
+use App\Helpers\{ShopifyOrderHelper,UserGroupHelper};
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
@@ -16,9 +16,12 @@ class AffiliateController extends Controller
     public function sales(Request $request)
     {
         try {
-            $orders = CustomerOrderHelper::getAllOrdersFromRequest($request);
+            $orders = (new ShopifyOrderHelper())
+                ->parseRequestData($request)
+                ->getAllOrders();
 
-            $affiliates = UserGroupHelper::getAllWithCommissionFromRequest($request);
+            $includeUsers = (bool)$request->input('include_users');
+            $affiliates = UserGroupHelper::getAllWithCommission($includeUsers);
 
             foreach ($affiliates as $affiliate) {
                 $affiliate->sales = collect($orders)
@@ -55,7 +58,9 @@ class AffiliateController extends Controller
     public function salesById(Request $request)
     {
         try {
-            $orders = CustomerOrderHelper::getAllOrdersFromRequest($request);
+            $orders = (new ShopifyOrderHelper())
+                ->parseRequestData($request)
+                ->getAllOrders();
 
             $affiliate = UserGroup::with(['commission', 'location'])
                 ->findOrFail($request->id);
