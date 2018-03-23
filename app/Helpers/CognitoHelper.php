@@ -197,8 +197,8 @@ class CognitoHelper
     /**
      * Update Cognito User's email address
      * Note: This method will not properly handle updating user addresses across all platforms. A developer will still have to manually update the email across everything else (Shopify, Wordpress, etc)
-     * @param $value
-     * @param $username
+     * @param string $value
+     * @param string $username (Cognito User ID)
      * @return \Aws\Result
      */
     public function updateUserEmailAddress($value, $username)
