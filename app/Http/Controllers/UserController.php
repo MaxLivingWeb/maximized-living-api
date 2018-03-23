@@ -50,6 +50,27 @@ class UserController extends Controller
     }
 
     /**
+     * Get User by provided Cognito User ID
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getUser($id)
+    {
+        $cognito = new CognitoHelper();
+
+        try {
+            $user = $cognito->getUser($id);
+            return response()->json(User::structureUser($user));
+        }
+        catch(AwsException $e) {
+            return response()->json([$e->getAwsErrorMessage()], 500);
+        }
+        catch (\Exception $e) {
+            return response()->json($e->getMessage(), 500);
+        }
+    }
+
+    /**
      * Add New User
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
@@ -826,6 +847,26 @@ class UserController extends Controller
     }
 
     /**
+     * Deactivate User based on the provided Cognito User ID
+     * @param string $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function deactivateUser($id)
+    {
+        $cognito = new CognitoHelper();
+
+        try {
+            $cognito->deactivateUser($id);
+
+            return response()->json();
+        } catch (AwsException $e) {
+            return response()->json([$e->getAwsErrorMessage()], 500);
+        } catch (\Exception $e) {
+            return response()->json($e->getMessage(), 500);
+        }
+    }
+
+    /**
      * Attach or Detach any address data for this Shopify Customer
      * @param $customAddresses (Custom Addresses saved to the API)
      * @param $shopifyCustomerAddresses (Addresses that are saved to the Shopify Customer)
@@ -952,27 +993,6 @@ class UserController extends Controller
     }
 
     /**
-     * Get User by provided Cognito User ID
-     * @param $id
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function getUser($id)
-    {
-        $cognito = new CognitoHelper();
-
-        try {
-            $user = $cognito->getUser($id);
-            return response()->json(User::structureUser($user));
-        }
-        catch(AwsException $e) {
-            return response()->json([$e->getAwsErrorMessage()], 500);
-        }
-        catch (\Exception $e) {
-            return response()->json($e->getMessage(), 500);
-        }
-    }
-
-    /**
      * Link this User to an Affiliate User from the provided Affiliate ID
      * @param $id
      * @param $affiliateId
@@ -1009,26 +1029,6 @@ class UserController extends Controller
             return response()->json([$e->getAwsErrorMessage()], 500);
         }
         catch (\Exception $e) {
-            return response()->json($e->getMessage(), 500);
-        }
-    }
-
-    /**
-     * Delete User based on the provided Cognito User ID
-     * @param $id
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function delete($id)
-    {
-        $cognito = new CognitoHelper();
-
-        try {
-            $cognito->deleteUser($id);
-
-            return response()->json();
-        } catch (AwsException $e) {
-            return response()->json([$e->getAwsErrorMessage()], 500);
-        } catch (\Exception $e) {
             return response()->json($e->getMessage(), 500);
         }
     }
