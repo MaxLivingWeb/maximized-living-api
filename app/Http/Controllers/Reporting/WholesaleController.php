@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Reporting;
 
-use App\Helpers\CustomerOrderRequestHelper;
+use App\Helpers\ShopifyOrderHelper;
 use App\Http\Controllers\Controller;
 use App\UserGroup;
 use Illuminate\Http\Request;
@@ -18,7 +18,11 @@ class WholesaleController extends Controller
     public function sales(Request $request)
     {
         try {
-            $orders = collect(CustomerOrderRequestHelper::getAllOrders($request))
+            $orders = (new ShopifyOrderHelper())
+                ->parseRequestData($request)
+                ->getAllOrders();
+
+            $groupedOrders = collect($orders)
                 ->filter(function($value) {
                     return !is_null(
                         collect($value->note_attributes)
@@ -34,7 +38,7 @@ class WholesaleController extends Controller
                 });
 
             $affiliates = [];
-            foreach($orders as $groupId => $groupOrders) {
+            foreach($groupedOrders as $groupId => $groupOrders) {
                 $affiliate = UserGroup::with(['commission', 'location'])->find($groupId);
                 if(!empty($affiliate)){
                     $affiliate->sales = $groupOrders;
@@ -52,7 +56,9 @@ class WholesaleController extends Controller
     public function salesById(Request $request)
     {
         try {
-            $orders = CustomerOrderRequestHelper::getAllOrders($request);
+            $orders = (new ShopifyOrderHelper())
+                ->parseRequestData($request)
+                ->getAllOrders();
 
             $affiliate = UserGroup::with(['commission', 'location'])->findOrFail($request->id);
 

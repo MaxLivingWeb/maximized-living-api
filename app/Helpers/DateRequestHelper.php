@@ -3,6 +3,7 @@
 namespace App\Helpers;
 
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class DateRequestHelper
 {
@@ -19,8 +20,8 @@ class DateRequestHelper
                 'endDate'   => 'required|date'
             ]);
 
-            $startDate = new \DateTime(request()->input('startDate'));
-            $endDate = new \DateTime(request()->input('endDate'));
+            $startDate = new Carbon(request()->input('startDate'));
+            $endDate = new Carbon(request()->input('endDate'));
         }
 
         return (object)[

@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Reporting;
 
 use App\UserGroup;
-use App\Helpers\CustomerOrderRequestHelper;
-use Illuminate\Http\Request;
+use App\Helpers\{ShopifyOrderHelper,UserGroupHelper};
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 
 class AffiliateController extends Controller
 {
@@ -16,11 +16,12 @@ class AffiliateController extends Controller
     public function sales(Request $request)
     {
         try {
-            $orders = CustomerOrderRequestHelper::getAllOrders($request);
+            $orders = (new ShopifyOrderHelper())
+                ->parseRequestData($request)
+                ->getAllOrders();
 
-            $affiliates = UserGroup::with(['commission', 'location'])
-                ->get()
-                ->where('commission', '!==', null);
+            $includeUsers = (bool)$request->input('include_users');
+            $affiliates = UserGroupHelper::getAllWithCommission($includeUsers);
 
             foreach ($affiliates as $affiliate) {
                 $affiliate->sales = collect($orders)
@@ -39,9 +40,9 @@ class AffiliateController extends Controller
                     ->values();
             }
 
-            return $affiliates
+            return collect($affiliates)
                 ->filter(function($affiliate) {
-                    return $affiliate->sales->isNotEmpty();
+                    return (!empty($affiliate->sales) && $affiliate->sales->isNotEmpty());
                 })
                 ->values();
         }
@@ -57,10 +58,16 @@ class AffiliateController extends Controller
     public function salesById(Request $request)
     {
         try {
-            $orders = CustomerOrderRequestHelper::getAllOrders($request);
+            $orders = (new ShopifyOrderHelper())
+                ->parseRequestData($request)
+                ->getAllOrders();
 
             $affiliate = UserGroup::with(['commission', 'location'])
                 ->findOrFail($request->id);
+
+            if ((bool)$request->input('include_users') === TRUE) {
+                $affiliate->assignUsersToUserGroup();
+            }
 
             $affiliate->sales = collect($orders)
                 ->filter(function ($value) use ($affiliate) {

@@ -121,8 +121,10 @@ Route::group(['prefix' => 'store'], function() {
     Route::get('/search', 'SearchController@index');
 
     // Get ALL Product Audience Types
-    Route::get('/products', 'Shopify\ProductController@getProducts');
-    Route::get('/products/audience_types', 'Shopify\ProductController@getAllProductsAudienceTypes');
+    Route::group(['prefix' => 'products'], function() {
+        Route::get('/', 'Shopify\ProductController@getProducts');
+        Route::get('/audience_types', 'Shopify\ProductController@getAllProductsAudienceTypes');
+    });
 });
 
 //Google My Business
