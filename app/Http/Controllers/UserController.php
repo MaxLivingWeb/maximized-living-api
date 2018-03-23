@@ -758,7 +758,13 @@ class UserController extends Controller
     {
         try {
             $cognito = new CognitoHelper();
-            $cognito->updateUserEmailAddress($request->email, $request->id);
+
+            $validatedData = $request->validate([
+                'email' => 'required|email'
+            ]);
+
+            $cognito->updateUserEmailAddress($validatedData['email'], $request->id);
+
             return response()->json();
         }
         catch(AwsException $e) {
