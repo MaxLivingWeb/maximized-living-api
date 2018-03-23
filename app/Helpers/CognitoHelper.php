@@ -194,6 +194,31 @@ class CognitoHelper
         ]);
     }
 
+    /**
+     * Update Cognito User's email address
+     * Note: This method will not properly handle updating user addresses across all platforms. A developer will still have to manually update the email across everything else (Shopify, Wordpress, etc)
+     * @param $value
+     * @param $username
+     * @return \Aws\Result
+     */
+    public function updateUserEmailAddress($value, $username)
+    {
+        return $this->client->adminUpdateUserAttributes([
+            'UserAttributes' => [
+                [
+                    'Name' => 'email',
+                    'Value' => $value,
+                ],
+                [
+                    'Name' => 'email_verified',
+                    'Value' => 'true', //this attribute is also required, so that a user will not receive an email notification with a new verification code
+                ]
+            ],
+            'UserPoolId' => env('AWS_COGNITO_USER_POOL_ID'),
+            'Username' => $username,
+        ]);
+    }
+
     public function getGroup($groupName)
     {
         return $this->client->getGroup([

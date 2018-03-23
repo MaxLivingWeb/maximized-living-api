@@ -749,6 +749,30 @@ class UserController extends Controller
     }
 
     /**
+     * Update Cognito User's email address
+     * Note: This method will not properly handle updating user addresses across all platforms. A developer will still have to manually update the email across everything else (Shopify, Wordpress, etc)
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function updateUserEmailAddress(Request $request)
+    {
+        try {
+            $cognito = new CognitoHelper();
+            $cognito->updateUserEmailAddress($request->email, $request->id);
+            return response()->json();
+        }
+        catch(AwsException $e) {
+            return response()->json([$e->getAwsErrorMessage()], 500);
+        }
+        catch (ValidationException $e) {
+            return response()->json($e->errors(), 400);
+        }
+        catch (\Exception $e) {
+            return response()->json($e->getMessage(), 500);
+        }
+    }
+
+    /**
      * Update only basic user details
      * @param Request $request
      * @param $id
