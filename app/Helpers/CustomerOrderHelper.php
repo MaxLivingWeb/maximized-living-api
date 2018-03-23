@@ -71,7 +71,7 @@ class CustomerOrderHelper
     }
 
     /**
-     * Validate Order to see if email used is legit
+     * Validate email associated with Shopify Order to verify this is a legit order
      * @param $order
      * @return bool
      */
