@@ -124,11 +124,6 @@ Route::group(['prefix' => 'store'], function() {
         Route::get('/', 'Shopify\ProductController@getProducts');
         Route::get('/audience_types', 'Shopify\ProductController@getAllProductsAudienceTypes');
     });
-
-    // Get Shopify Orders
-    Route::group(['prefix' => 'orders'], function(){
-        Route::get('/', 'Shopify\OrderController@getAllOrders');
-    });
 });
 
 //Google My Business
