@@ -117,7 +117,7 @@ class ShopifyOrderHelper
      * @param array $orders
      * @return array
      */
-    public function excludeTestOrders(array $orders)
+    private function excludeTestOrders(array $orders)
     {
         return collect($orders)
             ->filter(function($order){
@@ -153,7 +153,7 @@ class ShopifyOrderHelper
      * @param array $orders
      * @return array
      */
-    public function calculateSubtotalForRefundedOrders(array $orders)
+    private function calculateSubtotalForRefundedOrders(array $orders)
     {
         return collect($orders)
             ->transform(function($order){
