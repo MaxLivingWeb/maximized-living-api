@@ -5,16 +5,13 @@ namespace App\Http\Controllers;
 use App\Address;
 use App\AddressType;
 use App\UserGroup;
-use App\Helpers\CognitoHelper;
 use App\Helpers\TextHelper;
-use App\Helpers\ShopifyHelper;
 use App\Helpers\UserGroupHelper;
 use App\Location;
 use App\RegionalSubscriptionCount;
 use Aws\Exception\AwsException;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Exception;
 
