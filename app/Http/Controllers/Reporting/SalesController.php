@@ -11,7 +11,8 @@ class SalesController extends Controller
     public function sales(Request $request)
     {
         try {
-            return CustomerOrderHelper::getAllOrdersFromRequest($request);
+            $orders = CustomerOrderHelper::getAllOrdersFromRequest($request);
+            return collect($orders)->values();
         }
         catch (\Exception $e) {
             return response()->json($e->getMessage(), 500);

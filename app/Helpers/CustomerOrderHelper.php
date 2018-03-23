@@ -151,7 +151,7 @@ class CustomerOrderHelper
                     });
 
                 // 1.b Final Subtotal spent on Items
-                $finalSubtotal = $order->subtotal_price - $refundedSubtotalAmount;
+                $finalSubtotal = abs($order->subtotal_price - $refundedSubtotalAmount);
 
                 // 2. Grand Total after taxes, discounts, everything
                 // 2.a Refunded Amount (Total)
@@ -161,12 +161,43 @@ class CustomerOrderHelper
                     });
 
                 // 2.b Final Total spent on everything
-                $finalTotal = $order->total_price - $refundedTotalAmount;
+                $finalTotal = abs($order->total_price - $refundedTotalAmount);
 
-                $order->subtotal_refunded_amount = number_format($refundedSubtotalAmount,2);
+                $order->subtotal_refunded_amount = number_format($refundedSubtotalAmount,2, '.', '');
                 $order->subtotal_price_final = number_format($finalSubtotal, 2, '.', '');
                 $order->total_refunded_amount = number_format($refundedTotalAmount,2, '.', '');
                 $order->total_price_final = number_format($finalTotal,2, '.', '');
+
+                // Refund message
+                $refundMessage = [];
+                foreach ($order->refunds as $refund) {
+                    $defaultRefundMessage = 'No note added.';
+                    if (count($refund->refund_line_items) === 1) {
+                        $defaultRefundMessage = 'Refunded item.';
+                    }
+                    elseif (count($refund->refund_line_items) > 1) {
+                        $defaultRefundMessage = 'Refunded items.';
+                    }
+                    $refundMessage[] = !empty($refund->note) ? $refund->note : $defaultRefundMessage;
+                }
+                $refundMessage = (count($refundMessage) > 0) ? implode(', ', $refundMessage) : null;
+                $order->refund_note = $refundMessage;
+
+                // Modify Line Items to include "refunded" property
+                $order->line_items = collect($order->line_items)
+                    ->transform(function($item) use($order){
+                        $item->refunded = collect($order->refunds)
+                            ->filter(function($refund) use($item){
+                                return collect($refund->refund_line_items)
+                                    ->filter(function($refund_line_item) use($item){
+                                        return $item->id === $refund_line_item->line_item->id;
+                                    })
+                                    ->isNotEmpty();
+                            })
+                            ->isNotEmpty();
+                        return $item;
+                    })
+                    ->all();
 
                 return $order;
             })
