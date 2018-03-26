@@ -188,7 +188,7 @@ class CognitoHelper
 
     /**
      * Delete User from system completely. USE WITH CAUTION!!
-     * @param $username
+     * @param string $username (Cognito User ID)
      * @return \Aws\Result
      */
     public function deleteUser($username)
@@ -201,7 +201,7 @@ class CognitoHelper
 
     /**
      * Disable User from Cognito AWS. Which will prevent them from logging into their account.
-     * @param $username
+     * @param string $username (Cognito User ID)
      * @return \Aws\Result
      */
     public function deactivateUser($username)

@@ -54,7 +54,7 @@ class UserController extends Controller
 
     /**
      * Get User by provided Cognito User ID
-     * @param $id
+     * @param string $id (Cognito User ID)
      * @return \Illuminate\Http\JsonResponse
      */
     public function getUser($id)
@@ -409,7 +409,7 @@ class UserController extends Controller
      * Update Existing User by providing their Cognito user id
      * Note: To update specific data groups for user during this request, attach parameter "datagroup". Example - This is used to update "basic_details", which is the users first & last Name. If nothing is provided for this parameter, update ALL user data.
      * @param Request $request
-     * @param $id
+     * @param string $id (Cognito User ID)
      * @return \Illuminate\Http\JsonResponse
      */
     public function updateUser(Request $request, $id)
@@ -805,7 +805,7 @@ class UserController extends Controller
     /**
      * Update only basic user details
      * @param Request $request
-     * @param $id
+     * @param string $id (Cognito User ID)
      * @return \Illuminate\Http\JsonResponse
      */
     public function updateUserBasicDetails(Request $request, $id)
@@ -851,7 +851,7 @@ class UserController extends Controller
 
     /**
      * Deactivate User based on the provided Cognito User ID
-     * @param string $id
+     * @param string $id (Cognito User ID)
      * @return \Illuminate\Http\JsonResponse
      */
     public function deactivateUser($id)
@@ -871,10 +871,11 @@ class UserController extends Controller
 
     /**
      * Attach or Detach any address data for this Shopify Customer
-     * @param $customAddresses (Custom Addresses saved to the API)
-     * @param $shopifyCustomerAddresses (Addresses that are saved to the Shopify Customer)
-     * @param $shopifyAddresses (Addresses that were just updated)
-     * @param $userGroup (Can not attach Shopify Address IDs on addresses associated to a Location)
+     * @param array $customAddresses (Custom Addresses saved to the API)
+     * @param array $shopifyCustomerAddresses (Addresses that are saved to the Shopify Customer)
+     * @param array $shopifyAddresses (Addresses that were just updated)
+     * @param \App\UserGroup $userGroup (Can not attach Shopify Address IDs on addresses associated to a Location)
+     * @return void
      */
     private function updateShopifyAttributesToAddresses(
         $customAddresses,
@@ -935,9 +936,10 @@ class UserController extends Controller
 
     /**
      * Attach the Shopify Address ID to our Custom Address that is saved into the API
-     * @param $customAddresses (Custom Addresses saved to the API)
-     * @param $shopifyCustomerAddresses (Addresses that are saved to the Shopify Customer)
-     * @param $shopifyAddresses (Addresses that were just updated)
+     * @param array $customAddresses (Custom Addresses saved to the API)
+     * @param array $shopifyCustomerAddresses (Addresses that are saved to the Shopify Customer)
+     * @param array $shopifyAddresses (Addresses that were just updated)
+     * @return void
      */
     private function attachShopifyAttributesToAddress($customAddress, $shopifyCustomerAddresses, $shopifyAddresses)
     {
@@ -975,8 +977,9 @@ class UserController extends Controller
 
     /**
      * Remove the Shopify Address ID from our Custom Address that is saved into the API
-     * @param $customAddress (Custom Address saved to the API)
-     * @param $shopifyAddress (Address that was just updated to Shopify)
+     * @param \App\Address $customAddress (Custom Address saved to the API)
+     * @param \stdClass $shopifyAddress (Address that was just updated to Shopify)
+     * @return void
      */
     private function detachShopifyAddressFromUser($customAddress, $shopifyAddress)
     {
@@ -997,8 +1000,8 @@ class UserController extends Controller
 
     /**
      * Link this User to an Affiliate User from the provided Affiliate ID
-     * @param $id
-     * @param $affiliateId
+     * @param string $id (Cognito User ID)
+     * @param int $affiliateId (ID representing the affiliate UserGroup this User will be linked to)
      * @return \Illuminate\Http\JsonResponse
      */
     public function linkToAffiliate($id, $affiliateId)
@@ -1019,7 +1022,7 @@ class UserController extends Controller
 
     /**
      * Get User's Affiliate Group based on the provided Cognito User ID
-     * @param $id
+     * @param string $id (Cognito User ID)
      * @return \Illuminate\Http\JsonResponse
      */
     public function affiliate($id)
@@ -1052,10 +1055,10 @@ class UserController extends Controller
     /**
      * Insert User's Address to Database
      * @param $request
-     * @param $fieldName
-     * @param $fieldDescription
-     * @param $userGroup
-     * @return null
+     * @param string $fieldName
+     * @param string $fieldDescription
+     * @param \App\UserGroup $userGroup
+     * @return \App\Address|null
      */
     private function addAddressToDatabase(
         $request,
@@ -1086,8 +1089,8 @@ class UserController extends Controller
 
     /**
      * Format Address data to be passed into Shopify Request
-     * @param $shopifyCustomerData
-     * @param null $businessName
+     * @param array $shopifyCustomerData
+     * @param string|null $businessName
      * @param array $address
      * @param bool $default
      * @return \stdClass
@@ -1134,8 +1137,8 @@ class UserController extends Controller
 
     /**
      * Validate that Shopify Address being added to Shopify Customer is completely unique
-     * @param $currentAddress
-     * @param $addresses
+     * @param \stdClass $currentAddress (The address being compared against all the other addresses)
+     * @param array $addresses
      * @return bool
      */
     private function uniqueShopifyAddressData($currentAddress, $addresses)
