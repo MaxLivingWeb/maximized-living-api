@@ -172,9 +172,27 @@ class CognitoHelper
 
     }
 
+    /**
+     * Delete User from system completely. USE WITH CAUTION!!
+     * @param string $username (Cognito User ID)
+     * @return \Aws\Result
+     */
     public function deleteUser($username)
     {
         return $this->client->adminDeleteUser([
+            'UserPoolId' => env('AWS_COGNITO_USER_POOL_ID'),
+            'Username' => $username
+        ]);
+    }
+
+    /**
+     * Disable User from Cognito AWS. Which will prevent them from logging into their account.
+     * @param string $username (Cognito User ID)
+     * @return \Aws\Result
+     */
+    public function deactivateUser($username)
+    {
+        return $this->client->adminDisableUser([
             'UserPoolId' => env('AWS_COGNITO_USER_POOL_ID'),
             'Username' => $username
         ]);
