@@ -62,8 +62,8 @@ class UserController extends Controller
         $cognito = new CognitoHelper();
 
         try {
-            $user = $cognito->getUser($id);
-            return response()->json(User::structureUser($user));
+            $cognitoUser = $cognito->getUser($id);
+            return response()->json(User::structureUser($cognitoUser));
         }
         catch(AwsException $e) {
             return response()->json([$e->getAwsErrorMessage()], 500);
