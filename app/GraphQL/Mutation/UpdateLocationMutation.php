@@ -118,8 +118,10 @@ class UpdateLocationMutation extends Mutation
         //if the address exists, just get out
         if(!empty($address_exists)) {
 
-            $sendEmail= new TransactionalEmailController();
-            $sendEmail->LocationEmail($locationBeforeUpdate,$locationBeforeUpdateAddress,$locationAfterUpdate,$addresses,'update');
+        	if (!empty(env('ARCANE_NOTIFICATION_EMAIL'))) {
+		        $sendEmail = new TransactionalEmailController();
+		        $sendEmail->LocationEmail( $locationBeforeUpdate, $locationBeforeUpdateAddress, $locationAfterUpdate, $addresses, 'update' );
+	        }
 
             return $args;
         }
@@ -131,8 +133,11 @@ class UpdateLocationMutation extends Mutation
         foreach($addresses as $address) {
             Address::attachAddress($updated_location->id, $address);
         }
-        $sendEmail= new TransactionalEmailController();
-        $sendEmail->LocationEmail($locationBeforeUpdate,$locationBeforeUpdateAddress,$locationAfterUpdate,$addresses,'update');
+
+	    if (!empty(env('ARCANE_NOTIFICATION_EMAIL'))) {
+		    $sendEmail = new TransactionalEmailController();
+		    $sendEmail->LocationEmail( $locationBeforeUpdate, $locationBeforeUpdateAddress, $locationAfterUpdate, $addresses, 'update' );
+	    }
 
         if ($location === 1) {
             return $args;
