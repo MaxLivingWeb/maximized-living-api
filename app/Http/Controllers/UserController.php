@@ -767,13 +767,15 @@ class UserController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    // TODO: Validate that user doesn't currently have Wordpress account, and stop the request from continuing. Although it doesn't seem to override the current account at all, if one is already set....
     public function createWordpressAccountForUser(Request $request)
     {
         $cognito = new CognitoHelper();
         $wordpress = new WordpressHelper();
 
         try {
+            // TODO: Validate that user doesn't currently have Wordpress account, and stop the request from continuing. Although it doesn't seem to override the current account at all, if one is already set....
+            //...
+
             $cognitoUser = $cognito->getUser($request->id);
             $user = User::structureUser($cognitoUser);
             $userGroup = (new CognitoUser($user->id))->group();
