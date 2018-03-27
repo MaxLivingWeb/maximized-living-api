@@ -763,44 +763,56 @@ class UserController extends Controller
     }
 
     /**
-     * Get User by provided Cognito User ID, and then create a brand new Wordpress User account
+     * Get User by provided Cognito User ID, and then create a brand new thirdparty account for this user by passing in the account 'type' parameter
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function createWordpressAccountForUser(Request $request)
+    public function createThirdpartyAccountForUser(Request $request)
     {
         $cognito = new CognitoHelper();
-        $wordpress = new WordpressHelper();
 
         try {
-            // TODO: Validate that user doesn't currently have Wordpress account, and stop the request from continuing. Although it doesn't seem to override the current account at all, if one is already set....
-            //...
-
-            $cognitoUser = $cognito->getUser($request->id);
-            $user = User::structureUser($cognitoUser);
-            $userGroup = (new CognitoUser($user->id))->group();
-
-            if (empty($userGroup)) {
-                return response()->json(['Unable to Create Wordpress Account for user. Please add user to Affiliate UserGroup.'], 202);
-            }
-
-            // Ensure user has correct permissions
-            if (!in_array('public-website', $user->permissions)) {
-                $user->permissions[] = 'public-website';
-            }
-            $cognito->updateUserAttribute('custom:permissions', implode(',', $user->permissions), $request->id);
-
-            // Create their account
-            $wordpress->createUser([
-                'first_name' => $user->first_name,
-                'last_name'  => $user->last_name,
-                'email'      => $user->email,
-                'vanity_website_ids' => [
-                    strval($userGroup->location->vanity_website_id) ?? ''
-                ],
+            $validatedData = $request->validate([
+                'type' => 'required'
             ]);
 
-            return response()->json();
+            $accountType = strtolower($validatedData['type']);
+
+            // Create Wordpress Account for User
+            if ($accountType === 'wordpress') {
+                $wordpress = new WordpressHelper();
+
+                // TODO: Validate that user doesn't currently have Wordpress account, and stop the request from continuing. Although it doesn't seem to override the current account at all, if one is already set....
+                //...
+
+                $cognitoUser = $cognito->getUser($request->id);
+                $user = User::structureUser($cognitoUser);
+                $userGroup = (new CognitoUser($user->id))->group();
+
+                if (empty($userGroup)) {
+                    return response()->json(['Unable to Create Wordpress Account for user. Please add user to Affiliate UserGroup.'], 202);
+                }
+
+                // Ensure user has correct permissions
+                if (!in_array('public-website', $user->permissions)) {
+                    $user->permissions[] = 'public-website';
+                }
+                $cognito->updateUserAttribute('custom:permissions', implode(',', $user->permissions), $request->id);
+
+                // Create their account
+                $wordpress->createUser([
+                    'first_name' => $user->first_name,
+                    'last_name'  => $user->last_name,
+                    'email'      => $user->email,
+                    'vanity_website_ids' => [
+                        (strval($userGroup->location->vanity_website_id)) ?? ''
+                    ],
+                ]);
+
+                return response()->json(['Wordpress account created.']);
+            }
+
+            return response()->json(['No thirdparty account could be created from the provided account type "'.$accountType.'"']);
 
         }
         catch(AwsException $e) {
