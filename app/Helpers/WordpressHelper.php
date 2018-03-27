@@ -11,7 +11,7 @@ class WordpressHelper
 
     function __construct()
     {
-        $this->client = new GuzzleHttp\Client(['base_uri' => env('WORDPRESS_API_URL')]);
+        $this->client = new GuzzleHttp\Client(['base_uri' => config('maxliving.urls.wordpress_api')]);
     }
 
     public function createUser($params)
