@@ -776,7 +776,7 @@ class UserController extends Controller
         try {
             $cognitoUser = $cognito->getUser($request->id);
             $user = User::structureUser($cognitoUser);
-            $userGroup = (new CognitoUser($request->id))->group();
+            $userGroup = (new CognitoUser($user->id))->group();
 
             if (empty($userGroup)) {
                 return response()->json(['Unable to Create Wordpress Account for user. Please add user to Affiliate UserGroup.'], 202);
