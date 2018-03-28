@@ -11,18 +11,20 @@ class CognitoUserHelper
     /**
      * List Users from Cognito
      * @param null|string $groupName (Get Cognito users by a specific UserGroup. To get ALL Cognito users, enter "ALL_COGNITO_USERS")
+     * @param null|string $enabledStatus (Get Cognito users by a specific enabled status. 'enabled' (default), 'disabled', 'any'
      * @param bool $sendbackResultAsJSON (Sendback result as JSON format)
      * @param bool $condensed (Sendback condensed user data)
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Support\Collection
      */
     public static function listUsers(
         $groupName = NULL,
+        $enabledStatus = NULL,
         $sendbackResultAsJSON = TRUE,
         $condensed = FALSE
     ){
         $cognito = new CognitoHelper();
         try {
-            $result = $cognito->listUsers($groupName, $condensed);
+            $result = $cognito->listUsers($groupName, $enabledStatus, $condensed);
 
             if(is_null($result)) {
                 return response()->json('no users', 404);
@@ -47,7 +49,7 @@ class CognitoUserHelper
      */
     public static function listCognitoUsersWithDuplicateInstances(array $users = [])
     {
-        $users = !empty($users) ? $users : self::listUsers('ALL_COGNITO_USERS', FALSE, TRUE);
+        $users = !empty($users) ? $users : self::listUsers('ALL_COGNITO_USERS', 'any', FALSE, TRUE);
 
         if (empty($users)) {
             return;
@@ -63,7 +65,7 @@ class CognitoUserHelper
      */
     public static function listCognitoUsersWithUppercasedEmails(array $users = [])
     {
-        $users = !empty($users) ? $users : self::listUsers('ALL_COGNITO_USERS', FALSE, TRUE);
+        $users = !empty($users) ? $users : self::listUsers('ALL_COGNITO_USERS', 'any', FALSE, TRUE);
 
         if (empty($users)) {
             return;

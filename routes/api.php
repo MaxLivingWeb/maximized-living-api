@@ -45,7 +45,6 @@ Route::group(['prefix' => 'users'], function() {
     Route::get('/', 'UserController@listUsers');
     Route::get('/duplicates', 'UserController@listCognitoUsersWithDuplicateInstances'); // Reporting task to find all problematic Cognito User accounts
     Route::get('/uppercased', 'UserController@listCognitoUsersWithUppercasedEmails'); // Reporting task to find all problematic Cognito User accounts
-    Route::get('/group_by/{groupName}', 'UserController@listUsers');
 });
 
 // Locations

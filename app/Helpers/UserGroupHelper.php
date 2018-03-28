@@ -13,10 +13,13 @@ class UserGroupHelper
     /**
      * Get Affiliates (UserGroups with Location or Commission assigned) and then cache the $users assigned to each UserGroup
      * @param bool $includeUsers
+     * @param null|string $includedUsersEnabledStatus (Get Cognito users by a specific enabled status. 'enabled' (default), 'disabled', 'any'
      * @return array
      */
-    public static function getAllWithCommission($includeUsers = false)
-    {
+    public static function getAllWithCommission(
+        $includeUsers = false,
+        $includedUsersEnabledStatus = NULL
+    ){
         $userGroups = UserGroup::with(['commission', 'location'])
             ->get()
             ->where('commission', '!==', null)
@@ -34,7 +37,7 @@ class UserGroupHelper
                 ));
             } else {
                 $allUsers = (new CognitoHelper(1440))
-                    ->listUsers();
+                    ->listUsers(NULL, $includedUsersEnabledStatus);
 
                 Cache::put(
                     'allAffiliateUsersGroupController',

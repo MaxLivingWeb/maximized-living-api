@@ -14,12 +14,15 @@ class UserController extends Controller
 {
     /**
      * List Users from Cognito
-     * @param null|string $groupName (Get Cognito users by a specific UserGroup. To get ALL Cognito users, enter "ALL_COGNITO_USERS")
+     * @param Request $request
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Support\Collection
      */
-    public function listUsers($groupName = NULL)
+    public function listUsers(Request $request)
     {
-        return CognitoUserHelper::listUsers($groupName);
+        $groupName = $request->input('group_name') ?? null;
+        $enabledStatus = $request->input('enabled_status') ?? null;
+
+        return CognitoUserHelper::listUsers($groupName, $enabledStatus);
     }
 
     /**

@@ -85,14 +85,18 @@ class CognitoHelper
     /**
      * Returns an array of users from Cognito.
      *
-     * @param string|null $groupName The name of the group to get users for. If no group name is provided, will default to the .env affiliate group name. To return all users - pass the value 'ALL_COGNITO_USERS'
+     * @param null|string $groupName (The name of the group to get users for. If no group name is provided, will default to the .env affiliate group name. To return all users - pass the value 'ALL_COGNITO_USERS')
+     * @param null|string $enabledStatus (Get Cognito users by a specific enabled status. 'enabled' (default), 'disabled', 'any'
+     * @param bool $condensed (Sendback condensed user data)
      * @return \Illuminate\Support\Collection
      */
-    public function listUsers($groupName = NULL, $condensed = FALSE)
-    {
-        if (!$groupName) {
-            $groupName = env('AWS_COGNITO_AFFILIATE_USER_GROUP_NAME');
-        }
+    public function listUsers(
+        $groupName = NULL,
+        $enabledStatus = NULL,
+        $condensed = FALSE
+    ){
+        $groupName = $groupName ?? env('AWS_COGNITO_AFFILIATE_USER_GROUP_NAME');
+        $enabledStatus = $enabledStatus ?? 'enabled';
 
         try {
             $users = collect();
@@ -137,7 +141,18 @@ class CognitoHelper
                 $count++;
             }
 
-            return $users->toArray();
+            return $users
+                ->filter(function($user) use($enabledStatus) {
+                    if ($enabledStatus === 'any'
+                        || ($user['user_enabled'] && $enabledStatus === 'enabled')
+                        || (!$user['user_enabled'] && $enabledStatus === 'disabled')
+                    ) {
+                        return true;
+                    }
+                    return false;
+                })
+                ->values()
+                ->toArray();
         }
         catch(AwsException $e) {
             if($e->getStatusCode() !== 400) { // group not found
@@ -400,6 +415,7 @@ class CognitoHelper
         $userData = [
             'id'                => $cognitoUser['Username'],
             'user_status'       => $cognitoUser['UserStatus'],
+            'user_enabled'      => $cognitoUser['Enabled'],
             'email'             => $attributes->where('Name', 'email')->first()['Value'],
             'created'           => $cognitoUser['UserCreateDate'],
             'shopify_id'        => $shopifyId,
