@@ -85,8 +85,9 @@ class CognitoHelper
     /**
      * Returns an array of users from Cognito.
      *
-     * @param string|null $groupName The name of the group to get users for. If no group name is provided, will default to the .env affiliate group name. To return all users - pass the value 'ALL_COGNITO_USERS'
+     * @param string|null $groupName (The name of the group to get users for. If no group name is provided, will default to the .env affiliate group name. To return all users - pass the value 'ALL_COGNITO_USERS')
      * @param null|string $enabledStatus (Get Cognito users by a specific enabled status. 'enabled' (default), 'disabled', 'any'
+     * @param bool $condensed (Sendback the data in a condensed format)
      * @return \Illuminate\Support\Collection
      */
     public function listUsers(
