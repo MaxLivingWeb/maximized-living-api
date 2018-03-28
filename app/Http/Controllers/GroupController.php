@@ -301,7 +301,7 @@ class GroupController extends Controller
                 $cognito->deactivateUser($user->id);
             });
 
-            // "Soft Delete"
+            // Soft delete
             $group->delete();
 
             return response()->json();
@@ -337,8 +337,8 @@ class GroupController extends Controller
                 $cognito->activateUser($user->id);
             });
 
-            $group->deleted_at = null;
-            $group->save();
+            // Restore from soft deletion
+            $group->restore();
 
             return response()->json();
         }
