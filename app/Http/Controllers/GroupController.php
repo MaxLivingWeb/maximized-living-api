@@ -14,7 +14,7 @@ use Exception;
 
 class GroupController extends Controller
 {
-    public function all()
+	public function all()
     {
         return UserGroup::all();
     }

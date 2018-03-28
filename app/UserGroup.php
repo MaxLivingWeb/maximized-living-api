@@ -6,9 +6,13 @@ use App\Helpers\CognitoHelper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 
 class UserGroup extends Model
 {
+	use SoftDeletes;
+	protected $dates = ['deleted_at'];
     protected $fillable = [
         'group_name',
         'group_name_display',
