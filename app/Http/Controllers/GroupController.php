@@ -328,7 +328,7 @@ class GroupController extends Controller
     public function reactivateUserGroup($id)
     {
         $cognito = new CognitoHelper();
-        $group = UserGroup::withTrashed()->findOrFail($id);
+        $group = UserGroup::withTrashed()->findOrFail($id); //retreive items even with 'deleted_at' status
         $users = $group->listUsers();
 
         try {
