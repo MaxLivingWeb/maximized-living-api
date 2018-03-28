@@ -102,20 +102,25 @@ class UserGroup extends Model
     }
 
     /**
-     * Assign the protected $users variable to this UserGroup
+     * Assign (protected) $users variable to this UserGroup
+     * @param null|string $enabledStatus (Get Cognito users by a specific enabled status. 'enabled' (default), 'disabled', 'any'
+     * @return void
      */
-    public function assignUsersToUserGroup()
+    public function assignUsersToUserGroup($enabledStatus = NULL)
     {
-        $this->users = $this->listUsers();
+        $this->users = $this->listUsers($enabledStatus);
     }
 
     /**
-     * List all Users in this UserGroup
-     * @return null|array
+     * List Users for this UserGroup, by checking all the associated `user_id`'s mapped to this `user_group_id`. NOTE: This method does not use caching.
+     * @param null|string $enabledStatus (Get Cognito users by a specific enabled status. 'enabled' (default), 'disabled', 'any'
+     * @return array|null
      */
-    public function listUsers()
+    public function listUsers($enabledStatus = NULL)
     {
         $cognito = new CognitoHelper();
+
+        $enabledStatus = $enabledStatus ?? 'enabled';
 
         $userIds = DB::table('usergroup_users')
             ->where('user_group_id', '=', $this->id)
@@ -125,10 +130,10 @@ class UserGroup extends Model
 
         return collect($userIds)
             ->transform(function($userId) use($cognito){
-                $user = $cognito->getUser($userId);
+                $cognitoUser = $cognito->getUser($userId);
 
-                $attributes = $user['UserAttributes']
-                    ?? $user['Attributes']
+                $attributes = $cognitoUser['UserAttributes']
+                    ?? $cognitoUser['Attributes']
                     ?? [];
 
                 $customAttributes = collect($attributes)
@@ -139,12 +144,21 @@ class UserGroup extends Model
                     return; // Skip this user since it should be hidden from the affiliate group. Most likely an Admin who was secretly added to an Affiliate group to mimic specific page displays (Content Portal, Ecomm, etc).
                 }
 
-                if (!empty($user)) {
-                    return User::structureUser($user);
+                if (!empty($cognitoUser)) {
+                    return User::structureUser($cognitoUser);
                 }
             })
             ->reject(function($user){
                 return is_null($user);
+            })
+            ->filter(function($user) use($enabledStatus) {
+                if ($enabledStatus === 'any'
+                    || ($user->user_enabled && $enabledStatus === 'enabled')
+                    || (!$user->user_enabled && $enabledStatus === 'disabled')
+                ) {
+                    return true;
+                }
+                return false;
             })
             ->values()
             ->all();

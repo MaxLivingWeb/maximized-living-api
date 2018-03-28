@@ -23,14 +23,15 @@ class LocationController extends Controller
 
     /**
      * Retrieves a list of all Cognito users associated with a given location.
-     *
+     * @param Request $request
      * @param integer $id The ID of the location to retrieve users for.
      * @return array
      */
-    public function getUsersById($id)
+    public function getUsersById(Request $request, $id)
     {
         $location = Location::with('userGroup')->findOrFail($id);
-        return response()->json($location->listUsers());
+        $enabledStatus = $request->input('enabled_status') ?? null;
+        return response()->json($location->listUsers($enabledStatus));
     }
 
     /**

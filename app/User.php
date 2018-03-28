@@ -45,6 +45,7 @@ class User extends Authenticatable
                 ->where('Name', 'email')
                 ->first()['Value'],
             'user_status' => $cognitoUser['UserStatus'],
+            'user_enabled' => $cognitoUser['Enabled'],
             'created' => $cognitoUser['UserCreateDate']
         ];
 
