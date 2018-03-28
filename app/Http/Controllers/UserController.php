@@ -901,6 +901,26 @@ class UserController extends Controller
     }
 
     /**
+     * Reassign the Shopify ID attribute to this Cognito User
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function updateUserShopifyID(Request $request)
+    {
+        $cognito = new CognitoHelper();
+
+        try {
+            $cognito->updateUserAttribute('custom:shopifyId', $request->shopify_id, $request->id);
+
+            return response()->json();
+        } catch (AwsException $e) {
+            return response()->json([$e->getAwsErrorMessage()], 500);
+        } catch (\Exception $e) {
+            return response()->json($e->getMessage(), 500);
+        }
+    }
+
+    /**
      * Deactivate User based on the provided Cognito User ID
      * @param string $id (Cognito User ID)
      * @return \Illuminate\Http\JsonResponse
