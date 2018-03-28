@@ -25,7 +25,8 @@ Route::group(['prefix' => 'group'], function() {
     Route::get('/', 'GroupController@getByName');
     Route::post('/', 'GroupController@add');
     Route::put('/{id}', 'GroupController@update');
-    Route::delete('/{id}', 'GroupController@delete');
+    Route::put('/{id}/reactivate', 'GroupController@reactivateUserGroup');
+    Route::delete('/{id}', 'GroupController@deactivateUserGroup');
 });
 
 // Users

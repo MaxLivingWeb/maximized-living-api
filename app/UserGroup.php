@@ -12,7 +12,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class UserGroup extends Model
 {
 	use SoftDeletes;
+
 	protected $dates = ['deleted_at'];
+
     protected $fillable = [
         'group_name',
         'group_name_display',
@@ -58,6 +60,11 @@ class UserGroup extends Model
         return $this->hasOne('App\Location', 'id', 'location_id');
     }
 
+    /**
+     * Associate User to this UserGroup
+     * @param $id Cognito User ID
+     * @return void
+     */
     public function addUser($id) {
         DB::table('usergroup_users')->insert(
             [
@@ -67,6 +74,11 @@ class UserGroup extends Model
         );
     }
 
+    /**
+     * Disassociate User ID from this UserGroup ID (hard delete record)
+     * @param string $id Cognito User ID
+     * @return void
+     */
     public function deleteUser($id) {
         DB::table('usergroup_users')
             ->where([
@@ -97,6 +109,10 @@ class UserGroup extends Model
         $this->users = $this->listUsers();
     }
 
+    /**
+     * List all Users in this UserGroup
+     * @return null|array
+     */
     public function listUsers()
     {
         $cognito = new CognitoHelper();
@@ -134,6 +150,12 @@ class UserGroup extends Model
             ->all();
     }
 
+    /**
+     * Load Users into protected $users variable, by caching results
+     * @param array $allUsers
+     * @param array $shopifyUsers
+     * @return void
+     */
     public function loadUsers($allUsers, $shopifyUsers) {
         // this logic seems to take a long time to run, so we'll cache it as well
         $cacheName = 'location_' . $this->id . '_all_users';
@@ -181,7 +203,7 @@ class UserGroup extends Model
     }
 
     /**
-     * Creates a new 'single user' usergroup for the given user.
+     * Creates a new 'single user' UserGroup for the given user.
      *
      * @param array $data An array containing the data for the usergroup.
      * @param string $id The ID of the user to create a usergroup for.

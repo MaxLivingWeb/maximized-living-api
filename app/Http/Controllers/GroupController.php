@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\{Address,AddressType,UserGroup};
-use App\Helpers\{TextHelper,UserGroupHelper};
+use App\Helpers\{CognitoHelper,TextHelper,UserGroupHelper};
 use App\Location;
 use App\RegionalSubscriptionCount;
 use Aws\Exception\AwsException;
@@ -271,9 +271,75 @@ class GroupController extends Controller
         }
     }
 
-    public function delete($id)
+    /**
+     * Use Soft Deletes to deactivate this UserGroup, and any associated users as well
+     * @param $id
+     */
+    public function deactivateUserGroup($id)
     {
+        $cognito = new CognitoHelper();
         $group = UserGroup::findOrFail($id);
-        $group->delete();
+        $users = $group->listUsers();
+
+        try {
+            // Deactivate all Users in this UserGroup
+            collect($users)->each(function($user) use($cognito){
+                $cognito->deactivateUser($user->id);
+            });
+
+            // "Soft Delete"
+            $group->delete();
+
+            return response()->json();
+        }
+        // Rollback, and set all users to be Enabled again
+        catch (AwsException $e) {
+            collect($users)->each(function($user) use($cognito){
+                $cognito->activateUser($user->id);
+            });
+            return response()->json([$e->getAwsErrorMessage()], 500);
+        }
+        catch(\Exception $e) {
+            collect($users)->each(function($user) use($cognito){
+                $cognito->activateUser($user->id);
+            });
+            return response()->json($e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Reactivate this UserGroup, and any associated users as well
+     * @param $id
+     */
+    public function reactivateUserGroup($id)
+    {
+        $cognito = new CognitoHelper();
+        $group = UserGroup::withTrashed()->findOrFail($id);
+        $users = $group->listUsers();
+
+        try {
+            // Activate all Users in this UserGroup
+            collect($users)->each(function($user) use($cognito){
+                $cognito->activateUser($user->id);
+            });
+
+            $group->deleted_at = null;
+            $group->save();
+
+            return response()->json();
+        }
+        // Rollback, and set all users to be Disabled again
+        catch (AwsException $e) {
+            collect($users)->each(function($user) use($cognito){
+                $cognito->deactivateUser($user->id);
+            });
+            return response()->json([$e->getAwsErrorMessage()], 500);
+        }
+        catch(\Exception $e) {
+            collect($users)->each(function($user) use($cognito){
+                $cognito->deactivateUser($user->id);
+            });
+            return response()->json($e->getMessage(), 500);
+        }
     }
 }
