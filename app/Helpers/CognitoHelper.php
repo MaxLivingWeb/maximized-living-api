@@ -201,6 +201,19 @@ class CognitoHelper
     }
 
     /**
+     * Enable User for Cognito AWS. Which will allow them to log into their account.
+     * @param string $username (Cognito User ID)
+     * @return \Aws\Result
+     */
+    public function activateUser($username)
+    {
+        return $this->client->adminEnableUser([
+            'UserPoolId' => env('AWS_COGNITO_USER_POOL_ID'),
+            'Username' => $username
+        ]);
+    }
+
+    /**
      * Disable User from Cognito AWS. Which will prevent them from logging into their account.
      * @param string $username (Cognito User ID)
      * @return \Aws\Result
