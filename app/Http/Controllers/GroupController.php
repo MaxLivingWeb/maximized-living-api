@@ -10,12 +10,10 @@ use Aws\Exception\AwsException;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Exception;
 
 class GroupController extends Controller
 {
-	use SoftDeletes;
 	public function all()
     {
         return UserGroup::all();
