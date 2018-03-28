@@ -913,9 +913,11 @@ class UserController extends Controller
             $cognito->updateUserAttribute('custom:shopifyId', $request->shopify_id, $request->id);
 
             return response()->json();
-        } catch (AwsException $e) {
+        }
+        catch (AwsException $e) {
             return response()->json([$e->getAwsErrorMessage()], 500);
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             return response()->json($e->getMessage(), 500);
         }
     }
