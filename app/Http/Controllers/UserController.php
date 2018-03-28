@@ -2,18 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Address;
-use App\AddressType;
-use App\CognitoUser;
-use App\Location;
-use App\UserGroup;
-use App\User;
-use App\Helpers\CognitoUserHelper;
-use App\Helpers\CognitoHelper;
-use App\Helpers\ShopifyHelper;
+use App\{Address,AddressType,CognitoUser,Location,UserGroup,User};
+use App\Helpers\{CognitoUserHelper,CognitoHelper,ShopifyHelper,WordpressHelper};
 use GuzzleHttp\Exception\ClientException;
-use Illuminate\Http\Request;
 use Aws\Exception\AwsException;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
@@ -47,6 +40,27 @@ class UserController extends Controller
     public function listCognitoUsersWithUppercasedEmails()
     {
         return CognitoUserHelper::listCognitoUsersWithUppercasedEmails();
+    }
+
+    /**
+     * Get User by provided Cognito User ID
+     * @param string $id (Cognito User ID)
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getUser($id)
+    {
+        $cognito = new CognitoHelper();
+
+        try {
+            $cognitoUser = $cognito->getUser($id);
+            return response()->json(User::structureUser($cognitoUser));
+        }
+        catch(AwsException $e) {
+            return response()->json([$e->getAwsErrorMessage()], 500);
+        }
+        catch (\Exception $e) {
+            return response()->json($e->getMessage(), 500);
+        }
     }
 
     /**
@@ -385,7 +399,7 @@ class UserController extends Controller
      * Update Existing User by providing their Cognito user id
      * Note: To update specific data groups for user during this request, attach parameter "datagroup". Example - This is used to update "basic_details", which is the users first & last Name. If nothing is provided for this parameter, update ALL user data.
      * @param Request $request
-     * @param $id
+     * @param string $id (Cognito User ID)
      * @return \Illuminate\Http\JsonResponse
      */
     public function updateUser(Request $request, $id)
@@ -749,6 +763,67 @@ class UserController extends Controller
     }
 
     /**
+     * Get User by provided Cognito User ID, and then create a brand new thirdparty account for this user by passing in the account 'type' parameter
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function createThirdpartyAccountForUser(Request $request)
+    {
+        $cognito = new CognitoHelper();
+
+        try {
+            $validatedData = $request->validate([
+                'type' => 'required'
+            ]);
+
+            $accountType = strtolower($validatedData['type']);
+
+            // Create Wordpress Account for User
+            if ($accountType === 'wordpress') {
+                $wordpress = new WordpressHelper();
+
+                // TODO: Validate that user doesn't currently have Wordpress account, and stop the request from continuing. Although it doesn't seem to override the current account at all, if one is already set....
+                //...
+
+                $cognitoUser = $cognito->getUser($request->id);
+                $user = User::structureUser($cognitoUser);
+                $userGroup = (new CognitoUser($user->id))->group();
+
+                if (empty($userGroup)) {
+                    return response()->json(['Unable to Create Wordpress Account for user. Please add user to Affiliate UserGroup.'], 202);
+                }
+
+                // Ensure user has correct permissions
+                if (!in_array('public-website', $user->permissions)) {
+                    $user->permissions[] = 'public-website';
+                }
+                $cognito->updateUserAttribute('custom:permissions', implode(',', $user->permissions), $request->id);
+
+                // Create their account
+                $wordpress->createUser([
+                    'first_name' => $user->first_name,
+                    'last_name'  => $user->last_name,
+                    'email'      => $user->email,
+                    'vanity_website_ids' => [
+                        (strval($userGroup->location->vanity_website_id)) ?? ''
+                    ],
+                ]);
+
+                return response()->json(['Wordpress account created.']);
+            }
+
+            return response()->json(['No thirdparty account could be created from the provided account type "'.$accountType.'"']);
+
+        }
+        catch(AwsException $e) {
+            return response()->json([$e->getAwsErrorMessage()], 500);
+        }
+        catch (\Exception $e) {
+            return response()->json($e->getMessage(), 500);
+        }
+    }
+
+    /**
      * Update Cognito User's email address
      * Note: This method will not properly handle updating user addresses across all platforms. A developer will still have to manually update the email across everything else (Shopify, Wordpress, etc)
      * @param Request $request
@@ -758,7 +833,13 @@ class UserController extends Controller
     {
         try {
             $cognito = new CognitoHelper();
-            $cognito->updateUserEmailAddress($request->email, $request->id);
+
+            $validatedData = $request->validate([
+                'email' => 'required|email'
+            ]);
+
+            $cognito->updateUserEmailAddress($validatedData['email'], $request->id);
+
             return response()->json();
         }
         catch(AwsException $e) {
@@ -775,7 +856,7 @@ class UserController extends Controller
     /**
      * Update only basic user details
      * @param Request $request
-     * @param $id
+     * @param string $id (Cognito User ID)
      * @return \Illuminate\Http\JsonResponse
      */
     public function updateUserBasicDetails(Request $request, $id)
@@ -820,11 +901,32 @@ class UserController extends Controller
     }
 
     /**
+     * Deactivate User based on the provided Cognito User ID
+     * @param string $id (Cognito User ID)
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function deactivateUser($id)
+    {
+        $cognito = new CognitoHelper();
+
+        try {
+            $cognito->deactivateUser($id);
+
+            return response()->json();
+        } catch (AwsException $e) {
+            return response()->json([$e->getAwsErrorMessage()], 500);
+        } catch (\Exception $e) {
+            return response()->json($e->getMessage(), 500);
+        }
+    }
+
+    /**
      * Attach or Detach any address data for this Shopify Customer
-     * @param $customAddresses (Custom Addresses saved to the API)
-     * @param $shopifyCustomerAddresses (Addresses that are saved to the Shopify Customer)
-     * @param $shopifyAddresses (Addresses that were just updated)
-     * @param $userGroup (Can not attach Shopify Address IDs on addresses associated to a Location)
+     * @param array $customAddresses (Custom Addresses saved to the API)
+     * @param array $shopifyCustomerAddresses (Addresses that are saved to the Shopify Customer)
+     * @param array $shopifyAddresses (Addresses that were just updated)
+     * @param \App\UserGroup $userGroup (Can not attach Shopify Address IDs on addresses associated to a Location)
+     * @return void
      */
     private function updateShopifyAttributesToAddresses(
         $customAddresses,
@@ -885,9 +987,10 @@ class UserController extends Controller
 
     /**
      * Attach the Shopify Address ID to our Custom Address that is saved into the API
-     * @param $customAddresses (Custom Addresses saved to the API)
-     * @param $shopifyCustomerAddresses (Addresses that are saved to the Shopify Customer)
-     * @param $shopifyAddresses (Addresses that were just updated)
+     * @param array $customAddresses (Custom Addresses saved to the API)
+     * @param array $shopifyCustomerAddresses (Addresses that are saved to the Shopify Customer)
+     * @param array $shopifyAddresses (Addresses that were just updated)
+     * @return void
      */
     private function attachShopifyAttributesToAddress($customAddress, $shopifyCustomerAddresses, $shopifyAddresses)
     {
@@ -925,8 +1028,9 @@ class UserController extends Controller
 
     /**
      * Remove the Shopify Address ID from our Custom Address that is saved into the API
-     * @param $customAddress (Custom Address saved to the API)
-     * @param $shopifyAddress (Address that was just updated to Shopify)
+     * @param \App\Address $customAddress (Custom Address saved to the API)
+     * @param \stdClass $shopifyAddress (Address that was just updated to Shopify)
+     * @return void
      */
     private function detachShopifyAddressFromUser($customAddress, $shopifyAddress)
     {
@@ -946,30 +1050,9 @@ class UserController extends Controller
     }
 
     /**
-     * Get User by provided Cognito User ID
-     * @param $id
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function getUser($id)
-    {
-        $cognito = new CognitoHelper();
-
-        try {
-            $user = $cognito->getUser($id);
-            return response()->json(User::structureUser($user));
-        }
-        catch(AwsException $e) {
-            return response()->json([$e->getAwsErrorMessage()], 500);
-        }
-        catch (\Exception $e) {
-            return response()->json($e->getMessage(), 500);
-        }
-    }
-
-    /**
      * Link this User to an Affiliate User from the provided Affiliate ID
-     * @param $id
-     * @param $affiliateId
+     * @param string $id (Cognito User ID)
+     * @param int $affiliateId (ID representing the affiliate UserGroup this User will be linked to)
      * @return \Illuminate\Http\JsonResponse
      */
     public function linkToAffiliate($id, $affiliateId)
@@ -990,7 +1073,7 @@ class UserController extends Controller
 
     /**
      * Get User's Affiliate Group based on the provided Cognito User ID
-     * @param $id
+     * @param string $id (Cognito User ID)
      * @return \Illuminate\Http\JsonResponse
      */
     public function affiliate($id)
@@ -1003,26 +1086,6 @@ class UserController extends Controller
             return response()->json([$e->getAwsErrorMessage()], 500);
         }
         catch (\Exception $e) {
-            return response()->json($e->getMessage(), 500);
-        }
-    }
-
-    /**
-     * Delete User based on the provided Cognito User ID
-     * @param $id
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function delete($id)
-    {
-        $cognito = new CognitoHelper();
-
-        try {
-            $cognito->deleteUser($id);
-
-            return response()->json();
-        } catch (AwsException $e) {
-            return response()->json([$e->getAwsErrorMessage()], 500);
-        } catch (\Exception $e) {
             return response()->json($e->getMessage(), 500);
         }
     }
@@ -1043,10 +1106,10 @@ class UserController extends Controller
     /**
      * Insert User's Address to Database
      * @param $request
-     * @param $fieldName
-     * @param $fieldDescription
-     * @param $userGroup
-     * @return null
+     * @param string $fieldName
+     * @param string $fieldDescription
+     * @param \App\UserGroup $userGroup
+     * @return \App\Address|null
      */
     private function addAddressToDatabase(
         $request,
@@ -1077,8 +1140,8 @@ class UserController extends Controller
 
     /**
      * Format Address data to be passed into Shopify Request
-     * @param $shopifyCustomerData
-     * @param null $businessName
+     * @param array $shopifyCustomerData
+     * @param string|null $businessName
      * @param array $address
      * @param bool $default
      * @return \stdClass
@@ -1125,8 +1188,8 @@ class UserController extends Controller
 
     /**
      * Validate that Shopify Address being added to Shopify Customer is completely unique
-     * @param $currentAddress
-     * @param $addresses
+     * @param \stdClass $currentAddress (The address being compared against all the other addresses)
+     * @param array $addresses
      * @return bool
      */
     private function uniqueShopifyAddressData($currentAddress, $addresses)
