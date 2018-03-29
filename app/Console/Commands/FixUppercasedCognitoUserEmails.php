@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\CognitoUser;
 use Illuminate\Console\Command;
 use App\Helpers\CognitoHelper;
 use App\Helpers\CognitoUserHelper;

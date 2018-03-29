@@ -120,6 +120,33 @@ class CognitoUserHelper
     }
 
     /**
+     * Get all users that have 'public-website' permissions
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Support\Collection
+     */
+    public static function listPublicWebsiteUsers()
+    {
+        $groupName = NULL;
+        $enabledStatus = 'enabled';
+        $createdOnDate = NULL;
+        $createdBeforeDate = NULL;
+        $createdAfterDate = NULL;
+        $permissions = ['public-website'];
+        $sendbackResultsAsJSON = FALSE;
+        $condensed = TRUE;
+
+        return self::listUsers(
+            $groupName,
+            $enabledStatus,
+            $createdOnDate,
+            $createdBeforeDate,
+            $createdAfterDate,
+            $permissions,
+            $sendbackResultsAsJSON,
+            $condensed
+        );
+    }
+
+    /**
      * Helper function to find all uppercased user instances from Cognito
      * @param $users
      * @return array

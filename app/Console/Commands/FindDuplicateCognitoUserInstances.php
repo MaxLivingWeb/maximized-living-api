@@ -1,8 +1,6 @@
 <?php
 namespace App\Console\Commands;
 
-use App\CognitoUser;
-use App\Helpers\ExportHelper;
 use App\Helpers\CognitoUserHelper;
 use Illuminate\Console\Command;
 
