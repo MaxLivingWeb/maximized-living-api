@@ -6,6 +6,7 @@ use App\{Address,AddressType,CognitoUser,Location,UserGroup,User};
 use App\Helpers\{CognitoUserHelper,CognitoHelper,ShopifyHelper,WordpressHelper};
 use GuzzleHttp\Exception\ClientException;
 use Aws\Exception\AwsException;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
@@ -19,10 +20,17 @@ class UserController extends Controller
      */
     public function listUsers(Request $request)
     {
+        $request->validate([
+            'created_date' => 'date'
+        ]);
+
         $groupName = $request->input('group_name') ?? null;
         $enabledStatus = $request->input('enabled_status') ?? null;
+        $createdDate = $request->input('created_date') !== null
+            ? new Carbon(request()->input('created_date'))
+            : null;
 
-        return CognitoUserHelper::listUsers($groupName, $enabledStatus);
+        return CognitoUserHelper::listUsers($groupName, $enabledStatus, $createdDate);
     }
 
     /**

@@ -87,12 +87,14 @@ class CognitoHelper
      *
      * @param null|string $groupName (The name of the group to get users for. If no group name is provided, will default to the .env affiliate group name. To return all users - pass the value 'ALL_COGNITO_USERS')
      * @param null|string $enabledStatus (Get Cognito users by a specific enabled status. 'enabled' (default), 'disabled', 'any'
+     * @param null|\Carbon\Carbon $createdDate Carbonized Date ("yyyy-mm-dd")
      * @param bool $condensed (Sendback condensed user data)
      * @return \Illuminate\Support\Collection
      */
     public function listUsers(
         $groupName = NULL,
         $enabledStatus = NULL,
+        $createdDate = NULL,
         $condensed = FALSE
     ){
         $groupName = $groupName ?? env('AWS_COGNITO_AFFILIATE_USER_GROUP_NAME');
@@ -143,13 +145,15 @@ class CognitoHelper
 
             return $users
                 ->filter(function($user) use($enabledStatus) {
-                    if ($enabledStatus === 'any'
+                    return ($enabledStatus === 'any'
                         || ($user['user_enabled'] && $enabledStatus === 'enabled')
                         || (!$user['user_enabled'] && $enabledStatus === 'disabled')
-                    ) {
-                        return true;
-                    }
-                    return false;
+                    );
+                })
+                ->filter(function($user) use($createdDate) {
+                    return (is_null($createdDate)
+                        || strtotime($user['created']) >= strtotime($createdDate)
+                    );
                 })
                 ->values()
                 ->toArray();
