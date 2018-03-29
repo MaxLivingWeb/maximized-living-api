@@ -14,7 +14,7 @@ use Exception;
 
 class GroupController extends Controller
 {
-    public function all()
+	public function all()
     {
         return UserGroup::all();
     }
@@ -39,16 +39,30 @@ class GroupController extends Controller
         return $userGroup;
     }
 
-    public function getUsersById($id)
+    /**
+     * Retrieves a list of all Cognito users associated with a given UserGroup.
+     * @param Request $request
+     * @param integer $id The ID of the location to retrieve users for.
+     * @return array
+     */
+    public function getUsersById(Request $request, $id)
     {
         $userGroup = UserGroup::findorFail($id);
-        return $userGroup->listUsers();
+        $enabledStatus = $request->input('enabled_status') ?? null;
+        return $userGroup->listUsers($enabledStatus);
     }
 
+    /**
+     * Get All Affiliate UserGroups
+     * @param Request $request
+     * @return array
+     */
     public function allWithCommission(Request $request)
     {
         $includeUsers = (bool)$request->input('include_users');
-        return UserGroupHelper::getAllWithCommission($includeUsers);
+        $includedUsersEnabledStatus = $request->input('included_users_enabled_status') ?? null; //Note: Can only be assigned if `include_users` is also set to true.
+
+        return UserGroupHelper::getAllWithCommission($includeUsers, $includedUsersEnabledStatus);
     }
 
     public function getByName(Request $request)
@@ -269,11 +283,5 @@ class GroupController extends Controller
             DB::rollback();
             throw $e;
         }
-    }
-
-    public function delete($id)
-    {
-        $group = UserGroup::findOrFail($id);
-        $group->delete();
     }
 }

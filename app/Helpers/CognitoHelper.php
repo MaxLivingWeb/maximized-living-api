@@ -85,14 +85,26 @@ class CognitoHelper
     /**
      * Returns an array of users from Cognito.
      *
-     * @param string|null $groupName The name of the group to get users for. If no group name is provided, will default to the .env affiliate group name. To return all users - pass the value 'ALL_COGNITO_USERS'
+     * @param null|string $groupName (The name of the group to get users for. If no group name is provided, will default to the .env affiliate group name. To return all users - pass the value 'ALL_COGNITO_USERS')
+     * @param null|string $enabledStatus (Get Cognito users by a specific enabled status. 'enabled' (default), 'disabled', 'any'
+     * @param null|\Carbon\Carbon $createdOnDate Carbonized Date - User was created exactly on this date ("yyyy-mm-dd")
+     * @param null|\Carbon\Carbon $createdBeforeDate Carbonized Date - User was created before this date ("yyyy-mm-dd")
+     * @param null|\Carbon\Carbon $createdAfterDate Carbonized Date - User was created after this date ("yyyy-mm-dd")
+     * @param null|array $permissions List of user permissions
+     * @param bool $condensed (Sendback condensed user data)
      * @return \Illuminate\Support\Collection
      */
-    public function listUsers($groupName = NULL, $condensed = FALSE)
-    {
-        if (!$groupName) {
-            $groupName = env('AWS_COGNITO_AFFILIATE_USER_GROUP_NAME');
-        }
+    public function listUsers(
+        $groupName = NULL,
+        $enabledStatus = NULL,
+        $createdOnDate = NULL,
+        $createdBeforeDate = NULL,
+        $createdAfterDate = NULL,
+        $permissions = NULL,
+        $condensed = FALSE
+    ){
+        $groupName = $groupName ?? env('AWS_COGNITO_AFFILIATE_USER_GROUP_NAME');
+        $enabledStatus = $enabledStatus ?? 'enabled';
 
         try {
             $users = collect();
@@ -137,7 +149,66 @@ class CognitoHelper
                 $count++;
             }
 
-            return $users->toArray();
+            return $users
+                ->filter(function($user) use($enabledStatus) {
+                    return ($enabledStatus === 'any'
+                        || ($user['user_enabled'] && $enabledStatus === 'enabled')
+                        || (!$user['user_enabled'] && $enabledStatus === 'disabled')
+                    );
+                })
+                ->filter(function($user) use($createdOnDate) {
+                    $userCreatedDate = date('Y-m-d', strtotime($user['created'])); //strip time from being added to timestamp
+                    return (is_null($createdOnDate)
+                        || strtotime($userCreatedDate) == strtotime($createdOnDate)
+                    );
+                })
+                ->filter(function($user) use($createdBeforeDate) {
+                    $userCreatedDate = date('Y-m-d', strtotime($user['created'])); //strip time from being added to timestamp
+                    return (is_null($createdBeforeDate)
+                        || strtotime($userCreatedDate) <= strtotime($createdBeforeDate)
+                    );
+                })
+                ->filter(function($user) use($createdAfterDate) {
+                    $userCreatedDate = date('Y-m-d', strtotime($user['created'])); //strip time from being added to timestamp
+                    return (is_null($createdAfterDate)
+                        || strtotime($userCreatedDate) >= strtotime($createdAfterDate)
+                    );
+                })
+                ->filter(function($user) use($permissions){
+                    if (is_null($permissions)) {
+                        return true;
+                    }
+
+                    // Transform user permissions (from Cognito) into array
+                    $userPermissions = explode(',',$user['permissions']);
+
+                    // Instead of having to pass all 3 of these permissions ('dashboard-usermanagement', 'dashboard-commissions', 'dashboard-wholesaler'), 'administrator' will act the same.
+                    $administratorPermission = in_array('administrator', $permissions);
+                    if ($administratorPermission) {
+                        $permissions = collect($permissions)
+                            ->reject(function($permission){
+                                return (
+                                    $permission === 'administrator'
+                                    || $permission === 'dashboard-usermanagement'
+                                    || $permission === 'dashboard-commissions'
+                                    || $permission === 'dashboard-wholesaler'
+                                );
+                            })
+                            ->push('dashboard-usermanagement')
+                            ->push('dashboard-commissions')
+                            ->push('dashboard-wholesaler')
+                            ->values()
+                            ->all();
+                    }
+
+                    return collect($userPermissions)
+                        ->filter(function($userPermission) use($permissions){
+                            return in_array($userPermission, $permissions);
+                        })
+                        ->isNotEmpty();
+                })
+                ->values()
+                ->toArray();
         }
         catch(AwsException $e) {
             if($e->getStatusCode() !== 400) { // group not found
@@ -180,6 +251,19 @@ class CognitoHelper
     public function deleteUser($username)
     {
         return $this->client->adminDeleteUser([
+            'UserPoolId' => env('AWS_COGNITO_USER_POOL_ID'),
+            'Username' => $username
+        ]);
+    }
+
+    /**
+     * Enable User for Cognito AWS. Which will allow them to log into their account.
+     * @param string $username (Cognito User ID)
+     * @return \Aws\Result
+     */
+    public function activateUser($username)
+    {
+        return $this->client->adminEnableUser([
             'UserPoolId' => env('AWS_COGNITO_USER_POOL_ID'),
             'Username' => $username
         ]);
@@ -400,6 +484,7 @@ class CognitoHelper
         $userData = [
             'id'                => $cognitoUser['Username'],
             'user_status'       => $cognitoUser['UserStatus'],
+            'user_enabled'      => $cognitoUser['Enabled'],
             'email'             => $attributes->where('Name', 'email')->first()['Value'],
             'created'           => $cognitoUser['UserCreateDate'],
             'shopify_id'        => $shopifyId,

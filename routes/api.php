@@ -25,7 +25,6 @@ Route::group(['prefix' => 'group'], function() {
     Route::get('/', 'GroupController@getByName');
     Route::post('/', 'GroupController@add');
     Route::put('/{id}', 'GroupController@update');
-    Route::delete('/{id}', 'GroupController@delete');
 });
 
 // Users
@@ -35,6 +34,7 @@ Route::group(['prefix' => 'user'], function() {
     Route::put('/{id}', 'UserController@updateUser');
     Route::put('/{id}/account', 'UserController@createThirdpartyAccountForUser');
     Route::put('/{id}/email', 'UserController@updateUserEmailAddress');
+    Route::put('/{id}/shopify', 'UserController@updateUserShopifyID');
     Route::get('/{id}/affiliate/{affiliateId}', 'UserController@linkToAffiliate');
     Route::get('/{id}/affiliate', 'UserController@affiliate');
     Route::delete('/{id}', 'UserController@deactivateUser');
@@ -44,7 +44,6 @@ Route::group(['prefix' => 'users'], function() {
     Route::get('/', 'UserController@listUsers');
     Route::get('/duplicates', 'UserController@listCognitoUsersWithDuplicateInstances'); // Reporting task to find all problematic Cognito User accounts
     Route::get('/uppercased', 'UserController@listCognitoUsersWithUppercasedEmails'); // Reporting task to find all problematic Cognito User accounts
-    Route::get('/group_by/{groupName}', 'UserController@listUsers');
 });
 
 // Locations
@@ -52,6 +51,8 @@ Route::group(['prefix' => 'location'], function() {
     Route::get('/{id}', 'LocationController@getById');
     Route::get('/{id}/users', 'LocationController@getUsersById');
     Route::get('/{id}/group', 'LocationController@getUserGroupById');
+    Route::put('/{id}/reactivate', 'LocationController@reactivateLocation');
+    Route::delete('/{id}', 'LocationController@deactivateLocation');
 });
 
 Route::get('/locations', 'LocationController@all');

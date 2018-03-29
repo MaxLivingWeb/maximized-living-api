@@ -30,6 +30,7 @@ class Location extends Model
         'timezone_id',
         'deleted_at'
     ];
+
     protected $dates = ['deleted_at'];
     
     protected $dispatchesEvents = [
@@ -140,15 +141,15 @@ class Location extends Model
 
     /**
      * Retrieves a list of all Cognito users associated with a given location.
-     *
+     * @param null|string $enabledStatus (Get Cognito users by a specific enabled status. 'enabled' (default), 'disabled', 'any'
      * @return array
      */
-    public function listUsers()
+    public function listUsers($enabledStatus = NULL)
     {
         if (empty($this->userGroup)) {
             return [];
         }
 
-        return $this->userGroup->listUsers();
+        return $this->userGroup->listUsers($enabledStatus);
     }
 }

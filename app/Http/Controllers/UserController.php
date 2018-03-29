@@ -6,6 +6,7 @@ use App\{Address,AddressType,CognitoUser,Location,UserGroup,User};
 use App\Helpers\{CognitoUserHelper,CognitoHelper,ShopifyHelper,WordpressHelper};
 use GuzzleHttp\Exception\ClientException;
 use Aws\Exception\AwsException;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
@@ -14,12 +15,40 @@ class UserController extends Controller
 {
     /**
      * List Users from Cognito
-     * @param null|string $groupName (Get Cognito users by a specific UserGroup. To get ALL Cognito users, enter "ALL_COGNITO_USERS")
+     * @param Request $request
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Support\Collection
      */
-    public function listUsers($groupName = NULL)
+    public function listUsers(Request $request)
     {
-        return CognitoUserHelper::listUsers($groupName);
+        $request->validate([
+            'created_on' => 'date',
+            'created_before' => 'date',
+            'created_after' => 'date'
+        ]);
+
+        $groupName = $request->input('group_name') ?? null;
+        $enabledStatus = $request->input('enabled_status') ?? null;
+        $createdOnDate = $request->input('created_on') !== null
+            ? new Carbon(request()->input('created_on'))
+            : null;
+        $createdBeforeDate = $request->input('created_before') !== null
+            ? new Carbon(request()->input('created_before'))
+            : null;
+        $createdAfterDate = $request->input('created_after') !== null
+            ? new Carbon(request()->input('created_after'))
+            : null;
+        $permissions = $request->input('permissions') !== null
+            ? explode(',', $request->input('permissions'))
+            : null;
+
+        return CognitoUserHelper::listUsers(
+            $groupName,
+            $enabledStatus,
+            $createdOnDate,
+            $createdBeforeDate,
+            $createdAfterDate,
+            $permissions
+        );
     }
 
     /**
@@ -901,6 +930,28 @@ class UserController extends Controller
     }
 
     /**
+     * Reassign the Shopify ID attribute to this Cognito User
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function updateUserShopifyID(Request $request)
+    {
+        $cognito = new CognitoHelper();
+
+        try {
+            $cognito->updateUserAttribute('custom:shopifyId', $request->shopify_id, $request->id);
+
+            return response()->json();
+        }
+        catch (AwsException $e) {
+            return response()->json([$e->getAwsErrorMessage()], 500);
+        }
+        catch (\Exception $e) {
+            return response()->json($e->getMessage(), 500);
+        }
+    }
+
+    /**
      * Deactivate User based on the provided Cognito User ID
      * @param string $id (Cognito User ID)
      * @return \Illuminate\Http\JsonResponse
@@ -913,9 +964,11 @@ class UserController extends Controller
             $cognito->deactivateUser($id);
 
             return response()->json();
-        } catch (AwsException $e) {
+        }
+        catch (AwsException $e) {
             return response()->json([$e->getAwsErrorMessage()], 500);
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             return response()->json($e->getMessage(), 500);
         }
     }
