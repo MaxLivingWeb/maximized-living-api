@@ -123,7 +123,7 @@ class LocationController extends Controller
 
             return response()->json();
         }
-            // Rollback, and set all users to be Disabled again
+        // Rollback, and set all users to be Disabled again
         catch (AwsException $e) {
             collect($users)->each(function($user) use($cognito){
                 $cognito->deactivateUser($user->id);
