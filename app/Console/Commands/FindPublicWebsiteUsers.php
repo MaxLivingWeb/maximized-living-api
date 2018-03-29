@@ -38,18 +38,18 @@ class FindPublicWebsiteUsers extends Command
      */
     public function handle()
     {
-        $response = $this->line('Starting to get User data...');
+        $this->line('Starting to get User data...');
 
         $users = CognitoUserHelper::listPublicWebsiteUsers();
 
         if (count($users) === 0) {
-            return $this->info('No users found with "public-website" permissions.');
+            $this->info('No users found with "public-website" permissions.');
         }
 
-        $response .= $this->info('Total Users Found: ' . count($users));
+        $this->info('Total Users Found: ' . count($users));
 
         if (count($users) > 0) {
-            $response .= $this->table(
+            $this->table(
                 ['Cognito ID', 'Email', 'Affiliate ID', 'Location ID', 'Clinic Website ID', 'Clinic Website URL', 'Created'],
                 collect($users)->transform(function($user){
                     return [
@@ -65,8 +65,6 @@ class FindPublicWebsiteUsers extends Command
             );
         }
 
-        $response .= $this->info('Done Finding Public Website Users');
-
-        return $response;
+        $this->info('Done Finding Public Website Users');
     }
 }

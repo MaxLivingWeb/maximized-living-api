@@ -125,24 +125,15 @@ class CognitoUserHelper
      */
     public static function listPublicWebsiteUsers()
     {
-        $groupName = NULL;
-        $enabledStatus = 'enabled';
-        $createdOnDate = NULL;
-        $createdBeforeDate = NULL;
-        $createdAfterDate = NULL;
-        $permissions = ['public-website'];
-        $sendbackResultsAsJSON = FALSE;
-        $condensed = TRUE;
-
         return self::listUsers(
-            $groupName,
-            $enabledStatus,
-            $createdOnDate,
-            $createdBeforeDate,
-            $createdAfterDate,
-            $permissions,
-            $sendbackResultsAsJSON,
-            $condensed
+            NULL,   // group name
+            'enabled',  // enabled status
+            NULL,   // created on date
+            NULL,   // created before date
+            NULL,   // created after date
+            ['public-website'], // permissions
+            FALSE,  //sendback as JSON
+            TRUE    // condensed
         );
     }
 
