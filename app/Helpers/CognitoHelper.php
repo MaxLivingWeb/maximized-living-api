@@ -87,14 +87,18 @@ class CognitoHelper
      *
      * @param null|string $groupName (The name of the group to get users for. If no group name is provided, will default to the .env affiliate group name. To return all users - pass the value 'ALL_COGNITO_USERS')
      * @param null|string $enabledStatus (Get Cognito users by a specific enabled status. 'enabled' (default), 'disabled', 'any'
-     * @param null|\Carbon\Carbon $createdDate Carbonized Date ("yyyy-mm-dd")
+     * @param null|\Carbon\Carbon $createdOnDate Carbonized Date - User was created exactly on this date ("yyyy-mm-dd")
+     * @param null|\Carbon\Carbon $createdBeforeDate Carbonized Date - User was created before this date ("yyyy-mm-dd")
+     * @param null|\Carbon\Carbon $createdAfterDate Carbonized Date - User was created after this date ("yyyy-mm-dd")
      * @param bool $condensed (Sendback condensed user data)
      * @return \Illuminate\Support\Collection
      */
     public function listUsers(
         $groupName = NULL,
         $enabledStatus = NULL,
-        $createdDate = NULL,
+        $createdOnDate = NULL,
+        $createdBeforeDate = NULL,
+        $createdAfterDate = NULL,
         $condensed = FALSE
     ){
         $groupName = $groupName ?? env('AWS_COGNITO_AFFILIATE_USER_GROUP_NAME');
@@ -150,9 +154,19 @@ class CognitoHelper
                         || (!$user['user_enabled'] && $enabledStatus === 'disabled')
                     );
                 })
-                ->filter(function($user) use($createdDate) {
-                    return (is_null($createdDate)
-                        || strtotime($user['created']) >= strtotime($createdDate)
+                ->filter(function($user) use($createdOnDate) {
+                    return (is_null($createdOnDate)
+                        || strtotime($user['created']) == strtotime($createdOnDate)
+                    );
+                })
+                ->filter(function($user) use($createdBeforeDate) {
+                    return (is_null($createdBeforeDate)
+                        || strtotime($user['created']) <= strtotime($createdBeforeDate)
+                    );
+                })
+                ->filter(function($user) use($createdAfterDate) {
+                    return (is_null($createdAfterDate)
+                        || strtotime($user['created']) >= strtotime($createdAfterDate)
                     );
                 })
                 ->values()

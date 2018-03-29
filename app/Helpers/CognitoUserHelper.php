@@ -12,7 +12,9 @@ class CognitoUserHelper
      * List Users from Cognito
      * @param null|string $groupName Get Cognito users by a specific UserGroup. To get ALL Cognito users, enter "ALL_COGNITO_USERS"
      * @param null|string $enabledStatus Get Cognito users by a specific enabled status. 'enabled' (default), 'disabled', 'any'
-     * @param null|\Carbon\Carbon $createdDate Carbonized Date ("yyyy-mm-dd")
+     * @param null|\Carbon\Carbon $createdOnDate Carbonized Date - User was created exactly on this date ("yyyy-mm-dd")
+     * @param null|\Carbon\Carbon $createdBeforeDate Carbonized Date - User was created before this date ("yyyy-mm-dd")
+     * @param null|\Carbon\Carbon $createdAfterDate Carbonized Date - User was created after this date ("yyyy-mm-dd")
      * @param bool $sendbackResultAsJSON (Sendback result as JSON format)
      * @param bool $condensed (Sendback condensed user data)
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Support\Collection
@@ -20,13 +22,22 @@ class CognitoUserHelper
     public static function listUsers(
         $groupName = NULL,
         $enabledStatus = NULL,
-        $createdDate = NULL,
+        $createdOnDate = NULL,
+        $createdBeforeDate = NULL,
+        $createdAfterDate = NULL,
         $sendbackResultAsJSON = TRUE,
         $condensed = FALSE
     ){
         $cognito = new CognitoHelper();
         try {
-            $result = $cognito->listUsers($groupName, $enabledStatus, $createdDate, $condensed);
+            $result = $cognito->listUsers(
+                $groupName,
+                $enabledStatus,
+                $createdOnDate,
+                $createdBeforeDate,
+                $createdAfterDate,
+                $condensed
+            );
 
             if(is_null($result)) {
                 return response()->json('No users', 404);
@@ -45,19 +56,40 @@ class CognitoUserHelper
     }
 
     /**
+     * Get ALL Users. Can not pass any custom parameters to filter users.
+     * @param bool $sendbackResultsAsJSON
+     * @param bool $condensed
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Support\Collection
+     */
+    private static function listAllUsers(
+        $sendbackResultsAsJSON = TRUE,
+        $condensed = FALSE
+    ) {
+        $groupName = 'ALL_COGNITO_USERS';
+        $enabledStatus = 'any';
+        $createdOnDate = NULL;
+        $createdBeforeDate = NULL;
+        $createdAfterDate = NULL;
+
+        return self::listUsers(
+            $groupName,
+            $enabledStatus,
+            $createdOnDate,
+            $createdBeforeDate,
+            $createdAfterDate,
+            $sendbackResultsAsJSON,
+            $condensed
+        );
+    }
+
+    /**
      * List all duplicate user instances from Cognito that share the same email address
      * @param array $users
      * @return array|void
      */
     public static function listCognitoUsersWithDuplicateInstances(array $users = [])
     {
-        $groupName = 'ALL_COGNITO_USERS';
-        $enabledStatus = 'any';
-        $createdDate = NULL;
-        $sendbackResultsAsJSON = FALSE;
-        $condensed = TRUE;
-
-        $users = !empty($users) ? $users : self::listUsers($groupName, $enabledStatus, $createdDate, $sendbackResultsAsJSON, $condensed);
+        $users = !empty($users) ? $users : self::listAllUsers(FALSE, TRUE);
 
         if (empty($users)) {
             return;
@@ -73,13 +105,7 @@ class CognitoUserHelper
      */
     public static function listCognitoUsersWithUppercasedEmails(array $users = [])
     {
-        $groupName = 'ALL_COGNITO_USERS';
-        $enabledStatus = 'any';
-        $createdDate = NULL;
-        $sendbackResultsAsJSON = FALSE;
-        $condensed = TRUE;
-
-        $users = !empty($users) ? $users : self::listUsers($groupName, $enabledStatus, $createdDate, $sendbackResultsAsJSON, $condensed);
+        $users = !empty($users) ? $users : self::listAllUsers(FALSE, TRUE);
 
         if (empty($users)) {
             return;
