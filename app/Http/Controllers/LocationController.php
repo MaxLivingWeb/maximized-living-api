@@ -63,6 +63,7 @@ class LocationController extends Controller
         // No Affiliate/Clinic data set up for this Location, no users can be associated to this Location...
         if (empty($location->userGroup)) {
             $location->delete();
+            return response()->json();
         }
 
         $userGroup = UserGroup::findOrFail($location->userGroup->id);
@@ -105,6 +106,7 @@ class LocationController extends Controller
         // No Affiliate/Clinic data set up for this Location, no users can be associated to this Location...
         if (empty($location->userGroup)) {
             $location->restore();
+            return response()->json();
         }
 
         $userGroup = UserGroup::findOrFail($location->userGroup->id);
