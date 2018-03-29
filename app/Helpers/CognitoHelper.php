@@ -157,18 +157,21 @@ class CognitoHelper
                     );
                 })
                 ->filter(function($user) use($createdOnDate) {
+                    $userCreatedDate = date('Y-m-d', strtotime($user['created'])); //strip time from being added to timestamp
                     return (is_null($createdOnDate)
-                        || strtotime($user['created']) == strtotime($createdOnDate)
+                        || strtotime($userCreatedDate) == strtotime($createdOnDate)
                     );
                 })
                 ->filter(function($user) use($createdBeforeDate) {
+                    $userCreatedDate = date('Y-m-d', strtotime($user['created'])); //strip time from being added to timestamp
                     return (is_null($createdBeforeDate)
-                        || strtotime($user['created']) <= strtotime($createdBeforeDate)
+                        || strtotime($userCreatedDate) <= strtotime($createdBeforeDate)
                     );
                 })
                 ->filter(function($user) use($createdAfterDate) {
+                    $userCreatedDate = date('Y-m-d', strtotime($user['created'])); //strip time from being added to timestamp
                     return (is_null($createdAfterDate)
-                        || strtotime($user['created']) >= strtotime($createdAfterDate)
+                        || strtotime($userCreatedDate) >= strtotime($createdAfterDate)
                     );
                 })
                 ->filter(function($user) use($permissions){
