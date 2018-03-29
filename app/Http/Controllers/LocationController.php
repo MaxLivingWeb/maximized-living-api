@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\{Location,UserGroup};
 use App\Helpers\CognitoHelper;
+use Illuminate\Http\Request;
 
 class LocationController extends Controller
 {
