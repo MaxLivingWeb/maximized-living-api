@@ -33,6 +33,7 @@ Route::group(['prefix' => 'user'], function() {
     Route::post('/', 'UserController@addUser');
     Route::put('/{id}', 'UserController@updateUser');
     Route::put('/{id}/account', 'UserController@createThirdpartyAccountForUser');
+    Route::put('/{id}/permissions', 'UserController@updateUserPermissions');
     Route::put('/{id}/email', 'UserController@updateUserEmailAddress');
     Route::put('/{id}/shopify', 'UserController@updateUserShopifyID');
     Route::get('/{id}/affiliate/{affiliateId}', 'UserController@linkToAffiliate');
