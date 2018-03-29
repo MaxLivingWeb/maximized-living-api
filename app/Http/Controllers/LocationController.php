@@ -22,6 +22,18 @@ class LocationController extends Controller
     }
 
     /**
+     * Retrieves Locaiton by provided Location ID
+     * @param Request $request
+     * @param int $id Location ID
+     * @return array
+     */
+    public function getById($id)
+    {
+        $location = Location::findOrFail($id);
+        return response()->json($location);
+    }
+
+    /**
      * Retrieves a list of all Cognito users associated with a given location.
      *
      * @param integer $id The ID of the location to retrieve users for.
