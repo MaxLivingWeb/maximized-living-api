@@ -30,6 +30,7 @@ class Location extends Model
         'timezone_id',
         'deleted_at'
     ];
+
     protected $dates = ['deleted_at'];
     
     protected $dispatchesEvents = [

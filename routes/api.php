@@ -25,8 +25,6 @@ Route::group(['prefix' => 'group'], function() {
     Route::get('/', 'GroupController@getByName');
     Route::post('/', 'GroupController@add');
     Route::put('/{id}', 'GroupController@update');
-    Route::put('/{id}/reactivate', 'GroupController@reactivateUserGroup');
-    Route::delete('/{id}', 'GroupController@deactivateUserGroup');
 });
 
 // Users
@@ -52,6 +50,8 @@ Route::group(['prefix' => 'users'], function() {
 Route::group(['prefix' => 'location'], function() {
     Route::get('/{id}/users', 'LocationController@getUsersById');
     Route::get('/{id}/group', 'LocationController@getUserGroupById');
+    Route::put('/{id}/reactivate', 'LocationController@reactivateLocation');
+    Route::delete('/{id}', 'LocationController@deactivateLocation');
 });
 
 Route::get('/locations', 'LocationController@all');
