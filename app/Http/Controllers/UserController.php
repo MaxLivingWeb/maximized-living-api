@@ -21,7 +21,9 @@ class UserController extends Controller
     public function listUsers(Request $request)
     {
         $request->validate([
-            'created_date' => 'date'
+            'created_on' => 'date',
+            'created_before' => 'date',
+            'created_after' => 'date'
         ]);
 
         $groupName = $request->input('group_name') ?? null;
