@@ -26,14 +26,27 @@ class UserController extends Controller
 
         $groupName = $request->input('group_name') ?? null;
         $enabledStatus = $request->input('enabled_status') ?? null;
-        $createdDate = $request->input('created_date') !== null
-            ? new Carbon(request()->input('created_date'))
+        $createdOnDate = $request->input('created_on') !== null
+            ? new Carbon(request()->input('created_on'))
+            : null;
+        $createdBeforeDate = $request->input('created_before') !== null
+            ? new Carbon(request()->input('created_before'))
+            : null;
+        $createdAfterDate = $request->input('created_after') !== null
+            ? new Carbon(request()->input('created_after'))
             : null;
         $permissions = $request->input('permissions') !== null
             ? explode(',', $request->input('permissions'))
             : null;
 
-        return CognitoUserHelper::listUsers($groupName, $enabledStatus, $createdDate, $permissions);
+        return CognitoUserHelper::listUsers(
+            $groupName,
+            $enabledStatus,
+            $createdOnDate,
+            $createdBeforeDate,
+            $createdAfterDate,
+            $permissions
+        );
     }
 
     /**
