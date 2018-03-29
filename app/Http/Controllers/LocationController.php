@@ -25,7 +25,7 @@ class LocationController extends Controller
     /**
      * Retrieves a list of all Cognito users associated with a given location.
      * @param Request $request
-     * @param integer $id The ID of the location to retrieve users for.
+     * @param int $id The ID of the location to retrieve users for.
      * @return array
      */
     public function getUsersById(Request $request, $id)
@@ -37,7 +37,7 @@ class LocationController extends Controller
 
     /**
      * Get UserGroup for this Location
-     * @param $id
+     * @param int $id Location ID
      * @return \Illuminate\Database\Eloquent\Collection|\Illuminate\Database\Eloquent\Model|void
      */
     public function getUserGroupById($id)
@@ -53,7 +53,7 @@ class LocationController extends Controller
 
     /**
      * Use Soft Deletes to deactivate this Location, and any associated users as well
-     * @param $id
+     * @param int $id Location ID
      */
     public function deactivateLocation($id)
     {
@@ -96,7 +96,7 @@ class LocationController extends Controller
 
     /**
      * Reactivate this Location, and any associated users as well
-     * @param $id
+     * @param int $id Location ID
      */
     public function reactivateLocation($id)
     {
