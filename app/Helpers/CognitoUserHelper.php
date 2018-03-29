@@ -133,7 +133,7 @@ class CognitoUserHelper
             NULL,   // created after date
             ['public-website'], // permissions
             FALSE,  //sendback as JSON
-            TRUE    // condensed
+            FALSE    // condensed
         );
     }
 
