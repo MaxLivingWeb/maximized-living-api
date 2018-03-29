@@ -13,6 +13,7 @@ class CognitoUserHelper
      * @param null|string $groupName Get Cognito users by a specific UserGroup. To get ALL Cognito users, enter "ALL_COGNITO_USERS"
      * @param null|string $enabledStatus Get Cognito users by a specific enabled status. 'enabled' (default), 'disabled', 'any'
      * @param null|\Carbon\Carbon $createdDate Carbonized Date ("yyyy-mm-dd")
+     * @param null|array $permissions List of user permissions
      * @param bool $sendbackResultAsJSON (Sendback result as JSON format)
      * @param bool $condensed (Sendback condensed user data)
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Support\Collection
@@ -21,12 +22,13 @@ class CognitoUserHelper
         $groupName = NULL,
         $enabledStatus = NULL,
         $createdDate = NULL,
+        $permissions = NULL,
         $sendbackResultAsJSON = TRUE,
         $condensed = FALSE
     ){
         $cognito = new CognitoHelper();
         try {
-            $result = $cognito->listUsers($groupName, $enabledStatus, $createdDate, $condensed);
+            $result = $cognito->listUsers($groupName, $enabledStatus, $createdDate, $permissions, $condensed);
 
             if(is_null($result)) {
                 return response()->json('No users', 404);

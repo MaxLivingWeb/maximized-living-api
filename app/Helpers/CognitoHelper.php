@@ -88,6 +88,7 @@ class CognitoHelper
      * @param null|string $groupName (The name of the group to get users for. If no group name is provided, will default to the .env affiliate group name. To return all users - pass the value 'ALL_COGNITO_USERS')
      * @param null|string $enabledStatus (Get Cognito users by a specific enabled status. 'enabled' (default), 'disabled', 'any'
      * @param null|\Carbon\Carbon $createdDate Carbonized Date ("yyyy-mm-dd")
+     * @param null|array $permissions List of user permissions
      * @param bool $condensed (Sendback condensed user data)
      * @return \Illuminate\Support\Collection
      */
@@ -95,6 +96,7 @@ class CognitoHelper
         $groupName = NULL,
         $enabledStatus = NULL,
         $createdDate = NULL,
+        $permissions = NULL,
         $condensed = FALSE
     ){
         $groupName = $groupName ?? env('AWS_COGNITO_AFFILIATE_USER_GROUP_NAME');
@@ -154,6 +156,39 @@ class CognitoHelper
                     return (is_null($createdDate)
                         || strtotime($user['created']) >= strtotime($createdDate)
                     );
+                })
+                ->filter(function($user) use($permissions){
+                    if (is_null($permissions)) {
+                        return true;
+                    }
+
+                    // Transform user permissions (from Cognito) into array
+                    $userPermissions = explode(',',$user['permissions']);
+
+                    // Instead of having to pass all 3 of these permissions ('dashboard-usermanagement', 'dashboard-commissions', 'dashboard-wholesaler'), 'administrator' will act the same.
+                    $administratorPermission = in_array('administrator', $permissions);
+                    if ($administratorPermission) {
+                        $permissions = collect($permissions)
+                            ->reject(function($permission){
+                                return (
+                                    $permission === 'administrator'
+                                    || $permission === 'dashboard-usermanagement'
+                                    || $permission === 'dashboard-commissions'
+                                    || $permission === 'dashboard-wholesaler'
+                                );
+                            })
+                            ->push('dashboard-usermanagement')
+                            ->push('dashboard-commissions')
+                            ->push('dashboard-wholesaler')
+                            ->values()
+                            ->all();
+                    }
+
+                    return collect($userPermissions)
+                        ->filter(function($userPermission) use($permissions){
+                            return in_array($userPermission, $permissions);
+                        })
+                        ->isNotEmpty();
                 })
                 ->values()
                 ->toArray();

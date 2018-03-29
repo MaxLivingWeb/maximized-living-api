@@ -29,8 +29,11 @@ class UserController extends Controller
         $createdDate = $request->input('created_date') !== null
             ? new Carbon(request()->input('created_date'))
             : null;
+        $permissions = $request->input('permissions') !== null
+            ? explode(',', $request->input('permissions'))
+            : null;
 
-        return CognitoUserHelper::listUsers($groupName, $enabledStatus, $createdDate);
+        return CognitoUserHelper::listUsers($groupName, $enabledStatus, $createdDate, $permissions);
     }
 
     /**
