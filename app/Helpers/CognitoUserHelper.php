@@ -15,6 +15,7 @@ class CognitoUserHelper
      * @param null|\Carbon\Carbon $createdOnDate Carbonized Date - User was created exactly on this date ("yyyy-mm-dd")
      * @param null|\Carbon\Carbon $createdBeforeDate Carbonized Date - User was created before this date ("yyyy-mm-dd")
      * @param null|\Carbon\Carbon $createdAfterDate Carbonized Date - User was created after this date ("yyyy-mm-dd")
+     * @param null|array $permissions List of user permissions
      * @param bool $sendbackResultAsJSON (Sendback result as JSON format)
      * @param bool $condensed (Sendback condensed user data)
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Support\Collection
@@ -25,6 +26,7 @@ class CognitoUserHelper
         $createdOnDate = NULL,
         $createdBeforeDate = NULL,
         $createdAfterDate = NULL,
+        $permissions = NULL,
         $sendbackResultAsJSON = TRUE,
         $condensed = FALSE
     ){
@@ -36,6 +38,7 @@ class CognitoUserHelper
                 $createdOnDate,
                 $createdBeforeDate,
                 $createdAfterDate,
+                $permissions,
                 $condensed
             );
 
@@ -70,6 +73,7 @@ class CognitoUserHelper
         $createdOnDate = NULL;
         $createdBeforeDate = NULL;
         $createdAfterDate = NULL;
+        $permissions = NULL;
 
         return self::listUsers(
             $groupName,
@@ -77,6 +81,7 @@ class CognitoUserHelper
             $createdOnDate,
             $createdBeforeDate,
             $createdAfterDate,
+            $permissions,
             $sendbackResultsAsJSON,
             $condensed
         );

@@ -90,6 +90,7 @@ class CognitoHelper
      * @param null|\Carbon\Carbon $createdOnDate Carbonized Date - User was created exactly on this date ("yyyy-mm-dd")
      * @param null|\Carbon\Carbon $createdBeforeDate Carbonized Date - User was created before this date ("yyyy-mm-dd")
      * @param null|\Carbon\Carbon $createdAfterDate Carbonized Date - User was created after this date ("yyyy-mm-dd")
+     * @param null|array $permissions List of user permissions
      * @param bool $condensed (Sendback condensed user data)
      * @return \Illuminate\Support\Collection
      */
@@ -99,6 +100,7 @@ class CognitoHelper
         $createdOnDate = NULL,
         $createdBeforeDate = NULL,
         $createdAfterDate = NULL,
+        $permissions = NULL,
         $condensed = FALSE
     ){
         $groupName = $groupName ?? env('AWS_COGNITO_AFFILIATE_USER_GROUP_NAME');
@@ -155,19 +157,55 @@ class CognitoHelper
                     );
                 })
                 ->filter(function($user) use($createdOnDate) {
+                    $userCreatedDate = date('Y-m-d', strtotime($user['created'])); //strip time from being added to timestamp
                     return (is_null($createdOnDate)
-                        || strtotime($user['created']) == strtotime($createdOnDate)
+                        || strtotime($userCreatedDate) == strtotime($createdOnDate)
                     );
                 })
                 ->filter(function($user) use($createdBeforeDate) {
+                    $userCreatedDate = date('Y-m-d', strtotime($user['created'])); //strip time from being added to timestamp
                     return (is_null($createdBeforeDate)
-                        || strtotime($user['created']) <= strtotime($createdBeforeDate)
+                        || strtotime($userCreatedDate) <= strtotime($createdBeforeDate)
                     );
                 })
                 ->filter(function($user) use($createdAfterDate) {
+                    $userCreatedDate = date('Y-m-d', strtotime($user['created'])); //strip time from being added to timestamp
                     return (is_null($createdAfterDate)
-                        || strtotime($user['created']) >= strtotime($createdAfterDate)
+                        || strtotime($userCreatedDate) >= strtotime($createdAfterDate)
                     );
+                })
+                ->filter(function($user) use($permissions){
+                    if (is_null($permissions)) {
+                        return true;
+                    }
+
+                    // Transform user permissions (from Cognito) into array
+                    $userPermissions = explode(',',$user['permissions']);
+
+                    // Instead of having to pass all 3 of these permissions ('dashboard-usermanagement', 'dashboard-commissions', 'dashboard-wholesaler'), 'administrator' will act the same.
+                    $administratorPermission = in_array('administrator', $permissions);
+                    if ($administratorPermission) {
+                        $permissions = collect($permissions)
+                            ->reject(function($permission){
+                                return (
+                                    $permission === 'administrator'
+                                    || $permission === 'dashboard-usermanagement'
+                                    || $permission === 'dashboard-commissions'
+                                    || $permission === 'dashboard-wholesaler'
+                                );
+                            })
+                            ->push('dashboard-usermanagement')
+                            ->push('dashboard-commissions')
+                            ->push('dashboard-wholesaler')
+                            ->values()
+                            ->all();
+                    }
+
+                    return collect($userPermissions)
+                        ->filter(function($userPermission) use($permissions){
+                            return in_array($userPermission, $permissions);
+                        })
+                        ->isNotEmpty();
                 })
                 ->values()
                 ->toArray();
