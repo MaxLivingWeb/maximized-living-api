@@ -3,23 +3,21 @@
 namespace App\Http\Controllers;
 
 use App\{Location,UserGroup};
-use App\Helpers\CognitoHelper;
+use App\Helpers\{LocationHelper,CognitoHelper};
 use Illuminate\Http\Request;
 
 class LocationController extends Controller
 {
     /**
      * Get ALL Locations
+     * @param Request $request
      * @return \Illuminate\Database\Eloquent\Collection|static[]
      */
-    public function all()
+    public function all(Request $request)
     {
-        $locations = Location::all();
-
-        return collect($locations)
-            ->each(function($location){
-                $location->user_group = $location->userGroup;
-            });
+        return (new LocationHelper())
+            ->parseRequestData($request)
+            ->getAllLocations();
     }
 
     /**
