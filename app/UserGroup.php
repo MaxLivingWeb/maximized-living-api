@@ -42,14 +42,33 @@ class UserGroup extends Model
     ];
 
     protected $appends = [
-        'users'
+        'users',
+        'group_enabled'
     ];
 
     protected $users = [];
 
+    /**
+     * Magically attach this custom attribute `users` on the UserGroup model. Note: This value can be overidden by using the UserGroup->loadUsers() method
+     * @return array
+     */
     public function getUsersAttribute()
     {
         return $this->users;
+    }
+
+    /**
+     * Magically attach this custom attribute `group_enabled` on the UserGroup model, by checking this associated Location's `deleted_at` value
+     * @return bool
+     */
+    public function getGroupEnabledAttribute()
+    {
+        $deletedAtValue = DB::table('locations')
+            ->where('id', '=', $this->location_id)
+            ->pluck('deleted_at')
+            ->first();
+
+        return ($deletedAtValue === null) ?? true;
     }
     
     public function commission() {
