@@ -57,7 +57,7 @@ class UserGroup extends Model
     }
 
     public function location() {
-        return $this->hasOne('App\Location', 'id', 'location_id');
+        return $this->hasOne('App\Location', 'id', 'location_id')->withTrashed();
     }
 
     /**
