@@ -14,6 +14,11 @@ class LocationHelper
     private $enabledStatus = null;
     protected $enabledStatusByDefault = 'enabled';
 
+    /**
+     * Parse Request data which will then be used to get Location data
+     * @param Request $request
+     * @return $this
+     */
     public function parseRequestData(Request $request)
     {
         $this->enabledStatus = $request->input('enabled_status') ?? $this->enabledStatusByDefault;
@@ -22,6 +27,7 @@ class LocationHelper
     }
 
     /**
+     * Get All Locations, based on the parameters
      * @param null|string $enabledStatus Options are: 'enabled' (default), 'disabled', 'any'
      * @return array
      */
@@ -38,6 +44,7 @@ class LocationHelper
     }
 
     /**
+     * Get Locations based on the provided $enabledStatus parameter
      * @param string $enabledStatus Options are: 'enabled' (default), 'disabled', 'any'
      * @return array
      */
