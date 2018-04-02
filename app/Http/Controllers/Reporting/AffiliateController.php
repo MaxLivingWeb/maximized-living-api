@@ -21,7 +21,10 @@ class AffiliateController extends Controller
                 ->getAllOrders();
 
             $includeUsers = (bool)$request->input('include_users');
-            $includedUsersEnabledStatus = $request->input('included_users_enabled_status') ?? null; //Note: Can only be assigned if `include_users` is also set to true.
+
+            // Note: this will only affect data response if `include_users` is also set to true
+            $includedUsersEnabledStatus = $request->input('included_users_enabled_status') ?? null;
+
             $affiliates = UserGroupHelper::getAllWithCommission(
                 $includeUsers,
                 $includedUsersEnabledStatus

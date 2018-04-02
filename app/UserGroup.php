@@ -49,7 +49,7 @@ class UserGroup extends Model
     protected $users = [];
 
     /**
-     * Magically attach this custom attribute `users` on the UserGroup model. Note: This value can be overidden by using the UserGroup->loadUsers() method
+     * Magically attach this custom attribute `users` on the UserGroup model.
      * @return array
      */
     public function getUsersAttribute()
@@ -58,7 +58,7 @@ class UserGroup extends Model
     }
 
     /**
-     * Magically attach this custom attribute `group_enabled` on the UserGroup model, by checking this associated Location's `deleted_at` value
+     * Magically attach this custom attribute `group_enabled` on the UserGroup model.
      * @return bool
      */
     public function getGroupEnabledAttribute()
