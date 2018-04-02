@@ -12,7 +12,7 @@ class FindPublicWebsiteUsers extends Command
      *
      * @var string
      */
-    protected $signature = 'users:validatePublicWebsiteUsers';
+    protected $signature = 'users:findPublicWebsiteUsers';
 
     /**
      * The console command description.

@@ -853,6 +853,35 @@ class UserController extends Controller
     }
 
     /**
+     * Update Cognito User's permissions
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function updateUserPermissions(Request $request)
+    {
+        try {
+            $cognito = new CognitoHelper();
+
+            $validatedData = $request->validate([
+                'permissions' => 'required'
+            ]);
+
+            $cognito->updateUserAttribute('custom:permissions', $validatedData['permissions'], $request->id);
+
+            return response()->json();
+        }
+        catch(AwsException $e) {
+            return response()->json([$e->getAwsErrorMessage()], 500);
+        }
+        catch (ValidationException $e) {
+            return response()->json($e->errors(), 400);
+        }
+        catch (\Exception $e) {
+            return response()->json($e->getMessage(), 500);
+        }
+    }
+
+    /**
      * Update Cognito User's email address
      * Note: This method will not properly handle updating user addresses across all platforms. A developer will still have to manually update the email across everything else (Shopify, Wordpress, etc)
      * @param Request $request
