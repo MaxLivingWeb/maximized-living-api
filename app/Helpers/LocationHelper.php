@@ -55,7 +55,7 @@ class LocationHelper
                 return Location::withTrashed()->get();
                 break;
             case 'disabled':
-                return Location::withTrashed()->where('deleted_at', '!=', null)->get();
+                return Location::onlyTrashed()->get();
                 break;
             case 'enabled':
             default:
