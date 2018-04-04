@@ -21,7 +21,14 @@ class AffiliateController extends Controller
                 ->getAllOrders();
 
             $includeUsers = (bool)$request->input('include_users');
-            $affiliates = UserGroupHelper::getAllWithCommission($includeUsers);
+
+            // Note: this will only affect data response if `include_users` is also set to true
+            $includedUsersEnabledStatus = $request->input('included_users_enabled_status') ?? null;
+
+            $affiliates = UserGroupHelper::getAllWithCommission(
+                $includeUsers,
+                $includedUsersEnabledStatus
+            );
 
             foreach ($affiliates as $affiliate) {
                 $affiliate->sales = collect($orders)

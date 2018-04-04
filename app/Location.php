@@ -39,8 +39,7 @@ class Location extends Model
     ];
 
     protected $hidden = [
-        'updated_id',
-        'deleted_at'
+        'updated_id'
     ];
 
     public function addresses()

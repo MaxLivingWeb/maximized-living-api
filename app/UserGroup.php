@@ -42,14 +42,33 @@ class UserGroup extends Model
     ];
 
     protected $appends = [
-        'users'
+        'users',
+        'group_enabled'
     ];
 
     protected $users = [];
 
+    /**
+     * Magically attach this custom attribute `users` on the UserGroup model.
+     * @return array
+     */
     public function getUsersAttribute()
     {
         return $this->users;
+    }
+
+    /**
+     * Magically attach this custom attribute `group_enabled` on the UserGroup model.
+     * @return bool
+     */
+    public function getGroupEnabledAttribute()
+    {
+        $deletedAtValue = DB::table('locations')
+            ->where('id', '=', $this->location_id)
+            ->pluck('deleted_at')
+            ->first();
+
+        return ($deletedAtValue === null) ?? true;
     }
     
     public function commission() {
@@ -57,7 +76,7 @@ class UserGroup extends Model
     }
 
     public function location() {
-        return $this->hasOne('App\Location', 'id', 'location_id');
+        return $this->hasOne('App\Location', 'id', 'location_id')->withTrashed();
     }
 
     /**
