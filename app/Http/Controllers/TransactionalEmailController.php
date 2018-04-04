@@ -21,44 +21,56 @@ class TransactionalEmailController extends Controller
         // Capture request data
         $requestData = $request->json()->all();
 
+        return $this->processing($requestData);
+
+    }
+
+    public function apiSave($request)
+    {
+        return $this->processing($request);
+    }
+
+    private function processing($data)
+    {
+
         // Validate request has content
-        if(empty($requestData)) {
+        if(empty($data)) {
             return response('JSON Format Error', 400)
                 ->header('Content-type', 'text/plain');
         }
 
         // Validate request has TO
-        if(empty($requestData['to_email'])) {
+        if(empty($data['to_email'])) {
             return response('Missing Required Field: To Email Address', 400)
                 ->header('Content-type', 'text/plain');
         }
 
         // Validate request has REPLY_TO
-        if(empty($requestData['reply_to'])) {
+        if(empty($data['reply_to'])) {
             return response('Missing Required Field: Reply To Address', 400)
                 ->header('Content-type', 'text/plain');
         }
 
         // Validate request has SUBJECT
-        if(empty($requestData['email_subject'])) {
+        if(empty($data['email_subject'])) {
             return response('Missing Required Field: Subject', 400)
                 ->header('Content-type', 'text/plain');
         }
 
         // Validate request has FORM_NAME
-        if(empty($requestData['form_name'])) {
+        if(empty($data['form_name'])) {
             return response('Missing Required Field: Form Name', 400)
                 ->header('Content-type', 'text/plain');
         }
 
         // Format the data to assign defaults if no data exists
-        $formattedData = $this->formatArrayData($requestData);
+        $formattedData = $this->formatArrayData($data);
 
         // Save request to the DB and returns ID
 //        $this->emailRecordID = $this->saveTransactionalEmail($formattedData);
 
         // Send to Arcane Leads API
-        $arcaneLeadsStatus = $this->leadsAPISubmission($formattedData);
+//        $arcaneLeadsStatus = $this->leadsAPISubmission($formattedData);
 
         // Save Arcane Leads API Status
 //        $this->updateTransactionalEmails(['leads_api_submission_status' => $arcaneLeadsStatus]);
@@ -79,7 +91,6 @@ class TransactionalEmailController extends Controller
         return response('All Good', 200)
             ->header('Content-type', 'text/plain');
     }
-
 
     /**
      * Sends submission to Sendgrid for distribution
@@ -222,5 +233,65 @@ class TransactionalEmailController extends Controller
         );
 
         return (array) $formattedArray;
+    }
+
+    /**
+     * @param $locationBeforeUpdate
+     * @param $locationBeforeUpdateAddress
+     * @param $locationAfterUpdate
+     * @param $addresses
+     */
+    public function LocationEmail($locationBeforeUpdate,$locationBeforeUpdateAddress,$location,$addresses,$type) {
+
+        $emailTitle = 'MaxLiving Location created: '.$location->name;
+        $formName = 'MaxLiving Location Location Created';
+        $contentHeader = '<br><h3><a href="'.$location->vanity_website_url.'" target="_blank">'.$location->name.'</a> has been created!</h3>';
+        if ($type==='update') {
+            $emailTitle = 'Update for MaxLiving Location: '.$location->name;
+            $formName = 'Update for MaxLiving Location';
+            $contentHeader = '<br><h3><a href="'.$location->vanity_website_url.'" target="_blank">'.$location->name.'</a> has been updated!</h3>';
+        }
+
+        $content = $contentHeader;
+        $content .= '<span '.$this->compareLocationChange($location->name,$locationBeforeUpdate->name,$type).'>Location Name:</span> '.$location->name;
+        $content .= '<br><span '.$this->compareLocationChange($addresses[0]['address_1'],$locationBeforeUpdateAddress['address_1'],$type).'>Address 1:</span> '.$addresses[0]['address_1'];
+        $content .= '<br><span '.$this->compareLocationChange($addresses[0]['address_2'],$locationBeforeUpdateAddress['address_2'],$type).'>Address 2:</span> '.$addresses[0]['address_2'];
+        $content .= '<br><span '.$this->compareLocationChange($addresses[0]['city'],$locationBeforeUpdateAddress['city'],$type).'>City:</span> '.$addresses[0]['city'];
+        $content .= '<br><span '.$this->compareLocationChange($addresses[0]['region'],$locationBeforeUpdateAddress['region'],$type).'>Region:</span> '.$addresses[0]['region'];
+        $content .= '<br><span '.$this->compareLocationChange($addresses[0]['zip_postal_code'],$locationBeforeUpdateAddress['zip_postal_code'],$type).'>Postal Code:</span> '.$addresses[0]['zip_postal_code'];
+        $content .= '<br><span '.$this->compareLocationChange($addresses[0]['country'],$locationBeforeUpdateAddress['country'],$type).'>Country:</span> '.$addresses[0]['country'];
+        if ($type==='update') {
+            //Before Location Update information
+            $content .= '<br><br><h4>Previous information:</h4>';
+            $content .= 'Location Name: '.$locationBeforeUpdate->name;
+            $content .= '<br>Address 1: '.$locationBeforeUpdateAddress['address_1'];
+            $content .= '<br>Address 2: '.$locationBeforeUpdateAddress['address_2'];
+            $content .= '<br>City: '.$locationBeforeUpdateAddress['city'];
+            $content .= '<br>Region: '.$locationBeforeUpdateAddress['region'];
+            $content .= '<br>Postal Code: '.$locationBeforeUpdateAddress['zip_postal_code'];
+            $content .= '<br>Country: '.$locationBeforeUpdateAddress['country'];
+        }
+
+        $email = array(
+            'to_email' => env('ARCANE_NOTIFICATION_EMAIL'),
+            'reply_to' => 'noreply@maxliving.com',
+            'email_subject' => $emailTitle,
+            'form_name' => $formName,
+            'content' => $content
+        );
+
+        $this->apiSave($email);
+
+        return;
+    }
+
+    private function compareLocationChange($before,$after,$type) {
+        if ($type !== 'update') {
+            return '';
+        }
+        $changeStyle = 'style="font-weight: bold;background-color:yellow;"';
+        if ($before !== $after) {
+            return $changeStyle;
+        }
     }
 }

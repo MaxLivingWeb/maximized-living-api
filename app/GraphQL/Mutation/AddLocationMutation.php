@@ -7,6 +7,7 @@ use Folklore\GraphQL\Support\Mutation;
 use App\Location;
 use App\GraphQL\Type\LocationType;
 use App\Address;
+use App\Http\Controllers\TransactionalEmailController;
 
 class AddLocationMutation extends Mutation
 {
@@ -57,7 +58,13 @@ class AddLocationMutation extends Mutation
         foreach($addresses as $address) {
             Address::attachAddress($location->id, $address);
         }
-    
+
+        //Email on location creation
+	    if (!empty(env('ARCANE_NOTIFICATION_EMAIL'))) {
+		    $sendEmail = new TransactionalEmailController();
+		    $sendEmail->LocationEmail( null, null, $location, $addresses, 'add' );
+	    }
+
         return $location;
     }
 }
