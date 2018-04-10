@@ -327,7 +327,9 @@ class ShopifyHelper extends CacheableApi
                 'query' => $query
             ]);
 
-            $allOrders = $allOrders->merge(json_decode($result->getBody()->getContents())->orders);
+            $allOrders = $allOrders->merge(
+                json_decode($result->getBody()->getContents())->orders ?? []
+            );
         }
 
         return $allOrders->all();
