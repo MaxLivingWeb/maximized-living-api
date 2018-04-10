@@ -12,6 +12,11 @@ class LocationHelper
      * @var null|bool
      */
     private $enabledStatus = null;
+
+    /**
+     * Default setting for filtering locations by 'enabled status'. Options are: 'enabled' (default), 'disabled', 'any'
+     * @var string
+     */
     protected $enabledStatusByDefault = 'enabled';
 
     /**
