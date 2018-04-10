@@ -8,6 +8,7 @@ use Folklore\GraphQL\Support\Mutation;
 use App\Location;
 use App\GraphQL\Type\LocationType;
 use App\Address;
+use App\Http\Controllers\TransactionalEmailController;
 
 class UpdateLocationMutation extends Mutation
 {
@@ -39,6 +40,25 @@ class UpdateLocationMutation extends Mutation
         if(empty($args['gmb_id']) ) {
             $args['gmb_id'] = '';
         }
+
+        //Location before being updated for notification email
+        $locationBeforeUpdate = Location
+            ::where(
+                'id', $args['id']
+            )->orWhere(
+                'vanity_website_id', $args['vanity_website_id']
+            )->first();
+
+        //Address before change
+        $locationBeforeUpdateAddress = array (
+            'address_1' => $locationBeforeUpdate->addresses()->first()->address_1,
+            'address_2' => $locationBeforeUpdate->addresses()->first()->address_2,
+            'city' => $locationBeforeUpdate->addresses()->first()->city->name,
+            'region' => $locationBeforeUpdate->addresses()->first()->region->name,
+            'zip_postal_code' => $locationBeforeUpdate->addresses()->first()->zip_postal_code,
+            'country' => $locationBeforeUpdate->addresses()->first()->country->name
+
+        );
 
         $location = Location
             ::where(
@@ -87,18 +107,37 @@ class UpdateLocationMutation extends Mutation
             $gmb->update($updated_location);
         }
 
+        //Location after being updated for notification email
+        $locationAfterUpdate = Location
+            ::where(
+                'id', $args['id']
+            )->orWhere(
+                'vanity_website_id', $args['vanity_website_id']
+            )->first();
+
         //if the address exists, just get out
         if(!empty($address_exists)) {
+
+        	if (!empty(env('ARCANE_NOTIFICATION_EMAIL'))) {
+		        $sendEmail = new TransactionalEmailController();
+		        $sendEmail->LocationEmail( $locationBeforeUpdate, $locationBeforeUpdateAddress, $locationAfterUpdate, $addresses, 'update' );
+	        }
+
             return $args;
         }
 
         //detach before add the new addresses
         $updated_location->addresses()->detach();
 
-        //takes all the addresses snd creates/updates as needed and attaches them to the location
+        //takes all the addresses and creates/updates as needed and attaches them to the location
         foreach($addresses as $address) {
             Address::attachAddress($updated_location->id, $address);
         }
+
+	    if (!empty(env('ARCANE_NOTIFICATION_EMAIL'))) {
+		    $sendEmail = new TransactionalEmailController();
+		    $sendEmail->LocationEmail( $locationBeforeUpdate, $locationBeforeUpdateAddress, $locationAfterUpdate, $addresses, 'update' );
+	    }
 
         if ($location === 1) {
             return $args;
