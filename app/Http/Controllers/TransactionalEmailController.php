@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use GuzzleHttp;
 use SendGrid;
+use Illuminate\Support\Facades\View;
 
 class TransactionalEmailController extends Controller
 {
@@ -236,41 +237,30 @@ class TransactionalEmailController extends Controller
     }
 
     /**
-     * @param $locationBeforeUpdate
-     * @param $locationBeforeUpdateAddress
-     * @param $locationAfterUpdate
-     * @param $addresses
+     * @param $email
      */
-    public function LocationEmail($locationBeforeUpdate,$locationBeforeUpdateAddress,$location,$addresses,$type) {
+    public function LocationEmail($email) {
 
-        $emailTitle = 'MaxLiving Location created: '.$location->name;
+        $emailTitle = 'MaxLiving Location created: '.$email[2]->name;
         $formName = 'MaxLiving Location Location Created';
-        $contentHeader = '<br><h3><a href="'.$location->vanity_website_url.'" target="_blank">'.$location->name.'</a> has been created!</h3>';
-        if ($type==='update') {
-            $emailTitle = 'Update for MaxLiving Location: '.$location->name;
+        $contentHeader = '<br><h3><a href="'.$email[2]->vanity_website_url.'" target="_blank">'.$email[2]->name.'</a> has been created!</h3>';
+        if ($email[4]==='update') {
+            $emailTitle = 'Update for MaxLiving Location: '.$email[2]->name;
             $formName = 'Update for MaxLiving Location';
-            $contentHeader = '<br><h3><a href="'.$location->vanity_website_url.'" target="_blank">'.$location->name.'</a> has been updated!</h3>';
+            $contentHeader = '<br><h3><a href="'.$email[2]->vanity_website_url.'" target="_blank">'.$email[2]->name.'</a> has been updated!</h3>';
         }
 
-        $content = $contentHeader;
-        $content .= '<span '.$this->compareLocationChange($location->name,$locationBeforeUpdate->name,$type).'>Location Name:</span> '.$location->name;
-        $content .= '<br><span '.$this->compareLocationChange($addresses[0]['address_1'],$locationBeforeUpdateAddress['address_1'],$type).'>Address 1:</span> '.$addresses[0]['address_1'];
-        $content .= '<br><span '.$this->compareLocationChange($addresses[0]['address_2'],$locationBeforeUpdateAddress['address_2'],$type).'>Address 2:</span> '.$addresses[0]['address_2'];
-        $content .= '<br><span '.$this->compareLocationChange($addresses[0]['city'],$locationBeforeUpdateAddress['city'],$type).'>City:</span> '.$addresses[0]['city'];
-        $content .= '<br><span '.$this->compareLocationChange($addresses[0]['region'],$locationBeforeUpdateAddress['region'],$type).'>Region:</span> '.$addresses[0]['region'];
-        $content .= '<br><span '.$this->compareLocationChange($addresses[0]['zip_postal_code'],$locationBeforeUpdateAddress['zip_postal_code'],$type).'>Postal Code:</span> '.$addresses[0]['zip_postal_code'];
-        $content .= '<br><span '.$this->compareLocationChange($addresses[0]['country'],$locationBeforeUpdateAddress['country'],$type).'>Country:</span> '.$addresses[0]['country'];
-        if ($type==='update') {
-            //Before Location Update information
-            $content .= '<br><br><h4>Previous information:</h4>';
-            $content .= 'Location Name: '.$locationBeforeUpdate->name;
-            $content .= '<br>Address 1: '.$locationBeforeUpdateAddress['address_1'];
-            $content .= '<br>Address 2: '.$locationBeforeUpdateAddress['address_2'];
-            $content .= '<br>City: '.$locationBeforeUpdateAddress['city'];
-            $content .= '<br>Region: '.$locationBeforeUpdateAddress['region'];
-            $content .= '<br>Postal Code: '.$locationBeforeUpdateAddress['zip_postal_code'];
-            $content .= '<br>Country: '.$locationBeforeUpdateAddress['country'];
-        }
+        $content = (string)View::make(
+            'locationEmailNotice',
+            [
+                'contentHeader' => $contentHeader,
+                'location' => $email[2],
+                'addresses' => $email[3],
+                'locationBeforeUpdate' => $email[0],
+                'locationBeforeUpdateAddress' => $email[1],
+                'type' => $email[4]
+            ]
+        );
 
         $email = array(
             'to_email' => env('ARCANE_NOTIFICATION_EMAIL'),

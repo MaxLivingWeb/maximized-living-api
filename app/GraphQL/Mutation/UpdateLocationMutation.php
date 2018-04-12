@@ -108,7 +108,7 @@ class UpdateLocationMutation extends Mutation
         }
 
         //Location after being updated for notification email
-        $locationAfterUpdate = Location
+        $location = Location
             ::where(
                 'id', $args['id']
             )->orWhere(
@@ -119,9 +119,18 @@ class UpdateLocationMutation extends Mutation
         if(!empty($address_exists)) {
 
         	if (!empty(env('ARCANE_NOTIFICATION_EMAIL'))) {
-		        $sendEmail = new TransactionalEmailController();
-		        $sendEmail->LocationEmail( $locationBeforeUpdate, $locationBeforeUpdateAddress, $locationAfterUpdate, $addresses, 'update' );
-	        }
+
+                $emailContent = array(
+                    $locationBeforeUpdate,
+                    $locationBeforeUpdateAddress,
+                    $location,
+                    $addresses,
+                    'update'
+                );
+                $sendEmail = new TransactionalEmailController();
+                $sendEmail->LocationEmail($emailContent);
+
+        	}
 
             return $args;
         }
@@ -135,8 +144,15 @@ class UpdateLocationMutation extends Mutation
         }
 
 	    if (!empty(env('ARCANE_NOTIFICATION_EMAIL'))) {
+            $emailContent = array(
+                $locationBeforeUpdate,
+                $locationBeforeUpdateAddress,
+                $location,
+                $addresses,
+                'update'
+            );
 		    $sendEmail = new TransactionalEmailController();
-		    $sendEmail->LocationEmail( $locationBeforeUpdate, $locationBeforeUpdateAddress, $locationAfterUpdate, $addresses, 'update' );
+		    $sendEmail->LocationEmail($emailContent);
 	    }
 
         if ($location === 1) {
