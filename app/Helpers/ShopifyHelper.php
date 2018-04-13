@@ -296,18 +296,16 @@ class ShopifyHelper extends CacheableApi
     {
         $status = $status ?? 'any'; //to override the default value of 'open'
 
-        $PER_PAGE = 250;
-
+        $limit = 250;
         $count = $this->getOrdersCount($startDate, $endDate, $status);
-
-        $numPages = (int)ceil($count / $PER_PAGE);
+        $total = (int)ceil($count / $limit);
 
         $allOrders = collect();
-        for($i = 1; $i <= $numPages; ++$i) {
+        for($i = 1; $i <= $total; ++$i) {
             $query = [
                 'status' => $status,
-                'limit' => $PER_PAGE,
-                'page' => $i
+                'limit'  => $limit,
+                'page'   => $i
             ];
 
             if (!is_null($startDate) && !is_null($endDate)) {
@@ -406,15 +404,15 @@ class ShopifyHelper extends CacheableApi
         try
         {
             $count = $this->getProductCount();
-            $per_page = 250;
-            $numPages = (int)ceil($count / $per_page);
+            $limit = 250;
+            $total = (int)ceil($count / $limit);
 
             $products = [];
-            for($i = 1; $i <= $numPages; ++$i) {
+            for($i = 1; $i <= $total; ++$i) {
                 $result = $this->client->get('products.json', [
                     'query' => [
-                        'limit'  => $per_page,
-                        'page'   => $i
+                        'limit' => $limit,
+                        'page'  => $i
                     ]
                 ]);
 
