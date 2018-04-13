@@ -30,24 +30,25 @@ class AffiliateController extends Controller
                 $includedUsersEnabledStatus
             );
 
-            foreach ($affiliates as $affiliate) {
-                $affiliate->sales = collect($orders)
-                    ->filter(function ($value) use ($affiliate) {
-                        $affiliateId = collect($value->note_attributes)
-                            ->where('name', 'affiliateId')
-                            ->first();
-
-                        if(is_null($affiliateId)) {
-                            return false;
-                        }
-
-                        return intval($affiliateId->value) === $affiliate->id
-                            || intval($affiliateId->value) === $affiliate->legacy_affiliate_id;
-                    })
-                    ->values();
-            }
-
             return collect($affiliates)
+                ->transform(function($affiliate) use($orders){
+                    $affiliate->sales = collect($orders)
+                        ->filter(function($order) use($affiliate) {
+                            $affiliateId = collect($order->note_attributes)
+                                ->where('name', 'affiliateId')
+                                ->first();
+
+                            if(is_null($affiliateId)) {
+                                return false;
+                            }
+
+                            return intval($affiliateId->value) === $affiliate->id
+                                || intval($affiliateId->value) === $affiliate->legacy_affiliate_id;
+                        })
+                        ->values();
+
+                    return $affiliate;
+                })
                 ->filter(function($affiliate) {
                     return (!empty($affiliate->sales) && $affiliate->sales->isNotEmpty());
                 })
@@ -77,8 +78,8 @@ class AffiliateController extends Controller
             }
 
             $affiliate->sales = collect($orders)
-                ->filter(function ($value) use ($affiliate) {
-                    $affiliateId = collect($value->note_attributes)
+                ->filter(function($order) use($affiliate) {
+                    $affiliateId = collect($order->note_attributes)
                         ->where('name', 'affiliateId')
                         ->first();
 

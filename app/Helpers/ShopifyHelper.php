@@ -292,27 +292,24 @@ class ShopifyHelper extends CacheableApi
      * @param $status | 'open' (default), 'closed', 'cancelled', 'any'
      * @return Shopify Orders
      */
-
     public function getAllOrders($startDate = null, $endDate = null, $status = null)
     {
         $status = $status ?? 'any'; //to override the default value of 'open'
 
-        $PER_PAGE = 250;
-
+        $limit = 250;
         $count = $this->getOrdersCount($startDate, $endDate, $status);
-
-        $numPages = (int)ceil($count / $PER_PAGE);
+        $total = (int)ceil($count / $limit);
 
         $allOrders = collect();
-        for($i = 1; $i <= $numPages; ++$i) {
+        for($i = 1; $i <= $total; ++$i) {
             $query = [
                 'status' => $status,
-                'limit'  => $PER_PAGE,
+                'limit'  => $limit,
                 'page'   => $i
             ];
 
-            if(!is_null($startDate) && !is_null($endDate)) {
-                if($startDate == $endDate) {
+            if (!is_null($startDate) && !is_null($endDate)) {
+                if ($startDate == $endDate) {
                     //dates are the same, add 23:59 to end time
                     $endDate->add(new \DateInterval('PT23H59M59S'));
                 }
@@ -327,10 +324,64 @@ class ShopifyHelper extends CacheableApi
                 'query' => $query
             ]);
 
-            $allOrders = $allOrders->merge(json_decode($result->getBody()->getContents())->orders);
+            $orders = json_decode($result->getBody()->getContents())->orders;
+
+            $newestBatchedOrders = collect($orders)
+                ->transform(function ($order) {
+                    // Only limit the necessary data being sent back, to reduce memory being used to get this data
+                    $simplifiedOrder = (object)collect($order)
+                        ->only([
+                            'id',
+                            'name',
+                            'email',
+                            'customer',
+                            'created_at',
+                            'source_name',
+                            'note_attributes',
+                            'subtotal_price',
+                            'total_price',
+                            'total_discounts',
+                            'line_items',
+                            'refunds',
+                            'fulfillment_status',
+                            'financial_status'
+                        ])
+                        ->all();
+
+                    // Exclude some unnecessary $customer data
+                    if (isset($simplifiedOrder->customer)) {
+                        $simplifiedOrder->customer = collect($simplifiedOrder->customer)
+                            ->except([
+                                'accepts_marketing',
+                                'verified_email'
+                            ])
+                            ->all();
+                    }
+
+                    // Exclude some unnecessary $line_items data
+                    if (isset($simplifiedOrder->line_items)) {
+                        $simplifiedOrder->line_items = collect($simplifiedOrder->line_items)
+                            ->transform(function ($line_item) {
+                                return (object)collect($line_item)
+                                    ->except([
+                                        'origin_location'
+                                    ])
+                                    ->all();
+                            })
+                            ->all();
+                    }
+
+                    // Send back Simplified Order data
+                    return $simplifiedOrder;
+                })
+                ->all();
+
+            $allOrders = $allOrders->merge($newestBatchedOrders);
         }
 
-        return $allOrders->all();
+        return $allOrders
+            ->values()
+            ->all();
     }
 
     /**
@@ -353,15 +404,15 @@ class ShopifyHelper extends CacheableApi
         try
         {
             $count = $this->getProductCount();
-            $per_page = 250;
-            $numPages = (int)ceil($count / $per_page);
+            $limit = 250;
+            $total = (int)ceil($count / $limit);
 
             $products = [];
-            for($i = 1; $i <= $numPages; ++$i) {
+            for($i = 1; $i <= $total; ++$i) {
                 $result = $this->client->get('products.json', [
                     'query' => [
-                        'limit'  => $per_page,
-                        'page'   => $i
+                        'limit' => $limit,
+                        'page'  => $i
                     ]
                 ]);
 
