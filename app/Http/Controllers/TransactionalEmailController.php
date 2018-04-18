@@ -250,7 +250,7 @@ class TransactionalEmailController extends Controller
             $contentHeader = '<br><h3><a href="'.$email[2]->vanity_website_url.'" target="_blank">'.$email[2]->name.'</a> has been updated!</h3>';
         }
 
-        $content = (string)View::make(
+        $content = View::make(
             'locationEmailNotice',
             [
                 'contentHeader' => $contentHeader,
@@ -260,7 +260,7 @@ class TransactionalEmailController extends Controller
                 'locationBeforeUpdateAddress' => $email[1],
                 'type' => $email[4]
             ]
-        );
+        )->render();
 
         $email = array(
             'to_email' => env('ARCANE_NOTIFICATION_EMAIL'),
