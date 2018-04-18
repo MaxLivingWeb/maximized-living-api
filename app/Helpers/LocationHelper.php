@@ -58,6 +58,7 @@ class LocationHelper
     public function parseRequestData(Request $request)
     {
         $this->enabledStatus = $request->input('enabled_status');
+        $this->includeUserGroup = $request->input('include_user_group');
         $this->includeAddresses = $request->input('include_addresses');
 
         return $this;
