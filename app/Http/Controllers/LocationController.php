@@ -26,10 +26,13 @@ class LocationController extends Controller
      * @param int $id Location ID
      * @return array
      */
-    public function getById($id)
+    public function getById(Request $request, $id)
     {
         $location = Location::findOrFail($id);
-        return response()->json($location);
+
+        return (new LocationHelper())
+            ->parseRequestData($request)
+            ->formatLocationData($location);
     }
 
     /**
