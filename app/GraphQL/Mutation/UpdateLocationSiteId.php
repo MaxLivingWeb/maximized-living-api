@@ -7,10 +7,10 @@ use Folklore\GraphQL\Support\Mutation;
 use App\Location;
 use App\GraphQL\Type\LocationType;
 
-class UpdateLocationSiteId extends Mutation
+class UpdateLocationSiteID extends Mutation
 {
     protected $attributes = [
-        'name' => 'updateLocationSiteId'
+        'name' => 'updateLocationSiteID'
     ];
 
     public function type()
