@@ -73,10 +73,10 @@ class LocationHelper
      */
     public function parseRequestData(Request $request)
     {
-        $this->enabledStatus = $request->input('enabled_status');
-        $this->includeUserGroup = $request->input('include_user_group');
-        $this->includeAddresses = $request->input('include_addresses');
-        $this->condensedAddresses = $request->input('condensed_addresses');
+        $this->enabledStatus = $request->input('enabled_status') ?? $this->enabledStatusByDefault;
+        $this->includeUserGroup = $request->input('include_user_group') ?? $this->includeUserGroupByDefault;
+        $this->includeAddresses = $request->input('include_addresses') ?? $this->includeAddressesByDefault;
+        $this->condensedAddresses = $request->input('condensed_addresses') ?? $this->condensedAddressesByDefault;
 
         return $this;
     }
@@ -103,13 +103,13 @@ class LocationHelper
         $includeAddresses = $includeAddresses ?? $this->includeAddresses;
         $condensedAddresses = $condensedAddresses ?? $this->condensedAddresses;
 
-        if ($includeUserGroup) {
+        if ((bool)$includeUserGroup) {
             // TODO - Include a method to condense UserGroup data?
             $location->user_group = $location->userGroup;
         }
 
-        if ($includeAddresses) {
-            if ($condensedAddresses) {
+        if ((bool)$includeAddresses) {
+            if ((bool)$condensedAddresses) {
                 $location->addresses = $location->addresses
                     ->transform(function($address){
                         $simplifiedAddress = $address
