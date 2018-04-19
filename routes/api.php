@@ -62,6 +62,11 @@ Route::get('/locations', 'LocationController@all');
 Route::get('/cities', 'CityController@all');
 Route::get('/city/{id}', 'CityController@getById');
 
+// Markets
+Route::get('/markets', 'MarketController@all');
+Route::get('/market/{id}', 'MarketController@getById');
+Route::get('/market/{id}/subscriptions/counts', 'MarketController@getSubscriptionCount');
+
 // Regions
 Route::get('/regions', 'RegionController@all');
 Route::get('/region/{id}', 'RegionController@getById');
