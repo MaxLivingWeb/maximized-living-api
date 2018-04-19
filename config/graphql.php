@@ -94,8 +94,7 @@ return [
                 'addLocation' => 'App\GraphQL\Mutation\AddLocationMutation',
                 'updateLocation' => 'App\GraphQL\Mutation\UpdateLocationMutation',
                 'updateLocationWhitelabel' => 'App\GraphQL\Mutation\UpdateLocationWhitelabelMutation',
-                'deleteLocation' => 'App\GraphQL\Mutation\DeleteLocationMutation',
-                'updateLocationSiteID' => 'App\GraphQL\Mutation\updateLocationSiteID'
+                'deleteLocation' => 'App\GraphQL\Mutation\DeleteLocationMutation'
             ]
         ],
     ],
