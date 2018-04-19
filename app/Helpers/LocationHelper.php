@@ -11,60 +11,25 @@ class LocationHelper
      * Current setting for filtering locations by 'enabled status'. Options are: 'enabled' (default), 'disabled', 'any'
      * @var null|bool
      */
-    private $enabledStatus = null;
-
-    /**
-     * Default setting for filtering locations by 'enabled status'. Options are: 'enabled' (default), 'disabled', 'any'
-     * @var string
-     */
-    protected $enabledStatusByDefault = 'enabled';
+    private $enabledStatus = 'enabled';
 
     /**
      * Current setting for getting Location UserGroup
      * @var null|bool
      */
-    private $includeUserGroup = null;
-
-    /**
-     * Default setting for getting Location UserGroup
-     * @var bool
-     */
-    protected $includeUserGroupByDefault = true;
+    private $includeUserGroup = true;
 
     /**
      * Current setting for getting Location Addresses
      * @var null|bool
      */
-    private $includeAddresses = null;
-
-    /**
-     * Default setting for getting Location Addresses
-     * @var bool
-     */
-    protected $includeAddressesByDefault = false;
+    private $includeAddresses = false;
 
     /**
      * Current setting for condensing Location Addresses
      * @var null|bool
      */
-    private $condensedAddresses = null;
-
-    /**
-     * Default setting for condensing Location Addresses
-     * @var bool
-     */
-    protected $condensedAddressesByDefault = false;
-
-    /**
-     * LocationHelper constructor.
-     */
-    public function __construct()
-    {
-        $this->enabledStatus = $this->enabledStatusByDefault;
-        $this->includeUserGroup = $this->includeUserGroupByDefault;
-        $this->includeAddresses = $this->includeAddressesByDefault;
-        $this->condensedAddresses = $this->condensedAddressesByDefault;
-    }
+    private $condensedAddresses = false;
 
     /**
      * Parse Request data which will then be used to get Location data
@@ -73,10 +38,21 @@ class LocationHelper
      */
     public function parseRequestData(Request $request)
     {
-        $this->enabledStatus = $request->input('enabled_status') ?? $this->enabledStatusByDefault;
-        $this->includeUserGroup = $request->input('include_user_group') ?? $this->includeUserGroupByDefault;
-        $this->includeAddresses = $request->input('include_addresses') ?? $this->includeAddressesByDefault;
-        $this->condensedAddresses = $request->input('condensed_addresses') ?? $this->condensedAddressesByDefault;
+        if ($request->has('enabled_status')) {
+            $this->enabledStatus = $request->input('enabled_status');
+        }
+
+        if ($request->has('include_user_group')) {
+            $this->includeUserGroup = $request->input('include_user_group');
+        }
+
+        if ($request->has('include_addresses')) {
+            $this->includeAddresses = $request->input('include_addresses');
+        }
+
+        if ($request->has('condensed_addresses')) {
+            $this->condensedAddresses = $request->input('condensed_addresses');
+        }
 
         return $this;
     }
