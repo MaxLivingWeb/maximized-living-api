@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Market;
 use App\MarketSubscriptionCount;
 use Carbon\Carbon;
+use InvalidArgumentException;
 use Illuminate\Http\Request;
 
 class MarketController extends Controller
@@ -40,14 +41,24 @@ class MarketController extends Controller
         $query = MarketSubscriptionCount::where('market_id', $id);
         if ($request->query('start_date') && $request->query('end_date')) {
             $format = 'Y-m-d';
-            $startDate = Carbon::createFromFormat($format, $request->query('start_date'))
-                ->hour(0)
-                ->minute(0)
-                ->second(0);
-            $endDate = Carbon::createFromFormat($format, $request->query('end_date'))
-                ->hour(0)
-                ->minute(0)
-                ->second(0);
+            try {
+                $startDate = Carbon::createFromFormat($format, $request->query('start_date'))
+                    ->hour(0)
+                    ->minute(0)
+                    ->second(0);
+            } catch (InvalidArgumentException $e) {
+                return response('Bad start_date format:' . $e->getMessage(), 400);
+            }
+
+            try {
+                $endDate = Carbon::createFromFormat($format, $request->query('end_date'))
+                    ->hour(0)
+                    ->minute(0)
+                    ->second(0);
+            } catch (InvalidArgumentException $e) {
+                return response('Bad end_date format:' . $e->getMessage(), 400);
+            }
+
             $query = $query->whereBetween('created_at', [$startDate, $endDate]);
         }
 
