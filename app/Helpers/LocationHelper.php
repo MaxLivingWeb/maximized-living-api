@@ -43,15 +43,15 @@ class LocationHelper
         }
 
         if ($request->has('include_user_group')) {
-            $this->includeUserGroup = $request->input('include_user_group');
+            $this->includeUserGroup = filter_var($request->input('include_user_group'), FILTER_VALIDATE_BOOLEAN);
         }
 
         if ($request->has('include_addresses')) {
-            $this->includeAddresses = $request->input('include_addresses');
+            $this->includeAddresses = filter_var($request->input('include_addresses'), FILTER_VALIDATE_BOOLEAN);
         }
 
         if ($request->has('condensed_addresses')) {
-            $this->condensedAddresses = $request->input('condensed_addresses');
+            $this->condensedAddresses = filter_var($request->input('condensed_addresses'), FILTER_VALIDATE_BOOLEAN);
         }
 
         return $this;
