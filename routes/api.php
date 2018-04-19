@@ -71,6 +71,7 @@ Route::get('/region/{id}/subscriptions/counts', 'RegionController@getSubscriptio
 Route::get('/countries', 'CountryController@all');
 Route::get('/country/{id}', 'CountryController@getById');
 
+// TODO - Remove Commissions Controller? It is not being used.
 // Commissions
 Route::group(['prefix' => 'commission'], function() {
     Route::get('/', 'CommissionController@all');

@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\CommissionGroup;
 use Illuminate\Http\Request;
 
+// TODO - Remove this file? It is not being used.
+
 class CommissionController extends Controller
 {
     public function all()
