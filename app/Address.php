@@ -33,11 +33,7 @@ class Address extends Model
         'locationTypes',
     ];
 
-    protected $appends = [
-        'type',
-        'region',
-        'country'
-    ];
+    protected $appends = ['type', 'region', 'country'];
 
     /**
      * Returns and appends the 'type' relation of the address (location type first, falling back to usergroup type).
