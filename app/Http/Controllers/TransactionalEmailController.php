@@ -71,7 +71,7 @@ class TransactionalEmailController extends Controller
 //        $this->emailRecordID = $this->saveTransactionalEmail($formattedData);
 
         // Send to Arcane Leads API
-        $arcaneLeadsStatus = $this->leadsAPISubmission($formattedData);
+//        $arcaneLeadsStatus = $this->leadsAPISubmission($formattedData);
 
         // Save Arcane Leads API Status
 //        $this->updateTransactionalEmails(['leads_api_submission_status' => $arcaneLeadsStatus]);
@@ -251,16 +251,28 @@ class TransactionalEmailController extends Controller
         }
 
         $content = View::make(
-            'locationEmailNotice',
+            'locationEmailNoticeNew',
             [
-                'contentHeader' => $contentHeader,
-                'location' => $email[2],
-                'addresses' => $email[3],
-                'locationBeforeUpdate' => $email[0],
-                'locationBeforeUpdateAddress' => $email[1],
-                'type' => $email[4]
+                'contentHeader'               => $contentHeader,
+                'location'                    => $email[2],
+                'addresses'                   => $email[3],
+                'type'                        => $email[4]
             ]
         )->render();
+
+        if($email[4]==='update') {//render update version of email
+            $content = View::make(
+                'locationEmailNotice',
+                [
+                    'contentHeader'               => $contentHeader,
+                    'location'                    => $email[2],
+                    'addresses'                   => $email[3],
+                    'locationBeforeUpdate'        => $email[0],
+                    'locationBeforeUpdateAddress' => $email[1],
+                    'type'                        => $email[4]
+                ]
+            )->render();
+        }
 
         $email = array(
             'to_email' => env('ARCANE_NOTIFICATION_EMAIL'),
@@ -273,15 +285,5 @@ class TransactionalEmailController extends Controller
         $this->apiSave($email);
 
         return;
-    }
-
-    private function compareLocationChange($before,$after,$type) {
-        if ($type !== 'update') {
-            return '';
-        }
-        $changeStyle = 'style="font-weight: bold;background-color:yellow;"';
-        if ($before !== $after) {
-            return $changeStyle;
-        }
     }
 }
