@@ -14,11 +14,13 @@ class UserGroupHelper
      * Get Affiliates (UserGroups with Location or Commission assigned) and then cache the $users assigned to each UserGroup
      * @param bool $includeUsers
      * @param null|string $includedUsersEnabledStatus (Get Cognito users by a specific enabled status. 'enabled' (default), 'disabled', 'any'
+     * @param bool $includeLocationAddresses
      * @return array
      */
     public static function getAllWithCommission(
-        $includeUsers = false,
-        $includedUsersEnabledStatus = NULL
+        $includeUsers = FALSE,
+        $includedUsersEnabledStatus = NULL,
+        $includeLocationAddresses = FALSE
     ){
         $userGroups = UserGroup::with(['commission', 'location'])
             ->get()
@@ -60,6 +62,23 @@ class UserGroupHelper
                     $shopifyUsers
                 );
             }
+        }
+
+        // By default, the UserGroup will be attaching the related Location data...
+        // Check to see if this Location's Address data will also be included
+        if ($includeLocationAddresses) {
+            $userGroups = collect($userGroups)
+                ->transform(function($userGroup){
+                    $userGroup->location = (new LocationHelper())->formatLocationData(
+                        $userGroup->location,
+                        FALSE,
+                        TRUE,
+                        TRUE
+                    );
+
+                    return $userGroup;
+                })
+                ->all();
         }
 
         return $userGroups;

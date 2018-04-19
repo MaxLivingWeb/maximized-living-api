@@ -61,8 +61,13 @@ class GroupController extends Controller
     {
         $includeUsers = (bool)$request->input('include_users');
         $includedUsersEnabledStatus = $request->input('included_users_enabled_status') ?? null; //Note: Can only be assigned if `include_users` is also set to true.
+        $includeLocationAddresses = (bool)$request->input('include_location_addresses');
 
-        return UserGroupHelper::getAllWithCommission($includeUsers, $includedUsersEnabledStatus);
+        return UserGroupHelper::getAllWithCommission(
+            $includeUsers,
+            $includedUsersEnabledStatus,
+            $includeLocationAddresses
+        );
     }
 
     public function getByName(Request $request)
