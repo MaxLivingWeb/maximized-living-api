@@ -6,6 +6,7 @@ use App\{Address,AddressType,UserGroup};
 use App\Helpers\{TextHelper,UserGroupHelper};
 use App\Location;
 use App\RegionalSubscriptionCount;
+use App\MarketSubscriptionCount;
 use Aws\Exception\AwsException;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -97,6 +98,29 @@ class GroupController extends Controller
         $regionalSubscriptionCount->count = $count;
         $regionalSubscriptionCount->save();
     }
+
+    private function updateMarketCount($marketId) {
+        $countQuery = 'select count(ug.id) as count from user_groups ug
+            inner join locations l
+                on l.id = ug.location_id
+            inner join locations_addresses la
+                on la.location_id = l.id
+            inner join addresses a
+                on a.id = la.address_id
+            inner join cities c
+                on c.id = a.city_id
+            inner join markets m
+                on m.id = c.market_id
+            where m.id = ' . $marketId .
+            ' and (ug.premium = true or ug.event_promoter = true);';
+        $count = DB::select($countQuery)[0]->count;
+
+        $msc = new MarketSubscriptionCount();
+        $msc->market_id = $marketId;
+        $msc->count = $count;
+        $msc->save();
+    }
+
 
     public function add(Request $request)
     {
@@ -227,6 +251,12 @@ class GroupController extends Controller
                     ->firstOrFail();
                 $this->updateRegionalCount($location->addresses[0]->city->region->id);
 
+                // Update market count
+                $location = Location::with('addresses.city.market')
+                    ->where('id', $location_id)
+                    ->firstOrFail();
+                $this->updateMarketCount($location->addresses[0]->city->market->id);
+
                 DB::commit();
 
                 return $userGroup;
@@ -277,15 +307,21 @@ class GroupController extends Controller
 
             $group->save();
 
-            // Update regional count
+            // Update regional & market count
             $location = Location::with('addresses.city.region')
                 ->where('id', $group->location_id)
                 ->firstOrFail();
             $this->updateRegionalCount($location->addresses[0]->city->region->id);
 
+            $location = Location::with('addresses.city.market')
+                ->where('id', $group->location_id)
+                ->firstOrFail();
+            $this->updateMarketCount($location->addresses[0]->city->market->id);
+
             DB::commit();
         } catch (Exception $e) {
             DB::rollback();
+            \Log::error($e);
             throw $e;
         }
     }

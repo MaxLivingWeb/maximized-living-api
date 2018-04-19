@@ -33,7 +33,12 @@ class Address extends Model
         'locationTypes',
     ];
 
-    protected $appends = ['type', 'region', 'country'];
+    protected $appends = [
+        'type',
+        'region',
+        'country',
+        'market'
+    ];
 
     /**
      * Returns and appends the 'type' relation of the address (location type first, falling back to usergroup type).
@@ -43,6 +48,16 @@ class Address extends Model
     public function getTypeAttribute()
     {
         return $this->getType();
+    }
+
+    /**
+     * Returns and appends the market name for the address.
+     *
+     * @return string
+     */
+    public function getMarketAttribute()
+    {
+        return $this->city->market;
     }
 
     /**
