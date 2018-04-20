@@ -16,7 +16,7 @@ class LocationController extends Controller
     public function all(Request $request)
     {
         return (new LocationHelper())
-            ->parseRequestData($request)
+            ->parseData($request->all())
             ->getAllLocations();
     }
 
@@ -31,7 +31,7 @@ class LocationController extends Controller
         $location = Location::findOrFail($id);
 
         return (new LocationHelper())
-            ->parseRequestData($request)
+            ->parseData($request->all())
             ->formatLocationData($location);
     }
 

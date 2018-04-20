@@ -3,7 +3,6 @@
 namespace App\Helpers;
 
 use App\Location;
-use Illuminate\Http\Request;
 
 class LocationHelper
 {
@@ -33,25 +32,25 @@ class LocationHelper
 
     /**
      * Parse Request data which will then be used to get Location data
-     * @param Request $request
+     * @param array $params
      * @return $this
      */
-    public function parseRequestData(Request $request)
+    public function parseData(array $params)
     {
-        if ($request->has('enabled_status')) {
-            $this->enabledStatus = $request->input('enabled_status');
+        if (array_key_exists('enabled_status', $params)) {
+            $this->enabledStatus = $params['enabled_status'];
         }
 
-        if ($request->has('include_user_group')) {
-            $this->includeUserGroup = filter_var($request->input('include_user_group'), FILTER_VALIDATE_BOOLEAN);
+        if (array_key_exists('include_user_group', $params)) {
+            $this->includeUserGroup = filter_var($params['include_user_group'], FILTER_VALIDATE_BOOLEAN);
         }
 
-        if ($request->has('include_addresses')) {
-            $this->includeAddresses = filter_var($request->input('include_addresses'), FILTER_VALIDATE_BOOLEAN);
+        if (array_key_exists('include_addresses', $params)) {
+            $this->includeAddresses = filter_var($params['include_addresses'], FILTER_VALIDATE_BOOLEAN);
         }
 
-        if ($request->has('condensed_addresses')) {
-            $this->condensedAddresses = filter_var($request->input('condensed_addresses'), FILTER_VALIDATE_BOOLEAN);
+        if (array_key_exists('condensed_addresses', $params)) {
+            $this->condensedAddresses = filter_var($params['condensed_addresses'], FILTER_VALIDATE_BOOLEAN);
         }
 
         return $this;
