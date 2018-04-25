@@ -25,9 +25,13 @@ class AffiliateController extends Controller
             // Note: this will only affect data response if `include_users` is also set to true
             $includedUsersEnabledStatus = $request->input('included_users_enabled_status') ?? null;
 
+            // Include Location's related Address data
+            $includeLocationAddresses = (bool)$request->input('include_location_addresses');
+
             $affiliates = UserGroupHelper::getAllWithCommission(
                 $includeUsers,
-                $includedUsersEnabledStatus
+                $includedUsersEnabledStatus,
+                $includeLocationAddresses
             );
 
             return collect($affiliates)
