@@ -34,7 +34,10 @@ class Address extends Model
     ];
 
     protected $appends = [
-        'type', 'region', 'country', 'market'
+        'type',
+        'region',
+        'country',
+        'market'
     ];
 
     /**
