@@ -5,19 +5,18 @@ namespace App\Helpers;
 class EmailFormattingHelper
 {
     /**
-     * @param $before
-     * @param $after
+     *
+     * Formats emails with bold / yellow background for fields that have changed
+     *
+     * @param $before - the value before update
+     * @param $after - the value after update
      * @param $type
      *
      * @return string
      */
-    public static function compareLocationChange($before='',$after='',$type='') {
-
-        if ($type !== 'update') {
-            return '';
-        }
+    public static function compareLocationChange($before='',$after='') {
         $changeStyle = 'style="font-weight: bold;background-color:yellow;"';
-        if ($before !== $after) {
+        if ($before !== $after) {// return style for changed field
             return $changeStyle;
         }
     }

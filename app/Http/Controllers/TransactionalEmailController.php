@@ -71,7 +71,7 @@ class TransactionalEmailController extends Controller
 //        $this->emailRecordID = $this->saveTransactionalEmail($formattedData);
 
         // Send to Arcane Leads API
-        $arcaneLeadsStatus = $this->leadsAPISubmission($formattedData);
+//        $arcaneLeadsStatus = $this->leadsAPISubmission($formattedData);
 
         // Save Arcane Leads API Status
 //        $this->updateTransactionalEmails(['leads_api_submission_status' => $arcaneLeadsStatus]);
@@ -237,39 +237,40 @@ class TransactionalEmailController extends Controller
     }
 
     /**
+     *
+     * Sends email on location creation / update
+     *
      * @param $email
      */
-    public function LocationEmail($email) {
+    public function locationEmail($email) {
 
-        $emailTitle = 'MaxLiving Location created: '.$email[2]->name;
+        $emailTitle = 'MaxLiving Location created: '.$email['location']->name;
         $formName = 'MaxLiving Location Location Created';
-        $contentHeader = '<br><h3><a href="'.$email[2]->vanity_website_url.'" target="_blank">'.$email[2]->name.'</a> has been created!</h3>';
-        if ($email[4]==='update') {
-            $emailTitle = 'Update for MaxLiving Location: '.$email[2]->name;
+        $contentHeader = '<br><h3><a href="'.$email['location']->vanity_website_url.'" target="_blank">'.$email['location']->name.'</a> has been created!</h3>';
+        if ($email['type']==='update') {
+            $emailTitle = 'Update for MaxLiving Location: '.$email['location']->name;
             $formName = 'Update for MaxLiving Location';
-            $contentHeader = '<br><h3><a href="'.$email[2]->vanity_website_url.'" target="_blank">'.$email[2]->name.'</a> has been updated!</h3>';
+            $contentHeader = '<br><h3><a href="'.$email['location']->vanity_website_url.'" target="_blank">'.$email['location']->name.'</a> has been updated!</h3>';
         }
 
         $content = View::make(
             'locationEmailNoticeNew',
             [
                 'contentHeader'               => $contentHeader,
-                'location'                    => $email[2],
-                'addresses'                   => $email[3],
-                'type'                        => $email[4]
+                'location'                    => $email['location'],
+                'addresses'                   => $email['addresses']
             ]
         )->render();
 
-        if($email[4]==='update') {//render update version of email
+        if($email['type']==='update') {//render update version of email
             $content = View::make(
                 'locationEmailNotice',
                 [
                     'contentHeader'               => $contentHeader,
-                    'location'                    => $email[2],
-                    'addresses'                   => $email[3],
-                    'locationBeforeUpdate'        => $email[0],
-                    'locationBeforeUpdateAddress' => $email[1],
-                    'type'                        => $email[4]
+                    'location'                    => $email['location'],
+                    'addresses'                   => $email['addresses'],
+                    'locationBeforeUpdate'        => $email['locationBeforeUpdate'],
+                    'locationBeforeUpdateAddress' => $email['locationBeforeUpdateAddress']
                 ]
             )->render();
         }
