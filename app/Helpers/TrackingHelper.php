@@ -7,7 +7,7 @@ use App\MarketSubscriptionCount;
 
 class TrackingHelper {
     public function updateRegionalCount($regionId) {
-        $countQuery = 'select count(ug.id) as count from user_groups ug
+        $countQuery = 'select count(distinct ug.id) as count from user_groups ug
             inner join locations l
                 on l.id = ug.location_id
             inner join locations_addresses la
@@ -30,7 +30,7 @@ class TrackingHelper {
     }
 
     public function updateMarketCount($marketId) {
-        $countQuery = 'select count(ug.id) as count from user_groups ug
+        $countQuery = 'select count(distinct ug.id) as count from user_groups ug
             inner join locations l
                 on l.id = ug.location_id
             inner join locations_addresses la
