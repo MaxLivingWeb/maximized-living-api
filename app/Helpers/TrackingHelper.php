@@ -20,7 +20,7 @@ class TrackingHelper {
                 on r.id = c.region_id
             where r.id = ' . $regionId .
             ' and (ug.premium = true or ug.event_promoter = true)
-              and l.deleted_at is not null;';
+              and l.deleted_at is null;';
         $count = DB::select($countQuery)[0]->count;
 
         $regionalSubscriptionCount = new RegionalSubscriptionCount();
@@ -43,7 +43,7 @@ class TrackingHelper {
                 on m.id = c.market_id
             where m.id = ' . $marketId .
             ' and (ug.premium = true or ug.event_promoter = true)
-              and l.deleted_at is not null;';
+              and l.deleted_at is null;';
         $count = DB::select($countQuery)[0]->count;
 
         $msc = new MarketSubscriptionCount();
