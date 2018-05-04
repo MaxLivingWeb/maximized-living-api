@@ -61,8 +61,15 @@ class AddLocationMutation extends Mutation
 
         //Email on location creation
 	    if (!empty(env('ARCANE_NOTIFICATION_EMAIL'))) {
+            $emailContent = array(
+                'locationBeforeUpdate' => null,
+                'locationBeforeUpdateAddress' => null,
+                'location' => $location,
+                'addresses' => $addresses,
+                'type' => null
+            );
 		    $sendEmail = new TransactionalEmailController();
-		    $sendEmail->LocationEmail( null, null, $location, $addresses, 'add' );
+		    $sendEmail->locationEmail($emailContent);
 	    }
 
         return $location;
