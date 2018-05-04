@@ -325,7 +325,6 @@ class ShopifyHelper extends CacheableApi
             ]);
 
             $orders = json_decode($result->getBody()->getContents())->orders;
-
             $newestBatchedOrders = collect($orders)
                 ->transform(function ($order) {
                     // Only limit the necessary data being sent back, to reduce memory being used to get this data
@@ -344,7 +343,8 @@ class ShopifyHelper extends CacheableApi
                             'line_items',
                             'refunds',
                             'fulfillment_status',
-                            'financial_status'
+                            'financial_status',
+                            'shipping_lines'
                         ])
                         ->all();
 
