@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Reporting;
 use App\Helpers\{CognitoHelper, ShopifyOrderHelper};
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class RetailController extends Controller
 {
@@ -40,6 +41,7 @@ class RetailController extends Controller
                 ->all();
         }
         catch (\Exception $e) {
+            Log::error($e);
             return response()->json($e->getMessage(), 500);
         }
     }
@@ -56,6 +58,7 @@ class RetailController extends Controller
                 ->values();
         }
         catch (\Exception $e) {
+            Log::error($e);
             return response()->json($e->getMessage(), 500);
         }
     }
