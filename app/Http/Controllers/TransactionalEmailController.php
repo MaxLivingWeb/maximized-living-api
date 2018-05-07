@@ -71,7 +71,7 @@ class TransactionalEmailController extends Controller
 //        $this->emailRecordID = $this->saveTransactionalEmail($formattedData);
 
         // Send to Arcane Leads API
-//        $arcaneLeadsStatus = $this->leadsAPISubmission($formattedData);
+        $arcaneLeadsStatus = $this->leadsAPISubmission($formattedData);
 
         // Save Arcane Leads API Status
 //        $this->updateTransactionalEmails(['leads_api_submission_status' => $arcaneLeadsStatus]);
