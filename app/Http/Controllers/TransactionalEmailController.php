@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use GuzzleHttp;
 use SendGrid;
+use Illuminate\Support\Facades\View;
 
 class TransactionalEmailController extends Controller
 {
@@ -236,40 +237,42 @@ class TransactionalEmailController extends Controller
     }
 
     /**
-     * @param $locationBeforeUpdate
-     * @param $locationBeforeUpdateAddress
-     * @param $locationAfterUpdate
-     * @param $addresses
+     *
+     * Sends email on location creation / update
+     *
+     * @param $email
      */
-    public function LocationEmail($locationBeforeUpdate,$locationBeforeUpdateAddress,$location,$addresses,$type) {
+    public function locationEmail($email) {
 
-        $emailTitle = 'MaxLiving Location created: '.$location->name;
+        $emailTitle = 'MaxLiving Location created: '.$email['location']->name;
         $formName = 'MaxLiving Location Location Created';
-        $contentHeader = '<br><h3><a href="'.$location->vanity_website_url.'" target="_blank">'.$location->name.'</a> has been created!</h3>';
-        if ($type==='update') {
-            $emailTitle = 'Update for MaxLiving Location: '.$location->name;
+        $contentHeader = '<br><h3><a href="'.$email['location']->vanity_website_url.'" target="_blank">'.$email['location']->name.'</a> has been created!</h3>';
+        if ($email['type']==='update') {
+            $emailTitle = 'Update for MaxLiving Location: '.$email['location']->name;
             $formName = 'Update for MaxLiving Location';
-            $contentHeader = '<br><h3><a href="'.$location->vanity_website_url.'" target="_blank">'.$location->name.'</a> has been updated!</h3>';
+            $contentHeader = '<br><h3><a href="'.$email['location']->vanity_website_url.'" target="_blank">'.$email['location']->name.'</a> has been updated!</h3>';
         }
 
-        $content = $contentHeader;
-        $content .= '<span '.$this->compareLocationChange($location->name,$locationBeforeUpdate->name,$type).'>Location Name:</span> '.$location->name;
-        $content .= '<br><span '.$this->compareLocationChange($addresses[0]['address_1'],$locationBeforeUpdateAddress['address_1'],$type).'>Address 1:</span> '.$addresses[0]['address_1'];
-        $content .= '<br><span '.$this->compareLocationChange($addresses[0]['address_2'],$locationBeforeUpdateAddress['address_2'],$type).'>Address 2:</span> '.$addresses[0]['address_2'];
-        $content .= '<br><span '.$this->compareLocationChange($addresses[0]['city'],$locationBeforeUpdateAddress['city'],$type).'>City:</span> '.$addresses[0]['city'];
-        $content .= '<br><span '.$this->compareLocationChange($addresses[0]['region'],$locationBeforeUpdateAddress['region'],$type).'>Region:</span> '.$addresses[0]['region'];
-        $content .= '<br><span '.$this->compareLocationChange($addresses[0]['zip_postal_code'],$locationBeforeUpdateAddress['zip_postal_code'],$type).'>Postal Code:</span> '.$addresses[0]['zip_postal_code'];
-        $content .= '<br><span '.$this->compareLocationChange($addresses[0]['country'],$locationBeforeUpdateAddress['country'],$type).'>Country:</span> '.$addresses[0]['country'];
-        if ($type==='update') {
-            //Before Location Update information
-            $content .= '<br><br><h4>Previous information:</h4>';
-            $content .= 'Location Name: '.$locationBeforeUpdate->name;
-            $content .= '<br>Address 1: '.$locationBeforeUpdateAddress['address_1'];
-            $content .= '<br>Address 2: '.$locationBeforeUpdateAddress['address_2'];
-            $content .= '<br>City: '.$locationBeforeUpdateAddress['city'];
-            $content .= '<br>Region: '.$locationBeforeUpdateAddress['region'];
-            $content .= '<br>Postal Code: '.$locationBeforeUpdateAddress['zip_postal_code'];
-            $content .= '<br>Country: '.$locationBeforeUpdateAddress['country'];
+        $content = View::make(
+            'locationEmailNoticeNew',
+            [
+                'contentHeader'               => $contentHeader,
+                'location'                    => $email['location'],
+                'addresses'                   => $email['addresses']
+            ]
+        )->render();
+
+        if($email['type']==='update') {//render update version of email
+            $content = View::make(
+                'locationEmailNotice',
+                [
+                    'contentHeader'               => $contentHeader,
+                    'location'                    => $email['location'],
+                    'addresses'                   => $email['addresses'],
+                    'locationBeforeUpdate'        => $email['locationBeforeUpdate'],
+                    'locationBeforeUpdateAddress' => $email['locationBeforeUpdateAddress']
+                ]
+            )->render();
         }
 
         $email = array(
@@ -283,15 +286,5 @@ class TransactionalEmailController extends Controller
         $this->apiSave($email);
 
         return;
-    }
-
-    private function compareLocationChange($before,$after,$type) {
-        if ($type !== 'update') {
-            return '';
-        }
-        $changeStyle = 'style="font-weight: bold;background-color:yellow;"';
-        if ($before !== $after) {
-            return $changeStyle;
-        }
     }
 }

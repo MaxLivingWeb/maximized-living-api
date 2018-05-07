@@ -42,8 +42,7 @@ class UpdateLocationMutation extends Mutation
         }
 
         //Location before being updated for notification email
-        $locationBeforeUpdate = Location
-            ::where(
+        $locationBeforeUpdate = Location ::where(
                 'id', $args['id']
             )->orWhere(
                 'vanity_website_id', $args['vanity_website_id']
@@ -81,8 +80,9 @@ class UpdateLocationMutation extends Mutation
                 'gmb_id'                    => $args['gmb_id']
             ]);
 
-        $updated_location = Location
-            ::where('vanity_website_id', $args['vanity_website_id'])
+        $updated_location = Location ::where(
+            'vanity_website_id',
+            $args['vanity_website_id'])
             ->orWhere('id', $args['id'])
             ->first();
 
@@ -108,8 +108,7 @@ class UpdateLocationMutation extends Mutation
         }
 
         //Location after being updated for notification email
-        $locationAfterUpdate = Location
-            ::where(
+        $location = Location ::where(
                 'id', $args['id']
             )->orWhere(
                 'vanity_website_id', $args['vanity_website_id']
@@ -119,9 +118,18 @@ class UpdateLocationMutation extends Mutation
         if(!empty($address_exists)) {
 
         	if (!empty(env('ARCANE_NOTIFICATION_EMAIL'))) {
-		        $sendEmail = new TransactionalEmailController();
-		        $sendEmail->LocationEmail( $locationBeforeUpdate, $locationBeforeUpdateAddress, $locationAfterUpdate, $addresses, 'update' );
-	        }
+
+                $emailContent = array(
+                    'locationBeforeUpdate' => $locationBeforeUpdate,
+                    'locationBeforeUpdateAddress' => $locationBeforeUpdateAddress,
+                    'location' => $location,
+                    'addresses' => $addresses,
+                    'type' => 'update'
+                );
+                $sendEmail = new TransactionalEmailController();
+                $sendEmail->locationEmail($emailContent);
+
+        	}
 
             return $args;
         }
@@ -135,8 +143,15 @@ class UpdateLocationMutation extends Mutation
         }
 
 	    if (!empty(env('ARCANE_NOTIFICATION_EMAIL'))) {
+            $emailContent = array(
+                'locationBeforeUpdate' => $locationBeforeUpdate,
+                'locationBeforeUpdateAddress' => $locationBeforeUpdateAddress,
+                'location' => $location,
+                'addresses' => $addresses,
+                'type' => 'update'
+            );
 		    $sendEmail = new TransactionalEmailController();
-		    $sendEmail->LocationEmail( $locationBeforeUpdate, $locationBeforeUpdateAddress, $locationAfterUpdate, $addresses, 'update' );
+		    $sendEmail->locationEmail($emailContent);
 	    }
 
         if ($location === 1) {
