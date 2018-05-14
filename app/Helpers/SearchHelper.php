@@ -129,6 +129,11 @@ class SearchHelper
         return urldecode($encodedString);
     }
 
+    /**
+     * Create an array of possible search terms - if the query string contains either of these patterns: " + ", " and ", or " & "
+     * @param string $string
+     * @return array
+     */
     private static function _getAllConjuctionizedSearchTerms($string) {
         return collect([
             str_replace(' + ', ' and ', $string),
