@@ -48,8 +48,14 @@ class SearchHelper
      */
     private static function _nameSearch(string $query): array
     {
+        $encodedQuery = self::_customUrlEncode($query);
         return DB::table('products')
-            ->where('title', 'like', '%' . $query . '%')
+            ->where(function($execute) use($encodedQuery){
+                $querySearchTerms = self::_getAllConjuctionizedSearchTerms($encodedQuery);
+                foreach ($querySearchTerms as $querySearchTerm) {
+                    $execute->orWhere('title', 'like', '%'.$querySearchTerm.'%');
+                }
+            })
             ->pluck('id')
             ->toArray();
     }
@@ -96,5 +102,48 @@ class SearchHelper
             ->transform(function($product) {
                 return json_decode($product);
             });
+    }
+
+    /**
+     * Convert query string to actually include a '+' as part of the search
+     * @param string $string
+     * @return string
+     */
+    private static function _customUrlEncode($string='') {
+        $encodedString = urlencode($string);
+
+        $entitiesMap = [
+            ' ' => '%20',
+            '+' => '%2B'
+        ];
+
+        $encodedPlusSigns = strpos($encodedString, '+++') !== false;
+        if ($encodedPlusSigns) {
+            $encodedString = str_replace(
+                '+++',
+                $entitiesMap[' '].$entitiesMap['+'].$entitiesMap[' '],
+                $encodedString
+            );
+        }
+
+        return urldecode($encodedString);
+    }
+
+    /**
+     * Create an array of possible search terms - if the query string contains either of these patterns: " + ", " and ", or " & "
+     * @param string $string
+     * @return array
+     */
+    private static function _getAllConjuctionizedSearchTerms($string) {
+        return collect([
+            str_replace(' + ', ' and ', $string),
+            str_replace(' + ', ' & ', $string),
+            str_replace(' and ', ' + ', $string),
+            str_replace(' and ', ' & ', $string),
+            str_replace(' & ', ' + ', $string),
+            str_replace(' & ', ' and ', $string)
+        ])
+            ->unique()
+            ->values();
     }
 }
