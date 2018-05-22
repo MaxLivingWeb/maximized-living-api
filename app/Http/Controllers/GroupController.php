@@ -209,8 +209,9 @@ class GroupController extends Controller
                 $location = Location::with('addresses.city.market')
                     ->where('id', $location_id)
                     ->firstOrFail();
-                $trackingHelper->updateMarketCount($location->addresses[0]->city->market->id);
-
+                    if(!is_null($location->addresses[0]->city->market)) {
+                        $trackingHelper->updateMarketCount($location->addresses[0]->city->market->id);
+                    }
                 DB::commit();
 
                 return $userGroup;
@@ -271,7 +272,9 @@ class GroupController extends Controller
             $location = Location::with('addresses.city.market')
                 ->where('id', $group->location_id)
                 ->firstOrFail();
-            $trackingHelper->updateMarketCount($location->addresses[0]->city->market->id);
+            if(!is_null($location->addresses[0]->city->market)) {
+                $trackingHelper->updateMarketCount($location->addresses[0]->city->market->id);
+            }
 
             DB::commit();
         } catch (Exception $e) {
