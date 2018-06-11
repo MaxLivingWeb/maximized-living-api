@@ -54,6 +54,10 @@ class LocationType extends GraphQLType
                 'type' => Type::int(),
                 'description' => 'Flag if the site is whitelabel status'
             ],
+            'sem_page_desc' => [
+                'type' => Type::string(),
+                'description' => 'sem page desc'
+            ],
             'slug' => [
                 'type' => Type::string(),
                 'description' => 'slug of location'
