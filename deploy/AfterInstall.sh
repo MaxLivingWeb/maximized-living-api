@@ -33,4 +33,8 @@ fi
 
 rm -f ./.htaccess
 
+source ./public/EnvironmentSetting.sh
+
+rm -f ./public/EnvironmentSetting.sh
+
 chown -R apache:apache /var/www/html

@@ -3,7 +3,16 @@
         Options -MultiViews
     </IfModule>
 
+    <IfModule mod_setenvif.c>
+        SetEnvIf X-Forwarded-Proto "^https$" HTTPS
+    </IfModule>
+
     RewriteEngine On
+
+    # Redirect HTTP to HTTPS
+    RewriteCond %{ENV:IGENV} =Production
+    RewriteCond %{HTTP:X-Forwarded-Proto} =http
+    RewriteRule ^.* https://%{HTTP:Host}%{REQUEST_URI} [L,R=permanent]
 
     # Redirect Trailing Slashes If Not A Folder...
     RewriteCond %{REQUEST_FILENAME} !-d

@@ -35,6 +35,8 @@ files:
     destination: /var/www/html
   - source: /deploy/CreateEnvFile.py
     destination: /var/www/html
+  - source: /deploy/EnvironmentSetting.sh
+    destination: /var/www/html/public
 hooks:
   ApplicationStop:
     - location: deploy/ApplicationStop.sh
