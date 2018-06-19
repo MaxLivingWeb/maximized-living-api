@@ -10,9 +10,9 @@
     RewriteEngine On
 
     # Redirect HTTP to HTTPS
-    #RewriteCond %{ENV:IGENV} =Production
-    #RewriteCond %{HTTP:X-Forwarded-Proto} =http
-    #RewriteRule ^.* https://%{HTTP:Host}%{REQUEST_URI} [L,R=permanent]
+    RewriteCond %{ENV:IGENV} =Production
+    RewriteCond %{HTTP:X-Forwarded-Proto} =http
+    RewriteRule ^.* https://%{HTTP:Host}%{REQUEST_URI} [L,R=permanent]
 
     # Redirect Trailing Slashes If Not A Folder...
     RewriteCond %{REQUEST_FILENAME} !-d
