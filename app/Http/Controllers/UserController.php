@@ -912,6 +912,31 @@ class UserController extends Controller
     }
 
     /**
+     * Force Password Reset on Cognito User
+     * @param string $id (Cognito User ID)
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function resetUserPassword($id)
+    {
+        try {
+            $cognito = new CognitoHelper();
+            $cognito->resetUserPassword($id);
+            $cognito->updateUserAttribute('custom:verificationState', 'AdminResetPassword', $id);
+
+            return response()->json(['Admin Reset Password for Cognito User '. $id]);
+        }
+        catch(AwsException $e) {
+            return response()->json([$e->getAwsErrorMessage()], 500);
+        }
+        catch (ValidationException $e) {
+            return response()->json($e->errors(), 400);
+        }
+        catch (\Exception $e) {
+            return response()->json($e->getMessage(), 500);
+        }
+    }
+
+    /**
      * Update only basic user details
      * @param Request $request
      * @param string $id (Cognito User ID)
