@@ -321,6 +321,19 @@ class CognitoHelper
         ]);
     }
 
+    /**
+     * Force Password Reset on Cognito User
+     * @param string $username (Cognito User ID)
+     * @return \Aws\Result
+     */
+    public function resetUserPassword($id)
+    {
+        return $this->client->adminResetUserPassword([
+            'UserPoolId' => env('AWS_COGNITO_USER_POOL_ID'),
+            'Username' => $id
+        ]);
+    }
+
     public function getGroup($groupName)
     {
         return $this->client->getGroup([
