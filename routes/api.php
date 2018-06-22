@@ -30,14 +30,15 @@ Route::group(['prefix' => 'group'], function() {
 // Users
 Route::group(['prefix' => 'user'], function() {
     Route::get('/{id}', 'UserController@getUser');
+    Route::get('/{id}/affiliate/{affiliateId}', 'UserController@linkToAffiliate');
+    Route::get('/{id}/affiliate', 'UserController@affiliate');
     Route::post('/', 'UserController@addUser');
     Route::put('/{id}', 'UserController@updateUser');
     Route::put('/{id}/account', 'UserController@createThirdpartyAccountForUser');
     Route::put('/{id}/permissions', 'UserController@updateUserPermissions');
     Route::put('/{id}/email', 'UserController@updateUserEmailAddress');
+    Route::put('/{id}/reset/password', 'UserController@resetUserPassword');
     Route::put('/{id}/shopify', 'UserController@updateUserShopifyID');
-    Route::get('/{id}/affiliate/{affiliateId}', 'UserController@linkToAffiliate');
-    Route::get('/{id}/affiliate', 'UserController@affiliate');
     Route::delete('/{id}', 'UserController@deactivateUser');
 });
 
