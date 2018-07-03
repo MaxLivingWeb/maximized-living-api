@@ -49,15 +49,17 @@ class UpdateLocationMutation extends Mutation
             )->first();
 
         //Address before change
-        $locationBeforeUpdateAddress = array (
-            'address_1' => $locationBeforeUpdate->addresses()->first()->address_1,
-            'address_2' => $locationBeforeUpdate->addresses()->first()->address_2,
-            'city' => $locationBeforeUpdate->addresses()->first()->city->name,
-            'region' => $locationBeforeUpdate->addresses()->first()->region->name,
-            'zip_postal_code' => $locationBeforeUpdate->addresses()->first()->zip_postal_code,
-            'country' => $locationBeforeUpdate->addresses()->first()->country->name
+        if($locationBeforeUpdate->addresses()->first()->address_1) {
+            $locationBeforeUpdateAddress = array(
+                'address_1'       => $locationBeforeUpdate->addresses()->first()->address_1,
+                'address_2'       => $locationBeforeUpdate->addresses()->first()->address_2,
+                'city'            => $locationBeforeUpdate->addresses()->first()->city->name,
+                'region'          => $locationBeforeUpdate->addresses()->first()->region->name,
+                'zip_postal_code' => $locationBeforeUpdate->addresses()->first()->zip_postal_code,
+                'country'         => $locationBeforeUpdate->addresses()->first()->country->name
 
-        );
+            );
+        }
 
         $location = Location
             ::where(
