@@ -47,6 +47,7 @@ class AddLocationMutation extends Mutation
             'whitelabel'                => $args['whitelabel'],
             'pre_open_display_date'     => $args['pre_open_display_date'],
             'opening_date'              => $args['opening_date'],
+            'sem_page_desc'             => '',
             'closing_date'              => $args['closing_date'],
             'daylight_savings_applies'  => $args['daylight_savings_applies'],
             'business_hours'            => $args['business_hours']

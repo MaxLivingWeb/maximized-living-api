@@ -76,6 +76,7 @@ class UpdateLocationMutation extends Mutation
                 'pre_open_display_date'     => $args['pre_open_display_date'],
                 'opening_date'              => $args['opening_date'],
                 'closing_date'              => $args['closing_date'],
+                'sem_page_desc'             => '',
                 'daylight_savings_applies'  => $args['daylight_savings_applies'],
                 'business_hours'            => $args['business_hours'],
                 'gmb_id'                    => $args['gmb_id']
