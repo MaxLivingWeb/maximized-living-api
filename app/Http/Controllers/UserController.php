@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\{Address,AddressType,CognitoUser,Location,UserGroup,User};
-use App\Helpers\{CognitoUserHelper,CognitoHelper,ShopifyHelper,WordpressHelper};
+use App\Helpers\{CognitoUserHelper,CognitoHelper,WordpressHelper};
 use GuzzleHttp\Exception\ClientException;
 use Aws\Exception\AwsException;
 use Carbon\Carbon;
@@ -100,7 +100,6 @@ class UserController extends Controller
     public function addUser(Request $request)
     {
         $cognito = new CognitoHelper();
-        $shopify = new ShopifyHelper();
 
         try {
             $fields = [
@@ -434,7 +433,6 @@ class UserController extends Controller
     public function updateUser(Request $request, $id)
     {
         $cognito = new CognitoHelper();
-        $shopify = new ShopifyHelper();
 
         try {
             // Update only specific data sets based on passed query params
@@ -945,7 +943,6 @@ class UserController extends Controller
     public function updateUserBasicDetails(Request $request, $id)
     {
         $cognito = new CognitoHelper();
-        $shopify = new ShopifyHelper();
 
         try {
             $validatedData = $request->validate([
@@ -1144,9 +1141,7 @@ class UserController extends Controller
         if ((isset($shopifyAddress->id) && !is_null($shopifyAddress->id))
             && (isset($shopifyAddress->customer_id) && !is_null($shopifyAddress->customer_id))
         ) {
-            // Delete this address from being associated to this Shopify Customer
-            $shopify = new ShopifyHelper();
-            $shopify->deleteCustomerAddress((array)$shopifyAddress);
+
 
             // Detach saved ShopifyAddress ID from Custom Address
             if (!is_null($customAddress)) {
