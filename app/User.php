@@ -61,7 +61,6 @@ class User extends Authenticatable
         $shopifyCustomer = $shopify->getCustomer($shopifyId);
         $shopifyCustomerCompanyName = $shopifyCustomer->default_address->company ?? 'N/A';
 
-        $res->shopify_id = $shopifyCustomer->id ?? null;
         $res->referred_affiliate_id = is_null($affiliateId) ? $affiliateId : (int)$affiliateId;
         $res->first_name = $shopifyCustomer->first_name ?? null;
         $res->last_name = $shopifyCustomer->last_name ?? null;

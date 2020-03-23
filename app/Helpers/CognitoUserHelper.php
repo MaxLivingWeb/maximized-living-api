@@ -182,12 +182,6 @@ class CognitoUserHelper
                     ->sortBy('created')
                     ->values()
                     ->all();
-
-                $duplicateUserInstances[] = (object)[
-                    'matching_email' => $email,
-                    'shopify_ids_match' => collect($duplicateUsers)->every('shopify_id', $currentUser['shopify_id']),
-                    'user_instances' => $duplicateUsers
-                ];
             }
 
             // Push this email to the list of possible duplicates

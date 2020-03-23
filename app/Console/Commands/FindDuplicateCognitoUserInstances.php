@@ -63,16 +63,14 @@ class FindDuplicateCognitoUserInstances extends Command
 
                 $response .= $this->line('----');
                 $response .= $this->line(count($results->user_instances).' Users with the Email Address ['.$matchingEmail.']');
-                $response .= $this->line('Shopify IDs Match: ' . ($results->shopify_ids_match ? 'Yes' : 'No'));
                 $response .= $this->table(
-                    ['Cognito ID', 'Email', 'User Status', 'Created', 'Shopify ID'],
+                    ['Cognito ID', 'Email', 'User Status', 'Created'],
                     collect($results->user_instances)->transform(function($user){
                         return [
                             $user['id'],
                             $user['email'],
                             $user['user_status'],
-                            $user['created'],
-                            $user['shopify_id']
+                            $user['created']
                         ];
                     })
                 );

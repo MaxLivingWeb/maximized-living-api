@@ -500,7 +500,6 @@ class CognitoHelper
             'user_enabled'      => $cognitoUser['Enabled'],
             'email'             => $attributes->where('Name', 'email')->first()['Value'],
             'created'           => $cognitoUser['UserCreateDate'],
-            'shopify_id'        => $shopifyId,
             'permissions'       => $permissions,
             'custom_attributes' => $customAttributes
         ];
