@@ -14,6 +14,7 @@ class Address extends Model
     protected $dates = ['deleted_at'];
 
     protected $fillable = [
+        'shopify_id',
         'shopify_default',
         'address_1',
         'address_2',
@@ -147,7 +148,7 @@ class Address extends Model
     static public function attachAddress($location_id, $address)
     {
         $cityId = City::checkCity( $address['country'], $address['region'], $address['city'] );
-
+        
         if(isset($address['id'])) {
 
             $existing_address = Address::where('id', $address['id']);
@@ -167,13 +168,25 @@ class Address extends Model
         $new_address->city_id = $cityId;
 
         $new_address->save();
-
+        
         $new_address->locations()->attach($location_id, ['address_type_id' => $address['address_type']]);
+    }
+
+    public function attachShopifyAddressID($shopify_id)
+    {
+        $this->shopify_id = (int)$shopify_id;
+        $this->save();
     }
 
     public function attachShopifyAddressDefaultValue($shopify_default)
     {
         $this->shopify_default = (bool)$shopify_default;
+        $this->save();
+    }
+
+    public function resetShopifyAddressID()
+    {
+        $this->shopify_id = null;
         $this->save();
     }
 
