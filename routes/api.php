@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Http\Request;
-use App\Helpers\ShopifyHelper;
 use App\Helpers\ProductImportHelper;
 
 /*
@@ -38,7 +37,6 @@ Route::group(['prefix' => 'user'], function() {
     Route::put('/{id}/permissions', 'UserController@updateUserPermissions');
     Route::put('/{id}/email', 'UserController@updateUserEmailAddress');
     Route::put('/{id}/reset/password', 'UserController@resetUserPassword');
-    Route::put('/{id}/shopify', 'UserController@updateUserShopifyID');
     Route::delete('/{id}', 'UserController@deactivateUser');
 });
 
@@ -77,15 +75,6 @@ Route::get('/region/{id}/subscriptions/counts', 'RegionController@getSubscriptio
 Route::get('/countries', 'CountryController@all');
 Route::get('/country/{id}', 'CountryController@getById');
 
-// Commissions
-Route::group(['prefix' => 'commission'], function() {
-    Route::get('/', 'CommissionController@all');
-    Route::get('/{id}', 'CommissionController@getById');
-    Route::post('/', 'CommissionController@add');
-    Route::put('/{id}', 'CommissionController@update');
-    Route::delete('/{id}', 'CommissionController@delete');
-});
-
 // Permissions
 Route::group(['prefix' => 'permissions'], function() {
     Route::get('/', 'PermissionsController@all');
@@ -94,51 +83,4 @@ Route::group(['prefix' => 'permissions'], function() {
 // Emails
 Route::post('/contact', 'TransactionalEmailController@save');
 
-// Reporting
-Route::group(['prefix' => 'reporting'], function() {
-    // All Sales
-    Route::get('/sales', 'Reporting\SalesController@sales');
-
-    // Retail Sales
-    Route::group(['prefix' => 'retail'], function() {
-        Route::group(['prefix' => 'customer'], function() {
-            Route::get('/sales', 'Reporting\RetailController@customerSales');
-        });
-        Route::group(['prefix' => 'pos'], function() {
-            Route::get('/sales', 'Reporting\RetailController@posSales');
-        });
-    });
-
-    // Affiliate Sales
-    Route::group(['prefix' => 'affiliate'], function() {
-        Route::get('/sales', 'Reporting\AffiliateController@sales');
-        Route::get('/{id}/sales', 'Reporting\AffiliateController@salesById');
-    });
-
-    // Wholesale Sales
-    Route::group(['prefix' => 'wholesale'], function() {
-        Route::get('/sales', 'Reporting\WholesaleController@sales');
-        Route::get('{id}/sales', 'Reporting\WholesaleController@salesById');
-    });
-});
-
-// Store
-Route::group(['prefix' => 'store'], function() {
-    // Update ML Store Products
-    Route::get('/update-products', 'Shopify\ProductController@importProductsToDatabase');
-
-    // Search for Products
-    Route::get('/search', 'SearchController@index');
-
-    // Get ALL Product Audience Types
-    Route::group(['prefix' => 'products'], function() {
-        Route::get('/', 'Shopify\ProductController@getProducts');
-        Route::get('/audience_types', 'Shopify\ProductController@getAllProductsAudienceTypes');
-    });
-});
-
-//Google My Business
-Route::group(['prefix' => 'gmb'], function() {
-    Route::get('/get_all', 'GmbController@get_all');
-    Route::get('/get/{gmb_id}', 'GmbController@get');
 });

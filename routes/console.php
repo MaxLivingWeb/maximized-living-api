@@ -103,8 +103,6 @@ Artisan::command('wholesale {file}', function ($file) {
         $cognito = new \App\Helpers\CognitoHelper();
         $allUsers = collect($cognito->listUsers());
 
-        $shopify = new \App\Helpers\ShopifyHelper();
-
         foreach ($csv as $user) {
             $legacy_affiliate_id = intval($user[1]);
             $email = $user[8];
@@ -259,9 +257,6 @@ Artisan::command('commission {file}', function ($file) {
 
         $cognito = new \App\Helpers\CognitoHelper();
         $allUsers = collect($cognito->listUsers());
-
-        $shopify = new \App\Helpers\ShopifyHelper();
-        $priceRules = collect($shopify->getPriceRules());
 
         if(is_null($priceRules)) {
             dd('no price groups');
