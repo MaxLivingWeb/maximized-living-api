@@ -38,8 +38,8 @@ Route::group(['prefix' => 'user'], function() {
     Route::put('/{id}/permissions', 'UserController@updateUserPermissions');
     Route::put('/{id}/email', 'UserController@updateUserEmailAddress');
     Route::put('/{id}/reset/password', 'UserController@resetUserPassword');
-    Route::delete('/{id}', 'UserController@deactivateUser');
     Route::put('/{id}/shopify', 'UserController@updateUserShopifyID');
+    Route::delete('/{id}', 'UserController@deactivateUser');
 });
 
 Route::group(['prefix' => 'users'], function() {
@@ -77,6 +77,15 @@ Route::get('/region/{id}/subscriptions/counts', 'RegionController@getSubscriptio
 Route::get('/countries', 'CountryController@all');
 Route::get('/country/{id}', 'CountryController@getById');
 
+// Commissions
+Route::group(['prefix' => 'commission'], function() {
+    Route::get('/', 'CommissionController@all');
+    Route::get('/{id}', 'CommissionController@getById');
+    Route::post('/', 'CommissionController@add');
+    Route::put('/{id}', 'CommissionController@update');
+    Route::delete('/{id}', 'CommissionController@delete');
+});
+
 // Permissions
 Route::group(['prefix' => 'permissions'], function() {
     Route::get('/', 'PermissionsController@all');
@@ -84,19 +93,11 @@ Route::group(['prefix' => 'permissions'], function() {
 
 // Emails
 Route::post('/contact', 'TransactionalEmailController@save');
+
 // Reporting
 Route::group(['prefix' => 'reporting'], function() {
     // All Sales
     Route::get('/sales', 'Reporting\SalesController@sales');
-    // Commissions
-    Route::group(['prefix' => 'commission'], function() {
-        Route::get('/', 'CommissionController@all');
-        Route::get('/{id}', 'CommissionController@getById');
-        Route::post('/', 'CommissionController@add');
-        Route::put('/{id}', 'CommissionController@update');
-        Route::delete('/{id}', 'CommissionController@delete');
-    });
-
 
     // Retail Sales
     Route::group(['prefix' => 'retail'], function() {
@@ -140,5 +141,4 @@ Route::group(['prefix' => 'store'], function() {
 Route::group(['prefix' => 'gmb'], function() {
     Route::get('/get_all', 'GmbController@get_all');
     Route::get('/get/{gmb_id}', 'GmbController@get');
-
 });

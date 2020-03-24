@@ -4,6 +4,7 @@ namespace App\Helpers;
 
 use App\UserGroup;
 use App\Helpers\CognitoHelper;
+use App\Helpers\ShopifyHelper;
 use Illuminate\Support\Facades\Cache;
 
 class UserGroupHelper
@@ -47,6 +48,20 @@ class UserGroupHelper
                 );
             }
 
+            $shopifyUserIDs = collect($allUsers)
+                ->filter(function($user) {
+                    return !empty($user['shopify_id']);
+                })
+                ->pluck('shopify_id')
+                ->all();
+            $shopifyUsers = (new ShopifyHelper(1440))->getCustomers($shopifyUserIDs);
+
+            foreach($userGroups as $userGroup) {
+                $userGroup->loadUsers(
+                    $allUsers,
+                    $shopifyUsers
+                );
+            }
         }
 
         // By default, the UserGroup will be attaching the related Location data...
