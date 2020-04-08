@@ -335,14 +335,14 @@ class UserController extends Controller
             // IMPORTANT: creating a Shopify customer should be the LAST step of the user creation process.
             // If any previous step fails, we roll back the account creation to prevent 'account already exists' errors.
             // We CANNOT DO THIS for Shopify customers. Creating a Shopify customer should always be the FINAL STEP.
-            $shopifyCustomer = $shopify->getOrCreateCustomer($shopifyCustomerData);
+            // $shopifyCustomer = $shopify->getOrCreateCustomer($shopifyCustomerData);
 
             //Save Shopify ID to Cognito user attribute
-            $cognito->updateUserAttribute(
-                env('COGNITO_SHOPIFY_CUSTOM_ATTRIBUTE'),
-                strval($shopifyCustomer->id),
-                $validatedData['email']
-            );
+            // $cognito->updateUserAttribute(
+            //     env('COGNITO_SHOPIFY_CUSTOM_ATTRIBUTE'),
+            //     strval($shopifyCustomer->id),
+            //     $validatedData['email']
+            // );
 
             // User Permissions - Update in Cognito
             if (isset($validatedData['permissions'])) {
@@ -373,7 +373,7 @@ class UserController extends Controller
                     $wholesaleShippingAddress ?? null,
                     $commissionBillingAddress ?? null
                 ],
-                $shopifyCustomer->addresses,
+                // $shopifyCustomer->addresses,
                 $shopifyAddresses,
                 $userGroup
             );
@@ -756,7 +756,7 @@ class UserController extends Controller
             }
 
             // Save updates for Shopify Customer
-            $shopifyCustomer = $shopify->updateCustomer($shopifyCustomerData);
+            // $shopifyCustomer = $shopify->updateCustomer($shopifyCustomerData);
 
             // Update Addresses saved in DB, so they are mapped to these Shopify Customer Addresses
             // Then while Editing Users, we can re-use the same Shopify Addresses than re-creating new ones
@@ -771,7 +771,7 @@ class UserController extends Controller
             ;
             $this->updateShopifyAttributesToAddresses(
                 $addressesToUpdate,
-                $shopifyCustomer->addresses,
+                // $shopifyCustomer->addresses,
                 $shopifyAddresses,
                 $userGroup
             );
