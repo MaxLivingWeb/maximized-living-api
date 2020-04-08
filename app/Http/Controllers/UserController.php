@@ -335,14 +335,14 @@ class UserController extends Controller
             // IMPORTANT: creating a Shopify customer should be the LAST step of the user creation process.
             // If any previous step fails, we roll back the account creation to prevent 'account already exists' errors.
             // We CANNOT DO THIS for Shopify customers. Creating a Shopify customer should always be the FINAL STEP.
-            // $shopifyCustomer = $shopify->getOrCreateCustomer($shopifyCustomerData);
+            $shopifyCustomer = $shopify->getOrCreateCustomer($shopifyCustomerData);
 
-            // //Save Shopify ID to Cognito user attribute
-            // $cognito->updateUserAttribute(
-            //     env('COGNITO_SHOPIFY_CUSTOM_ATTRIBUTE'),
-            //     strval($shopifyCustomer->id),
-            //     $validatedData['email']
-            // );
+            //Save Shopify ID to Cognito user attribute
+            $cognito->updateUserAttribute(
+                env('COGNITO_SHOPIFY_CUSTOM_ATTRIBUTE'),
+                strval($shopifyCustomer->id),
+                $validatedData['email']
+            );
 
             // User Permissions - Update in Cognito
             if (isset($validatedData['permissions'])) {
@@ -461,13 +461,13 @@ class UserController extends Controller
             $user = new CognitoUser($id);
 
             // // Get Shopify ID from Cognito user
-            // $cognitoUser = $cognito->getUser($id);
-            // $email = collect($cognitoUser['UserAttributes'])
-            //     ->where('Name', 'email')
-            //     ->first()['Value'];
-            // $shopifyId = (int)collect($cognitoUser['UserAttributes'])
-            //     ->where('Name', env('COGNITO_SHOPIFY_CUSTOM_ATTRIBUTE'))
-            //     ->first()['Value'];
+            $cognitoUser = $cognito->getUser($id);
+            $email = collect($cognitoUser['UserAttributes'])
+                ->where('Name', 'email')
+                ->first()['Value'];
+            $shopifyId = (int)collect($cognitoUser['UserAttributes'])
+                ->where('Name', env('COGNITO_SHOPIFY_CUSTOM_ATTRIBUTE'))
+                ->first()['Value'];
 
             // create a usergroup for this user if it does not exist
             $userGroup = $user->group();
